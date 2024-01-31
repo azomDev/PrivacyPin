@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import "package:path/path.dart";
 import "package:sqflite/sqflite.dart";
 import 'models.dart';
@@ -33,25 +35,26 @@ class SQLDatabase {
   }
 
   static Future<void> nukeDatabase() async {
-    print('DATABASE: Nuking the database (deleting all persons).');
+    print("DATABASE: Nuking the database (deleting all persons).");
     Database db = await _initDatabase();
     await db.delete(_personsTable); // Delete all records from the table
     db.close();
-    print('DATABASE: Database nuked successfully!');
+    print("DATABASE: Database nuked successfully!");
   }
 
   static insertPerson(Person person) async {
+    print("DATABASE: Inserting person: $person");
     Database db = await _initDatabase();
     await db.insert(_personsTable, person.toMap());
     db.close();
   }
 
   static Future<List<Person>> getAllFriends() async {
-    print('DATABASE: Fetching persons.');
+    print("DATABASE: Fetching persons.");
     Database db = await _initDatabase();
     List<Map<String, dynamic>> maps = await db.query(_personsTable);
     db.close();
-    print('DATABASE: Fetched data: $maps');
+    print("DATABASE: Fetched data: $maps");
     return List.generate(maps.length, (index) {
       return Person.fromMap(maps[index]);
     });

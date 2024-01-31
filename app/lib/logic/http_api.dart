@@ -44,7 +44,6 @@ class ServerAPI {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      // Explicitly cast the decoded JSON data to List<Map<String, dynamic>>
       List<Map<String, dynamic>> jsonData = (jsonDecode(response.body) as List).cast<Map<String, dynamic>>();
 
       List<Person> persons = jsonData.map((map) => Person.fromMap(map)).toList();

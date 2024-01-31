@@ -45,6 +45,6 @@ class MainActivity : FlutterActivity() {
             }
 
             Log.d("MAIN ACTIVITY", "Main activity almost done")
-            MyScheduler.startRepeatingAlarm(context, 1000);
+            MyScheduler.startRepeatingAlarm(context, 3000);
     }
 }

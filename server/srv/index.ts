@@ -6,6 +6,7 @@ import { Person, Ping } from "./models";
 // http://10.0.2.2:3000
 
 const server = Bun.serve({
+    port: 8080,
     async fetch(req) {
         const url = new URL(req.url);
         if (url.pathname === "/create_account") {

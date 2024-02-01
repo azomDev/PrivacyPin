@@ -1,0 +1,14 @@
+{
+    "name": "privacy-pin",
+    "version": "0.0.0",
+    "scripts": {
+      "app": "cd app && flutter run",
+      "server": "cd server && bun run server"
+    },
+    "devDependencies": {
+        "bun-types": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    }
+}

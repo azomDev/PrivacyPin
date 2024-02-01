@@ -1,18 +1,7 @@
-package com.example.app
+class LocationWorker(appContext: Context, workerParams: WorkerParameters):
+        Worker(appContext, workerParams) {
+    override fun doWork(): Result {
 
-import android.util.Log
-import java.io.OutputStreamWriter
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.Locale
-import android.content.Context
-import android.location.Location
-import android.location.LocationManager
- 
-class MyWorkerThread(private val context: Context) : Thread() {
-
-    override fun run() {
-        // Your background work goes here
         Log.d("MyWorkerThread", "Alarm received, sending to server!")
 
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -62,5 +51,7 @@ class MyWorkerThread(private val context: Context) : Thread() {
             // Handle exceptions
             e.printStackTrace()
         }
+
+        return Result.success()
     }
 }

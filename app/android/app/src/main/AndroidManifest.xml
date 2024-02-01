@@ -42,9 +42,9 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <receiver
+        <!-- <receiver
             android:name=".MyBroadcastReceiver"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false" /> -->
     </application>
 </manifest>

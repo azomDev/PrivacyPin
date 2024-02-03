@@ -4,13 +4,6 @@ import 'package:http/http.dart' as http;
 
 import 'models.dart';
 
-enum SettingName {
-  themeMode,
-  pingFrequency,
-  // serverUrl,
-  // userId,
-}
-
 class ServerAPI {
   static Future<String> createAccount(String username, String serverUrl) async {
     final url = Uri.parse('$serverUrl/create_account');

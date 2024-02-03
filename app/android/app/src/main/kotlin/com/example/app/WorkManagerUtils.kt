@@ -15,14 +15,7 @@ class WorkManagerUtil {
 
             val uniqueWorkName = "LocationSharingWork"
 
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED) 
-                .build()
-
-            // Define your periodic work request including constraints
-            val periodicWorkRequest = PeriodicWorkRequest.Builder(LocationWorker::class.java, intervalMinutes, TimeUnit.MINUTES)
-                    .setConstraints(constraints)
-                    .build()
+            val periodicWorkRequest = PeriodicWorkRequest.Builder(LocationWorker::class.java, intervalMinutes, TimeUnit.MINUTES).build()
 
             workManager.enqueueUniquePeriodicWork(uniqueWorkName, ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest)
         }

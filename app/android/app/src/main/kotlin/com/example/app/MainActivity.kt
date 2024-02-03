@@ -17,20 +17,20 @@ class MainActivity : FlutterActivity() {
 
         super.onCreate(savedInstanceState);
 
-        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        // val policy = StrictMode.ThreadPolicy.Builder().permitAll().build();
+        // StrictMode.setThreadPolicy(policy);
 
         // Register the platform channel
 
         MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result: MethodChannel.Result ->
                 if (call.method == "changePingInterval") {
-                    val data = call.arguments as Map<String, Int>;
-                    val interval = data["pingFrequency"]!!.toLong();
-                    Log.d("MainActivity", "Received data from Flutter: $interval");
-                    MyScheduler.startRepeatingAlarm(context, interval);
-                    // TODO put it in a shared preference, after version 0.1
-                    result.success("Data received successfully");
+                    // val data = call.arguments as Map<String, Int>;
+                    // val interval = data["pingFrequency"]!!.toLong();
+                    // Log.d("MainActivity", "Received data from Flutter: $interval");
+                    // MyScheduler.startRepeatingAlarm(context, interval);
+                    // // TODO put it in a shared preference, after version 0.1
+                    // result.success("Data received successfully");
                 }
                 else if (call.method == "changeSetting"){
                     val data = call.arguments as Map<String, String>;
@@ -45,6 +45,6 @@ class MainActivity : FlutterActivity() {
             }
 
             Log.d("MAIN ACTIVITY", "Main activity almost done")
-            MyScheduler.startRepeatingAlarm(context, 3000);
+            WorkManagerUtil.manageLocationWork(context, 15)
     }
 }

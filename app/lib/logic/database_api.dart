@@ -37,7 +37,7 @@ class SQLDatabase {
   static Future<void> nukeDatabase() async {
     print("DATABASE: Nuking the database (deleting all persons).");
     Database db = await _initDatabase();
-    await db.delete(_personsTable); // Delete all records from the table
+    await db.delete(_personsTable);
     db.close();
     print("DATABASE: Database nuked successfully!");
   }

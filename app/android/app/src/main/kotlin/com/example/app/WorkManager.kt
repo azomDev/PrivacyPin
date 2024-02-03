@@ -1,50 +1,58 @@
+import android.content.Context
+import android.location.LocationManager
+import android.util.Log
+import androidx.work.ListenableWorker
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+import androidx.work.ListenableWorker.Result
+import java.net.HttpURLConnection
+import java.io.OutputStreamWriter
+import java.net.URL
+import java.util.Locale
+import java.time.Duration
+import java.util.concurrent.TimeUnit
+
 class LocationWorker(appContext: Context, workerParams: WorkerParameters):
         Worker(appContext, workerParams) {
     override fun doWork(): Result {
 
         Log.d("MyWorkerThread", "Alarm received, sending to server!")
 
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        val locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        // CancellationSignal cancellationSignal = new CancellationSignal();
+        // Executor executor = Runnable.run();
+        // val location = locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, cancellationSignal, executor, consumer);
+        val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
 
-        val latitude = String.format(Locale.ROOT, "%f", lastKnownLocation?.latitude)
-        val longitude = String.format(Locale.ROOT, "%f", lastKnownLocation?.longitude)
+        val latitude = String.format(Locale.ROOT, "%f", location?.latitude)
+        val longitude = String.format(Locale.ROOT, "%f", location?.longitude)
 
         val timestamp = System.currentTimeMillis()
 
-        val sharedPref = context.getSharedPreferences("com.example.app.preferences", Context.MODE_PRIVATE)
+        val sharedPref = applicationContext.getSharedPreferences("com.example.app.preferences", Context.MODE_PRIVATE)
         val server_url = sharedPref.getString("server_url", "defaultValueidk")
         val user_id = sharedPref.getString("user_id", "defaultValueidk")
 
         val jsonString = """{"user_id": "$user_id", "longitude": "$longitude", "latitude": "$latitude", "timestamp": "$timestamp"}"""
 
         try {
-            val url = "$server_url/send_ping"
-            val urlObject = URL(url)
+            val urlObject = URL("$server_url/send_ping")
             val connection = urlObject.openConnection() as HttpURLConnection
 
-            // Set the request method to POST
             connection.requestMethod = "POST"
-
-            // Set the content type
             connection.setRequestProperty("Content-Type", "application/json")
-
-            // Enable input/output streams
             connection.doOutput = true
 
-            // Write data to the output stream
             val outputStream = OutputStreamWriter(connection.outputStream)
             outputStream.write(jsonString)
             outputStream.flush()
 
-            // Get the response code
             val responseCode = connection.responseCode
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 connection.disconnect()
-                return
+                return Result.success()
             }
 
-            // Close the connection
             connection.disconnect()
 
         } catch (e: Exception) {

@@ -1,4 +1,4 @@
-import 'package:app/logic/preferences_api.dart';
+import 'package:app/logic/settings_api.dart';
 import "package:flutter/material.dart";
 import 'pages/home_page.dart';
 import 'pages/signup_page.dart';
@@ -26,7 +26,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _loadTheme() async {
-    int? value = await SharedPreferencesAPI.getPreference<int>("SettingName.themeMode");
+    int? value = SettingsAPI.getSetting<int>("SettingName.themeMode");
 
     if (value != null) {
       ThemeMode temp = ThemeMode.system;
@@ -45,10 +45,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<bool> _checkLoginStatus() async {
-    String? userId = await SharedPreferencesAPI.getPreference<String>("user_id");
-    print(userId);
-
-    return userId != null;
+    return SettingsAPI.getSetting<String>("user_id") != null;
   }
 
   @override

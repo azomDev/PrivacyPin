@@ -1,7 +1,8 @@
+import "package:app/components/setting_tile.dart";
+import "package:app/logic/settings_api.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:shared_preferences/shared_preferences.dart";
-import "../logic/setting_api.dart";
 import '/main.dart';
 
 enum SettingName {
@@ -11,37 +12,15 @@ enum SettingName {
   // userId,
 }
 
-Future<Map<SettingName, int>> loadSettings() async {
-  Map<SettingName, int> settingsMap = {};
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  for (SettingName setting in SettingName.values) {
-    int? value = prefs.getInt(setting.toString());
-    if (value == null) {
-      SettingAPI.saveSetting(false, setting.toString(), 0);
-      settingsMap[setting] = 0;
-    } else {
-      settingsMap[setting] = value;
-    }
-  }
-  return settingsMap;
-}
-
 class SettingsPage extends StatefulWidget {
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  Map<SettingName, dynamic> _settings = {};
-
   @override
   void initState() {
     super.initState();
-
-    () async {
-      Map<SettingName, int> loadedSettings = await loadSettings();
-      setState(() => _settings = loadedSettings);
-    }();
   }
 
   @override
@@ -83,7 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                   selected: {
                     (() {
-                      switch (_settings[SettingName.themeMode]) {
+                      switch (SettingsAPI.getSetting(SettingName.themeMode.toString())) {
                         case 0:
                           return ThemeMode.system;
                         case 1:
@@ -98,10 +77,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   onSelectionChanged: (value) {
                     MyApp.of(context).changeTheme(value.first);
                     int intValue = (value.first == ThemeMode.system) ? 0 : ((value.first == ThemeMode.light) ? 1 : 2);
-                    SettingAPI.saveSetting<int>(false, SettingName.themeMode.toString(), intValue);
-                    setState(() {
-                      _settings[SettingName.themeMode] = intValue;
-                    });
+                    SettingsAPI.setSetting<int>(SettingName.themeMode.toString(), intValue);
+                    // setState(() {
+                    //   _settings[SettingName.themeMode] = intValue;
+                    // });
                   },
                 ),
               ],
@@ -111,25 +90,31 @@ class _SettingsPageState extends State<SettingsPage> {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                ListTile(
-                  title: const Text('Ping frequency'),
-                  subtitle: const Text('Adjust location update interval in minutes'),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  trailing: SizedBox(
-                    width: 70.0,
-                    child: TextFormField(
-                      textAlign: TextAlign.center,
-                      initialValue: _settings[SettingName.pingFrequency].toString(),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      onChanged: (newValue) {
-                        _settings[SettingName.pingFrequency] = int.parse(newValue);
-                      },
-                      onEditingComplete: () {
-                        SettingAPI.saveSetting<int>(true, SettingName.themeMode.toString(), _settings[SettingName.pingFrequency]);
-                      },
-                    ),
-                  ),
+                // ListTile(
+                //   title: const Text('Ping frequency'),
+                //   subtitle: const Text('Adjust location update interval in minutes'),
+                //   contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                //   trailing: SizedBox(
+                //     width: 70.0,
+                //     child: TextFormField(
+                //       textAlign: TextAlign.center,
+                //       initialValue: _settings[SettingName.pingFrequency].toString(),
+                //       keyboardType: TextInputType.number,
+                //       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                //       onChanged: (newValue) {
+                //         _settings[SettingName.pingFrequency] = int.parse(newValue);
+                //       },
+                //       onEditingComplete: () {
+                //         SettingsAPI.setSetting<int>(SettingName.themeMode.toString(), _settings[SettingName.pingFrequency], saveInKotlin: true);
+                //       },
+                //     ),
+                //   ),
+                // ),
+                SettingTile(
+                  title: "Ping frequency",
+                  description: "Adjust location update interval in minutes",
+                  settingName: SettingName.pingFrequency.toString(),
+                  settingInKotlin: true,
                 ),
               ],
             ),

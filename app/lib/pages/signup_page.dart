@@ -1,5 +1,5 @@
 import 'package:app/logic/http_api.dart';
-import 'package:app/logic/setting_api.dart';
+import 'package:app/logic/settings_api.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
@@ -41,9 +41,9 @@ class _SignupPageState extends State<SignupPage> {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
-                SettingAPI.saveSetting<String>(true, "server_url", _serverUrlController.text);
+                SettingsAPI.setSetting<String>("server_url", _serverUrlController.text, saveInKotlin: true);
                 String userId = await ServerAPI.createAccount(_usernameController.text, _serverUrlController.text);
-                SettingAPI.saveSetting<String>(true, "user_id", userId);
+                SettingsAPI.setSetting<String>("user_id", userId, saveInKotlin: true);
                 if (context.mounted) Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => MyApp()));
               },
               child: const Text('Signup'),

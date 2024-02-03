@@ -24,8 +24,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.app"
-    compileSdkVersion flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    compileSdkVersion 34
+    ndkVersion "25.1.8937393"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -65,5 +65,5 @@ flutter {
 }
 
 dependencies {
-    implementation "androidx.work:work-runtime-kotlin:2.9.0"
+    implementation "androidx.work:work-runtime-ktx:2.9.0"
 }

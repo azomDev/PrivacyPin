@@ -1,8 +1,15 @@
 import 'dart:convert';
-import 'package:app/logic/preferences_api.dart';
+import 'package:app/logic/settings_api.dart';
 import 'package:http/http.dart' as http;
 
 import 'models.dart';
+
+enum SettingName {
+  themeMode,
+  pingFrequency,
+  // serverUrl,
+  // userId,
+}
 
 class ServerAPI {
   static Future<String> createAccount(String username, String serverUrl) async {
@@ -19,7 +26,7 @@ class ServerAPI {
   }
 
   static Future<Ping> getPing(String userIdToGetFrom) async {
-    final serverUrl = await SharedPreferencesAPI.getPreference<String>("server_url");
+    final serverUrl = SettingsAPI.getSetting<String>("server_url");
     final url = Uri.parse('$serverUrl/get_ping');
     final body = jsonEncode({'user_id_to_get_from': userIdToGetFrom});
 
@@ -38,7 +45,7 @@ class ServerAPI {
   }
 
   static Future<List<Person>> getAllUsers() async {
-    final serverUrl = await SharedPreferencesAPI.getPreference<String>("server_url");
+    final serverUrl = SettingsAPI.getSetting<String>("server_url");
     final url = Uri.parse('$serverUrl/get_all_users');
 
     final response = await http.get(url);

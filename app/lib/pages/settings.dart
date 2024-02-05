@@ -1,20 +1,18 @@
 import "package:app/components/setting_tile.dart";
 import "package:app/logic/settings_api.dart";
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
-import "package:shared_preferences/shared_preferences.dart";
 import '/main.dart';
 
 enum SettingName {
   themeMode,
   pingFrequency,
-  // serverUrl,
-  // userId,
+  serverUrl,
+  userId,
 }
 
 class SettingsPage extends StatefulWidget {
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
@@ -61,6 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                   selected: {
+                    //! wtf
                     (() {
                       switch (SettingsAPI.getSetting(SettingName.themeMode.toString())) {
                         case 0:
@@ -111,10 +110,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 //   ),
                 // ),
                 SettingTile(
+                  tileType: TileType.number,
                   title: "Ping frequency",
                   description: "Adjust location update interval in minutes",
-                  settingName: SettingName.pingFrequency.toString(),
-                  settingInKotlin: true,
+                  getInitialValue: () => SettingsAPI.getSettingOrSetDefault<int>(SettingName.pingFrequency.toString(), 15),
+                  onValueChanged: (newValue) => SettingsAPI.setSetting(SettingName.pingFrequency.toString(), newValue),
                 ),
               ],
             ),

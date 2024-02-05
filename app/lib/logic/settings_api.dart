@@ -4,25 +4,26 @@ import "package:flutter/services.dart";
 class SettingsAPI {
   static late SharedPreferences _prefs;
 
-  static Future<void> initializeSettingsAPI() async {
+  static void initializeSettingsAPI() async {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  static T getSetting<T>(String key) {
-    if (T == int) {
-      return _prefs.getInt(key) as T;
-    } else if (T == double) {
-      return _prefs.getDouble(key) as T;
-    } else if (T == bool) {
-      return _prefs.getBool(key) as T;
-    } else if (T == String) {
-      return _prefs.getString(key) as T;
-    } else {
-      throw Exception("Unsupported type $T");
+  static T? getSetting<T>(String key) {
+    switch (T) {
+      case int:
+        return _prefs.getInt(key) as T;
+      case double:
+        return _prefs.getDouble(key) as T;
+      case bool:
+        return _prefs.getBool(key) as T;
+      case String:
+        return _prefs.getString(key) as T;
+      default:
+        throw Exception("Unsupported type $T");
     }
   }
 
-  static Future<T> getSettingOrDefault<T>(String key, T defaultValue) async {
+  static Future<T> getSettingOrSetDefault<T>(String key, T defaultValue) async {
     T value = getSetting(key);
     if (value == null) {
       setSetting<T>(key, defaultValue);
@@ -42,26 +43,27 @@ class SettingsAPI {
       }
     }
 
-    if (T == int) {
-      await _prefs.setInt(key, value as int);
-    } else if (T == double) {
-      await _prefs.setDouble(key, value as double);
-    } else if (T == bool) {
-      await _prefs.setBool(key, value as bool);
-    } else if (T == String) {
-      await _prefs.setString(key, value as String);
-    } else {
-      throw Exception("Unsupported type $T");
+    switch (T) {
+      case int:
+        await _prefs.setInt(key, value as int);
+      case double:
+        await _prefs.setDouble(key, value as double);
+      case bool:
+        await _prefs.setBool(key, value as bool);
+      case String:
+        await _prefs.setString(key, value as String);
+      default:
+        throw Exception("Unsupported type $T");
     }
   }
 }
 
-class KotlinAPI {
-  static String _mapToString(Map<String, dynamic> inputMap) {
-    List<String> keyValuePairs = inputMap.entries.map((entry) {
-      return '"${entry.key}": "${entry.value}"';
-    }).toList();
+// class KotlinAPI {
+//   static String _mapToString(Map<String, dynamic> inputMap) {
+//     List<String> keyValuePairs = inputMap.entries.map((entry) {
+//       return '"${entry.key}": "${entry.value}"';
+//     }).toList();
 
-    return '{${keyValuePairs.join(', ')}}';
-  }
-}
+//     return '{${keyValuePairs.join(', ')}}';
+//   }
+// }

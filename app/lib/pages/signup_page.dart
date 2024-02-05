@@ -4,8 +4,11 @@ import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
 class SignupPage extends StatefulWidget {
+  final VoidCallback callback;
+
+  const SignupPage({required this.callback});
   @override
-  _SignupPageState createState() => _SignupPageState();
+  State<SignupPage> createState() => _SignupPageState();
 }
 
 class _SignupPageState extends State<SignupPage> {
@@ -44,7 +47,7 @@ class _SignupPageState extends State<SignupPage> {
                 SettingsAPI.setSetting<String>("server_url", _serverUrlController.text, saveInKotlin: true);
                 String userId = await ServerAPI.createAccount(_usernameController.text, _serverUrlController.text);
                 SettingsAPI.setSetting<String>("user_id", userId, saveInKotlin: true);
-                if (context.mounted) Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => MyApp()));
+                widget.callback();
               },
               child: const Text('Signup'),
             ),

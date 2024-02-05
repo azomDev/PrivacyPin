@@ -6,10 +6,12 @@ import '../logic/models.dart';
 class PersonsList extends StatefulWidget {
   final List<Person> persons;
 
-  const PersonsList({Key? key, required this.persons}) : super(key: key);
+  const PersonsList({
+    required this.persons,
+  });
 
   @override
-  _PersonsListState createState() => _PersonsListState();
+  State<PersonsList> createState() => _PersonsListState();
 }
 
 class _PersonsListState extends State<PersonsList> {

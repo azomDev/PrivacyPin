@@ -18,7 +18,7 @@ class _AddPopupState extends State<AddPopup> {
                 Navigator.of(context).pop(); // Temporary
                 // Do something
               },
-              child: const Text('Scan QR'),
+              child: const Text('Add online'),
             ),
             const SizedBox(width: 10), // Add some spacing between buttons
             ElevatedButton(
@@ -26,7 +26,7 @@ class _AddPopupState extends State<AddPopup> {
                 Navigator.of(context).pop(); // Temporary
                 // Do something
               },
-              child: const Text('Generate QR'),
+              child: const Text('Add with QR'),
             ),
           ],
         ),

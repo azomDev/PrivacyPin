@@ -1,4 +1,5 @@
 import 'package:app/logic/settings_api.dart';
+import 'package:app/pages/settings.dart';
 import "package:flutter/material.dart";
 import 'pages/home_page.dart';
 import 'pages/signup_page.dart';
@@ -9,7 +10,7 @@ void main() {
 
 class MyApp extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 
   static _MyAppState of(BuildContext context) => context.findAncestorStateOfType<_MyAppState>()!;
 }
@@ -21,27 +22,23 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _isLoggedInFuture = _checkLoginStatus();
+    SettingsAPI.initializeSettingsAPI();
     _loadTheme();
+    _isLoggedInFuture = _checkLoginStatus();
   }
 
-  Future<void> _loadTheme() async {
-    int? value = SettingsAPI.getSetting<int>("SettingName.themeMode");
-
-    if (value != null) {
-      ThemeMode temp = ThemeMode.system;
-      switch (value) {
+  void _loadTheme() async {
+    int themeValue = await SettingsAPI.getSettingOrSetDefault<int>(SettingName.themeMode.toString(), 0);
+    setState(() {
+      switch (themeValue) {
+        case 0:
+          _themeMode = ThemeMode.system;
         case 1:
-          temp = ThemeMode.light;
-          break;
+          _themeMode = ThemeMode.light;
         case 2:
-          temp = ThemeMode.dark;
-          break;
+          _themeMode = ThemeMode.dark;
       }
-      setState(() {
-        _themeMode = temp;
-      });
-    }
+    });
   }
 
   Future<bool> _checkLoginStatus() async {
@@ -60,25 +57,24 @@ class _MyAppState extends State<MyApp> {
         future: _isLoggedInFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // If still waiting for the result, display a loading indicator or some other widget
-            return const CircularProgressIndicator(); // Replace with your loading widget
+            return const CircularProgressIndicator();
           } else if (snapshot.data == true) {
             return HomePage();
           } else {
-            return SignupPage();
+            return SignupPage(callback: () {
+              setState(() {
+                _isLoggedInFuture = Future.value(true);
+              });
+            });
           }
         },
       ),
     );
   }
 
-  void changeTheme(ThemeMode themeMode) {
+  void changeTheme(ThemeMode newThemeMode) {
     setState(() {
-      _themeMode = themeMode;
+      _themeMode = newThemeMode;
     });
-  }
-
-  ThemeMode getTheme() {
-    return _themeMode;
   }
 }

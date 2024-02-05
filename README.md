@@ -1,7 +1,28 @@
 # PrivacyPin
-Most things said in this readme might not be implemented and are subject to change
 
-PrivacyPin is a secure location sharing app that prioritizes user privacy by giving the user complete control over their location by not only controlling who can see the user's location and when, but it can also notify the user that someone accessed their position in real time.
+PrivacyPin is a secure location sharing app designed to prioritize user privacy. It offers complete control over location sharing, allowing users to determine who can access their location and when. Additionally, it provides real-time notifications when someone accesses their position.
 
-It also aims to provide levels of encryption that are probably overkill for what it is, without (really) affecting performances.
+## Key Features
 
+- **User-Controlled Location Sharing**: Users have full control over who can view their location and when it is visible.
+- **Real-Time Access Notifications**: Receive notifications whenever someone accesses your position.
+- **Self-Hostable Server**: The server is self-hostable, ensuring that users do not rely on big tech companies to access their location data.
+- **Post-Quantum Encryption**: Utilizes encryption techniques that are resistant to attacks from quantum computers, ensuring maximum security.
+- **Semi-SOS Feature**: Includes a feature for urgent situations that require quick attention but may not be life-threatening.
+
+### Usage
+
+PrivacyPin is still in early development, and the usage instructions will be provided once the app reaches a stable version. Stay tuned for updates!
+
+## Contributing
+
+Contributions to PrivacyPin are welcome! If you'd like to contribute, you can work on an issue, open an issue yourself or message me.
+
+## License
+
+Distributed under the GNU General Public License v3.0. See `LICENSE` for more information.
+
+## Contact
+
+Email - azom.developer@gmail.com\
+Discord - azom#6496

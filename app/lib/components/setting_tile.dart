@@ -60,19 +60,18 @@ class _SettingTileState extends State<SettingTile> {
   }
 
   Widget _buildNumberInput() {
-    return Expanded(
-      //! Do I need Expanded?
-      child: TextFormField(
-        controller: _textEditingController,
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        onEditingComplete: () {
-          widget.onValueChanged(int.tryParse(_textEditingController.text));
-          FocusScope.of(context).unfocus(); // To hide the keyboard apparently
-        },
-      ),
-    );
+    return SizedBox(
+        width: 70.0,
+        child: TextFormField(
+          controller: _textEditingController,
+          textAlign: TextAlign.center,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          onEditingComplete: () {
+            widget.onValueChanged(int.tryParse(_textEditingController.text));
+            FocusScope.of(context).unfocus(); // To hide the keyboard apparently
+          },
+        ));
   }
 
   Widget _buildSwitch(bool switchValue) {

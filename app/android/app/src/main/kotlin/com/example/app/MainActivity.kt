@@ -45,6 +45,6 @@ class MainActivity : FlutterActivity() {
             }
 
             Log.d("MAIN ACTIVITY", "Main activity almost done")
-            WorkManagerUtil.manageLocationWork(context, 15)
+            //! WorkManagerUtil.manageLocationWork(context, 15)
     }
 }

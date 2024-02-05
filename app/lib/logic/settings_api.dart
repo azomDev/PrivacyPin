@@ -4,27 +4,27 @@ import "package:flutter/services.dart";
 class SettingsAPI {
   static late SharedPreferences _prefs;
 
-  static void initializeSettingsAPI() async {
+  static Future<void> initializeSettingsAPI() async {
     _prefs = await SharedPreferences.getInstance();
   }
 
   static T? getSetting<T>(String key) {
     switch (T) {
       case int:
-        return _prefs.getInt(key) as T;
+        return _prefs.getInt(key) as T?;
       case double:
-        return _prefs.getDouble(key) as T;
+        return _prefs.getDouble(key) as T?;
       case bool:
-        return _prefs.getBool(key) as T;
+        return _prefs.getBool(key) as T?;
       case String:
-        return _prefs.getString(key) as T;
+        return _prefs.getString(key) as T?;
       default:
         throw Exception("Unsupported type $T");
     }
   }
 
   static Future<T> getSettingOrSetDefault<T>(String key, T defaultValue) async {
-    T value = getSetting(key);
+    T? value = getSetting<T>(key);
     if (value == null) {
       setSetting<T>(key, defaultValue);
       return defaultValue;

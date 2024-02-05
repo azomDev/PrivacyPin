@@ -4,27 +4,27 @@ import "package:flutter/material.dart";
 import 'pages/home_page.dart';
 import 'pages/signup_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SettingsAPI.initializeSettingsAPI();
   runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  static final GlobalKey<State<MyApp>> appKey = GlobalKey<_MyAppState>();
   @override
   State<MyApp> createState() => _MyAppState();
-
-  static _MyAppState of(BuildContext context) => context.findAncestorStateOfType<_MyAppState>()!;
 }
 
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.system;
-  late Future<bool> _isLoggedInFuture;
+  late bool _isLoggedIn;
 
   @override
   void initState() {
     super.initState();
-    SettingsAPI.initializeSettingsAPI();
     _loadTheme();
-    _isLoggedInFuture = _checkLoginStatus();
+    _isLoggedIn = SettingsAPI.getSetting<String>("user_id") != null;
   }
 
   void _loadTheme() async {
@@ -41,10 +41,6 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  Future<bool> _checkLoginStatus() async {
-    return SettingsAPI.getSetting<String>("user_id") != null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -53,28 +49,19 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(),
       darkTheme: ThemeData.dark(),
       themeMode: _themeMode,
-      home: FutureBuilder<bool>(
-        future: _isLoggedInFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.data == true) {
-            return HomePage();
-          } else {
-            return SignupPage(callback: () {
+      home: _isLoggedIn
+          ? HomePage(
+              changeAppTheme: (ThemeMode newThemeMode) {
+                setState(() {
+                  _themeMode = newThemeMode;
+                });
+              },
+            )
+          : SignupPage(callback: () {
               setState(() {
-                _isLoggedInFuture = Future.value(true);
+                _isLoggedIn = true;
               });
-            });
-          }
-        },
-      ),
+            }),
     );
-  }
-
-  void changeTheme(ThemeMode newThemeMode) {
-    setState(() {
-      _themeMode = newThemeMode;
-    });
   }
 }

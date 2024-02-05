@@ -1,7 +1,6 @@
 import "package:app/components/setting_tile.dart";
 import "package:app/logic/settings_api.dart";
 import "package:flutter/material.dart";
-import '/main.dart';
 
 enum SettingName {
   themeMode,
@@ -11,6 +10,9 @@ enum SettingName {
 }
 
 class SettingsPage extends StatefulWidget {
+  final Function(ThemeMode) changeAppTheme;
+  const SettingsPage({required this.changeAppTheme});
+
   @override
   State<SettingsPage> createState() => _SettingsPageState();
 }
@@ -58,28 +60,22 @@ class _SettingsPageState extends State<SettingsPage> {
                       label: Text("Dark"),
                     ),
                   ],
-                  selected: {
-                    //! wtf
-                    (() {
-                      switch (SettingsAPI.getSetting(SettingName.themeMode.toString())) {
-                        case 0:
-                          return ThemeMode.system;
-                        case 1:
-                          return ThemeMode.light;
-                        case 2:
-                          return ThemeMode.dark;
-                        default:
-                          return ThemeMode.system;
-                      }
-                    })(),
-                  },
+                  selected: (() {
+                    switch (SettingsAPI.getSetting<int>(SettingName.themeMode.toString())) {
+                      case 0:
+                        return {ThemeMode.system};
+                      case 1:
+                        return {ThemeMode.light};
+                      case 2:
+                        return {ThemeMode.dark};
+                      default:
+                        return {ThemeMode.system};
+                    }
+                  })(),
                   onSelectionChanged: (value) {
-                    MyApp.of(context).changeTheme(value.first);
+                    widget.changeAppTheme(value.first);
                     int intValue = (value.first == ThemeMode.system) ? 0 : ((value.first == ThemeMode.light) ? 1 : 2);
                     SettingsAPI.setSetting<int>(SettingName.themeMode.toString(), intValue);
-                    // setState(() {
-                    //   _settings[SettingName.themeMode] = intValue;
-                    // });
                   },
                 ),
               ],
@@ -89,32 +85,19 @@ class _SettingsPageState extends State<SettingsPage> {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                // ListTile(
-                //   title: const Text('Ping frequency'),
-                //   subtitle: const Text('Adjust location update interval in minutes'),
-                //   contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-                //   trailing: SizedBox(
-                //     width: 70.0,
-                //     child: TextFormField(
-                //       textAlign: TextAlign.center,
-                //       initialValue: _settings[SettingName.pingFrequency].toString(),
-                //       keyboardType: TextInputType.number,
-                //       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                //       onChanged: (newValue) {
-                //         _settings[SettingName.pingFrequency] = int.parse(newValue);
-                //       },
-                //       onEditingComplete: () {
-                //         SettingsAPI.setSetting<int>(SettingName.themeMode.toString(), _settings[SettingName.pingFrequency], saveInKotlin: true);
-                //       },
-                //     ),
-                //   ),
-                // ),
                 SettingTile(
                   tileType: TileType.number,
                   title: "Ping frequency",
                   description: "Adjust location update interval in minutes",
                   getInitialValue: () => SettingsAPI.getSettingOrSetDefault<int>(SettingName.pingFrequency.toString(), 15),
-                  onValueChanged: (newValue) => SettingsAPI.setSetting(SettingName.pingFrequency.toString(), newValue),
+                  onValueChanged: (newValue) => SettingsAPI.setSetting<int>(SettingName.pingFrequency.toString(), newValue),
+                ),
+                SettingTile(
+                  tileType: TileType.switcher,
+                  title: "Ping frequency",
+                  description: "Adjust location update interval in minutes",
+                  getInitialValue: () => SettingsAPI.getSettingOrSetDefault<bool>("temp", true),
+                  onValueChanged: (newValue) => SettingsAPI.setSetting<bool>("temp", newValue),
                 ),
               ],
             ),

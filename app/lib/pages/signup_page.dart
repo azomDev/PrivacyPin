@@ -1,6 +1,5 @@
 import 'package:app/logic/http_api.dart';
 import 'package:app/logic/settings_api.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
 class SignupPage extends StatefulWidget {
@@ -44,9 +43,9 @@ class _SignupPageState extends State<SignupPage> {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
-                SettingsAPI.setSetting<String>("server_url", _serverUrlController.text, saveInKotlin: true);
-                String userId = await ServerAPI.createAccount(_usernameController.text, _serverUrlController.text);
-                SettingsAPI.setSetting<String>("user_id", userId, saveInKotlin: true);
+                // SettingsAPI.setSetting<String>("server_url", _serverUrlController.text, saveInKotlin: true);
+                // String userId = await ServerAPI.createAccount(_usernameController.text, _serverUrlController.text);
+                // SettingsAPI.setSetting<String>("user_id", userId, saveInKotlin: true);
                 widget.callback();
               },
               child: const Text('Signup'),

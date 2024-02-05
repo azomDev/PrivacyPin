@@ -7,6 +7,9 @@ import 'person_list.dart';
 import 'settings.dart';
 
 class HomePage extends StatefulWidget {
+  final Function(ThemeMode) changeAppTheme;
+
+  const HomePage({required this.changeAppTheme});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -44,7 +47,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
+                MaterialPageRoute(builder: (context) => SettingsPage(changeAppTheme: widget.changeAppTheme)),
               );
             },
           ),

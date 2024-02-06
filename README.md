@@ -10,7 +10,7 @@ PrivacyPin is a secure location sharing app designed to prioritize user privacy.
 - **Post-Quantum Encryption**: Utilizes encryption techniques that are resistant to attacks from quantum computers, ensuring maximum security.
 - **Semi-SOS Feature**: Includes a feature for urgent situations that require quick attention but may not be life-threatening.
 
-### Usage
+## Usage
 
 PrivacyPin is still in early development, and the usage instructions will be provided once the app reaches a stable version. Stay tuned for updates!
 

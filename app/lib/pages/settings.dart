@@ -85,14 +85,14 @@ class _SettingsPageState extends State<SettingsPage> {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                SettingTile(
+                SettingTile<int>(
                   tileType: TileType.number,
                   title: "Ping frequency",
                   description: "Adjust location update interval in minutes",
                   getInitialValue: () => SettingsAPI.getSettingOrSetDefault<int>(SettingName.pingFrequency.toString(), 15),
                   onValueChanged: (newValue) => SettingsAPI.setSetting<int>(SettingName.pingFrequency.toString(), newValue),
                 ),
-                SettingTile(
+                SettingTile<bool>(
                   tileType: TileType.switcher,
                   title: "Ping frequency",
                   description: "Adjust location update interval in minutes",

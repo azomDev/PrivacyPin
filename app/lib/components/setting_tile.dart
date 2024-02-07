@@ -1,14 +1,16 @@
+import 'package:app/logic/settings_api.dart';
+import 'package:app/pages/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 enum TileType { number, switcher }
 
-class SettingTile extends StatefulWidget {
+class SettingTile<T> extends StatefulWidget {
   final TileType tileType;
   final String title;
   final String description;
-  final Future<dynamic> Function() getInitialValue;
-  final Function(dynamic) onValueChanged;
+  final Future<T> Function() getInitialValue;
+  final Function(T) onValueChanged;
 
   const SettingTile({
     required this.tileType,
@@ -19,15 +21,16 @@ class SettingTile extends StatefulWidget {
   });
 
   @override
-  State<SettingTile> createState() => _SettingTileState();
+  State<SettingTile<T>> createState() => _SettingTileState<T>();
 }
 
-class _SettingTileState extends State<SettingTile> {
+class _SettingTileState<T> extends State<SettingTile<T>> {
   late TextEditingController _textEditingController;
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
+    var a = await widget.getInitialValue();
   }
 
   @override
@@ -68,7 +71,7 @@ class _SettingTileState extends State<SettingTile> {
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onEditingComplete: () {
-            widget.onValueChanged(int.tryParse(_textEditingController.text));
+            SettingsAPI.setSetting<T>(SettingName.pingFrequency.toString(), widget.hello);
             FocusScope.of(context).unfocus(); // To hide the keyboard apparently
           },
         ));

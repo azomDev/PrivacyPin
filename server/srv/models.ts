@@ -1,22 +1,21 @@
-export class Person {
+export interface User {
     id: string;
-    name: string;
-
-    constructor(id: string, name: string) {
-        this.id = id;
-        this.name = name;
-    }
+    username: string;
 }
 
-export class Ping {
+export type WithoutId<T> = Omit<T, "id">
+
+export interface Ping {
+    id: string;
+    user_id: string;
     longitude: number;
     latitude: number;
-    timestamp: string;
+    timestamp: number;
+}
 
-
-    constructor(id: string, user_id: string, longitude: number, latitude: number, timestamp: string) {
-        this.longitude = longitude;
-        this.latitude = latitude;
-        this.timestamp = timestamp;
-    }
+export interface Link {
+    id: string;
+    sender_id: string;
+    receiver_id: string;
+    is_link_active: boolean;
 }

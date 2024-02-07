@@ -1,5 +1,5 @@
 import { ServerDatabase as db } from "./database";
-import { Person, Ping } from "./models";
+import { User, Ping } from "./models";
 
 // sudo iptables -A INPUT -p tcp --dport 3000 -j ACCEPT
 // sudo iptables -D INPUT -p tcp --dport 3000 -j ACCEPT
@@ -14,35 +14,31 @@ const server = Bun.serve({
             console.log("Received a request on api /create_user");
             const bodyBuffer = await req.arrayBuffer();
             const bodyText = new TextDecoder().decode(bodyBuffer);
-            const requestBody = JSON.parse(bodyText);
+            const user_without_id: User = JSON.parse(bodyText);
 
-            const username: string = requestBody.username;
-            console.log("/create_user - INPUT : username: " + username);
+            // const username: string = requestBody.username;
+            console.log("/create_user - INPUT : username: " + user_without_id.username);
 
             db.openDatabase();
-            const user_id: string = db.createUser(username);
+            const user_with_id = db.createUser(user_without_id);
             db.closeDatabase();
-            console.log("/create_user - OUTPUT : user_id: " + user_id);
+            console.log("/create_user - OUTPUT : user_id: " + user_with_id);
             console.log("Finished the request on api /create_user, responding");
-            return new Response(user_id);
+            return Response.json(user_with_id);
         } else if (url.pathname === "/send_ping") {
             // test: curl -X POST -H "Content-Type: application/json" -d '{"user_id": "REPLACE_ID", "longitude": "123.3", "latitude": "123.8", "timestamp": "2023-01-01T12:34:56Z"}' http://localhost:3000/send_ping
             console.log("Received a request on api /send_ping");
             const bodyBuffer = await req.arrayBuffer();
             const bodyText = new TextDecoder().decode(bodyBuffer);
-            const requestBody = JSON.parse(bodyText);
+            const ping: Ping = JSON.parse(bodyText);
 
-            const user_id: string = requestBody.user_id;
-            const longitude: number = requestBody.longitude;
-            const latitude: number = requestBody.latitude;
-            const timestamp: number = requestBody.timestamp;
-            console.log("/send_ping - INPUT : user_id: " + user_id);
-            console.log("/send_ping - INPUT : longitude: " + longitude.toString());
-            console.log("/send_ping - INPUT : latitude: " + latitude.toString());
-            console.log("/send_ping - INPUT : timestamp: " + timestamp.toString());
+            console.log("/send_ping - INPUT : user_id: " + ping.user_id);
+            console.log("/send_ping - INPUT : longitude: " + ping.longitude);
+            console.log("/send_ping - INPUT : latitude: " + ping.latitude);
+            console.log("/send_ping - INPUT : timestamp: " + ping.timestamp);
 
             db.openDatabase();
-            db.insertPing(user_id, longitude, latitude, timestamp);
+            db.insertPing(ping);
             db.closeDatabase();
 
             console.log("Finished the request on api /send_ping, responding");
@@ -52,17 +48,16 @@ const server = Bun.serve({
             console.log("Received a request on api /get_ping");
             const bodyBuffer = await req.arrayBuffer();
             const bodyText = new TextDecoder().decode(bodyBuffer);
-            const requestBody = JSON.parse(bodyText);
+            const receiver_user: User = JSON.parse(bodyText);
 
-            const user_id_to_get_from: string = requestBody.user_id_to_get_from;
-            console.log("/get_ping - INPUT : user_id_to_get_from: " + user_id_to_get_from);
+            console.log("/get_ping - INPUT : receiver_user.id: " + receiver_user.id);
 
             db.openDatabase();
-            let ping: Ping = db.getPing(user_id_to_get_from);
+            const ping: Ping = db.getPing(receiver_user);
             db.closeDatabase();
-            console.log("/get_ping - OUTPUT :  ping.longitude: " + ping.longitude.toString());
-            console.log("/get_ping - OUTPUT :  ping.latitude: " + ping.latitude.toString());
-            console.log("/get_ping - OUTPUT :  ping.timestamp: " + ping.timestamp.toString());
+            console.log("/get_ping - OUTPUT :  ping.longitude: " + ping.longitude);
+            console.log("/get_ping - OUTPUT :  ping.latitude: " + ping.latitude);
+            console.log("/get_ping - OUTPUT :  ping.timestamp: " + ping.timestamp);
 
             console.log("Finished the request on api /get_ping, responding");
             return Response.json(ping);
@@ -70,58 +65,27 @@ const server = Bun.serve({
             // test: curl -X GET http://localhost:3000/get_all_users
             console.log("Received a request on api /get_all_users");
             db.openDatabase();
-            let all_users: Person[] = db.getAllUsers();
+            let all_users: User[] = db.getAllUsers();
+            db.closeDatabase();
 
             all_users.forEach((user) => {
-                console.log(`/get_all_users - OUTPUT : all_users: Id: ${user.id}, Name: ${user.name}`);
+                console.log(`/get_all_users - OUTPUT : all_users: Id: ${user.id}, Name: ${user.username}`);
             });
             console.log("Finished the request on api /get_all_users, responding");
-            db.closeDatabase();
 
             return Response.json(all_users);
         }
-        // else if (url.pathname === "/send_friend_request") {
-        //     const bodyBuffer = await req.arrayBuffer();
-        //     const bodyText = new TextDecoder().decode(bodyBuffer);
-        //     const requestBody = JSON.parse(bodyText);
+        else if (url.pathname === "/get_friends") {
+            const bodyBuffer = await req.arrayBuffer();
+            const bodyText = new TextDecoder().decode(bodyBuffer);
+            const user: User = JSON.parse(bodyText);
 
-        //     const user_id = requestBody.user_id;
-        //     const user_id_to_send_request = requestBody.user_id_to_get_from;
+            db.openDatabase();
+            let friends: Person[] = db.getFriends(user_id_to_get_from);
+            db.closeDatabase();
 
-        //     db.openDatabase();
-        //     db.createFriendRequest(user_id, user_id_to_send_request);
-        //     db.closeDatabase();
-
-        //     return new Response("Yes?");
-        // }
-        // else if (url.pathname === "/accept_friend_request") {
-        //     const bodyBuffer = await req.arrayBuffer();
-        //     const bodyText = new TextDecoder().decode(bodyBuffer);
-        //     const requestBody = JSON.parse(bodyText);
-
-        //     const user_id = requestBody.user_id;
-        //     const user_id_to_send_request = requestBody.user_id_to_accept_from;
-
-        //     db.openDatabase();
-        //     // db.deleteFriendRequest(user_id, user_id_to_send_request);
-        //     db.createFriendLink(user_id, user_id_to_send_request);
-        //     db.closeDatabase();
-
-        //     return new Response("Yes?");
-        // }
-        // else if (url.pathname === "/get_friends") {
-        //     const bodyBuffer = await req.arrayBuffer();
-        //     const bodyText = new TextDecoder().decode(bodyBuffer);
-        //     const requestBody = JSON.parse(bodyText);
-
-        //     const user_id_to_get_from = requestBody.user_id;
-
-        //     db.openDatabase();
-        //     let friends: Person[] = db.getFriends(user_id_to_get_from);
-        //     db.closeDatabase();
-
-        //     return new Response(friends.toString());
-        // }
+            return new Response(friends.toString());
+        }
         else return new Response("404!");
     },
 });

@@ -1,5 +1,5 @@
 import { Database } from "bun:sqlite";
-import { User, Ping, WithoutId, Link } from "./models";
+import { User, Ping, WithoutId, Link, SQLiteLink, mapLinkFromDb } from "./models";
 
 const db = new Database("database.sqlite")
 db.query(
@@ -20,21 +20,21 @@ db.query(
 
 export class ServerDatabase {
     static getAllUsers(): User[] {
-        const query = db.prepare(`SELECT * FROM users`);
-        return query.all() as User[];
+        const select_query = db.prepare(`SELECT * FROM users`);
+        return select_query.all() as User[];
     }
 
     static createUser(user: WithoutId<User>): User {
         let id = crypto.randomUUID();
 
-        const query = db.prepare(
+        const insert_query = db.prepare(
             `INSERT INTO users 
             (id, username) 
             VALUES 
-            ($id, $user.username)`
+            ($id, $username)`
         );
 
-        query.run({ $id: id, $username: user.username });
+        insert_query.run({ $id: id, $username: user.username });
         return { id: id, username: user.username};
     }
 
@@ -45,7 +45,6 @@ export class ServerDatabase {
             `DELETE FROM positions 
             WHERE user_id = $ping.user_id`
         );
-
         delete_query.run({ $user_id: ping.user_id });
 
         const insert_query = db.prepare(
@@ -54,47 +53,55 @@ export class ServerDatabase {
             VALUES 
             ($id, $ping.user_id, $ping.longitude, $ping.latitude, $ping.timestamp)`
         );
-
-        insert_query.run({ $id: id, $user_id: ping.user_id, $longitude: ping.longitude, $latitude: ping.latitude, $timestamp: ping.timestamp }); //! Make this shorter and all others by using list comphrehenion or smth
+        insert_query.run({ $id: id, $user_id: ping.user_id, $longitude: ping.longitude, $latitude: ping.latitude, $timestamp: ping.timestamp });
     }
 
     static getPing(user_id: string): Ping {
-        const query = db.prepare(
+        const select_query = db.prepare(
             `SELECT * 
             FROM positions 
-            WHERE user_id = $user.id`
+            WHERE user_id = $user_id`
         );
-
-        return query.get({ $user_id: user_id }) as Ping;
+        return select_query.get({ $user_id: user_id }) as Ping;
     }
 
-    static getFriends(my_user_id: string): Link[] {
-        const query = db.prepare(
+    static getLinks(my_user_id: string): Link[] {
+        const select_query = db.prepare(
             `SELECT *
             FROM links
             WHERE $user_id IN (user_id_1, user_id_2)`
         );
-        return query.all({ $user_id: my_user_id}) as Link[];
+        const sqlite_links: SQLiteLink[] = select_query.all({ $user_id: my_user_id}) as SQLiteLink[];
+        return sqlite_links.map(mapLinkFromDb) as Link[];
     }
 
-    static modifyLink() {
+    static modifyLink(sender_user_id: string, receiver_user_id: string, new_value: boolean) {
+        const updateQuery = db.prepare(
+            `UPDATE links
+            SET
+                is_user_1_sending = CASE WHEN user_id_1 = $user_id_1 AND user_id_2 = $user_id_2 THEN $new_value ELSE is_user_1_sending END,
+                is_user_2_sending = CASE WHEN user_id_1 = $user_id_2 AND user_id_2 = $user_id_1 THEN $new_value ELSE is_user_2_sending END
+            WHERE (user_id_1 = $user_id_1 AND user_id_2 = $user_id_2) 
+                OR (user_id_1 = $user_id_2 AND user_id_2 = $user_id_1)`
+        );
+        updateQuery.run({$user_id_1: sender_user_id, $user_id_2: receiver_user_id, $new_value: Number(new_value)});
     }
 
-    static createFriendLink(sender_user_id: string, receiver_user_id: string) {
+    static createLink(sender_user_id: string, receiver_user_id: string) {
         const select_query = db.prepare(
             `SELECT id, user_id_1, user_id_2 
             FROM links 
             WHERE (user_id_1 = $user_id_1 AND user_id_2 = $user_id_2) 
             OR (user_id_1 = $user_id_2 AND user_id_2 = $user_id_1)`
         );
-        const link: Link = select_query.get({$user_id_1: sender_user_id, $user_id_2: receiver_user_id}) as Link
+        const link: SQLiteLink = select_query.get({$user_id_1: sender_user_id, $user_id_2: receiver_user_id}) as SQLiteLink
         if (link == null) {
             let id = crypto.randomUUID();
             const insertQuery = db.prepare(
                 `INSERT INTO links (id, user_id_1, user_id_2, is_user_1_sending, is_user_2_sending)
                 VALUES ($id, $user_id_1, $user_id_2, 1, NULL)
                 ON CONFLICT DO NOTHING`
-            );
+            ); //? Is the ON CONFLICT DO NOTHING needed?
             insertQuery.run({$id: id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id})
         }
         else {
@@ -102,10 +109,10 @@ export class ServerDatabase {
                 `UPDATE links
                 SET
                     is_user_1_sending = CASE WHEN user_id_1 = $user_id_1 AND user_id_2 = $user_id_2 THEN 1 ELSE is_user_1_sending END,
-                    is_user_2_sending = CASE WHEN user_id_1 = $user_id_1 AND user_id_2 = $user_id_2 THEN NULL ELSE is_user_2_sending END
+                    is_user_2_sending = CASE WHEN user_id_1 = $user_id_2 AND user_id_2 = $user_id_1 THEN 1 ELSE is_user_2_sending END
                 WHERE id = $link_id`
             );
-            updateQuery.run({$link_id: link.id})
+            updateQuery.run({$link_id: link.id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id})
         }
     }
 }

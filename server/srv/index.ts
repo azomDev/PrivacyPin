@@ -23,7 +23,7 @@ const server = Bun.serve({
             const user_without_id: WithoutId<User> = await getJsonObject(req)
             const user_with_id: User = db.createUser(user_without_id);
             return Response.json(user_with_id);
-        } 
+        }
         else if (url.pathname === "/send_ping") {
             console.log("Received a request on api /send_ping");
             const ping: WithoutId<Ping> = await getJsonObject(req);
@@ -33,36 +33,37 @@ const server = Bun.serve({
             console.log("/send_ping - INPUT : timestamp: " + ping.timestamp);
             db.insertPing(ping);
             return new Response();
-        } 
+        }
         else if (url.pathname === "/get_ping") {
             console.log("Received a request on api /get_ping");
             const receiver_user_id: string = (await getJsonObject(req)).receiver_user_id;
             const ping: Ping = db.getPing(receiver_user_id);
             return Response.json(ping);
-        } 
+        }
         else if (url.pathname === "/get_all_users") {
             console.log("Received a request on api /get_all_users");
             let all_users: User[] = db.getAllUsers();
             return Response.json(all_users);
         }
-        else if (url.pathname === "/create_friend_link") {
-            const user: User = await getJsonObject(req);
-            const jsonObject: any = await getJsonObject(req);
-            const sender_user_id: string = jsonObject.sender_user_id
-            const receiver_user_id: string = jsonObject.receiver_user_id;
-            db.createFriendLink(sender_user_id, receiver_user_id);
+        else if (url.pathname === "/create_link") {
+            const json_object: any = await getJsonObject(req);
+            const sender_user_id: string = json_object.sender_user_id
+            const receiver_user_id: string = json_object.receiver_user_id;
+            db.createLink(sender_user_id, receiver_user_id);
             return new Response();
         }
-        else if (url.pathname === "/get_friends") {
-            const user: User = await getJsonObject(req);
-            const jsonObject: any = await getJsonObject(req);
-            const sender_user_id: string = jsonObject.sender_user_id
-            const receiver_user_id: string = jsonObject.receiver_user_id;
-            db.createFriendLink(sender_user_id, receiver_user_id);
-            return new Response();
+        else if (url.pathname === "/get_links") {
+            const my_user_id: string = (await getJsonObject(req)).my_user_id;
+            const links: Link[] = db.getLinks(my_user_id);
+            return Response.json(links)
         }
         else if (url.pathname === "/modify_link") {
-            return new Response("404");
+            const json_object: any = await getJsonObject(req);
+            const sender_user_id: string = json_object.sender_user_id
+            const receiver_user_id: string = json_object.receiver_user_id;
+            const new_value: boolean = json_object.am_i_sending;
+            db.modifyLink(sender_user_id, receiver_user_id, new_value);
+            return new Response();
         }
         else return new Response("404!");
     },

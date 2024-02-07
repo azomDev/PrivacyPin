@@ -1,8 +1,6 @@
 import { ServerDatabase as db } from "./database";
 import { User, Ping, WithoutId, Link } from "./models";
 
-// sudo iptables -A INPUT -p tcp --dport 3000 -j ACCEPT
-// sudo iptables -D INPUT -p tcp --dport 3000 -j ACCEPT
 // http://10.0.2.2:3000
 
 async function getJsonObject(req: Request) {
@@ -10,6 +8,7 @@ async function getJsonObject(req: Request) {
     const bodyText = new TextDecoder().decode(bodyBuffer);
     return JSON.parse(bodyText);
 }
+
 // const username: string = requestBody.username;
 // test: curl -X POST -H "Content-Type: application/json" -d '{"user_id": "AN_ID", "longitude": 123.3, "latitude": 123.8, "timestamp": 12345}' http://localhost:3000/send_ping
 // test: curl -X GET http://localhost:3000/get_all_users
@@ -46,6 +45,7 @@ const server = Bun.serve({
             return Response.json(all_users);
         }
         else if (url.pathname === "/create_link") {
+            console.log("Received a request on api /create_link");
             const json_object: any = await getJsonObject(req);
             const sender_user_id: string = json_object.sender_user_id
             const receiver_user_id: string = json_object.receiver_user_id;
@@ -53,11 +53,13 @@ const server = Bun.serve({
             return new Response();
         }
         else if (url.pathname === "/get_links") {
+            console.log("Received a request on api /get_links");
             const my_user_id: string = (await getJsonObject(req)).my_user_id;
             const links: Link[] = db.getLinks(my_user_id);
             return Response.json(links)
         }
         else if (url.pathname === "/modify_link") {
+            console.log("Received a request on api /modify_link");
             const json_object: any = await getJsonObject(req);
             const sender_user_id: string = json_object.sender_user_id
             const receiver_user_id: string = json_object.receiver_user_id;
@@ -65,7 +67,7 @@ const server = Bun.serve({
             db.modifyLink(sender_user_id, receiver_user_id, new_value);
             return new Response();
         }
-        else return new Response("404!");
+        else return new Response("404");
     },
 });
 

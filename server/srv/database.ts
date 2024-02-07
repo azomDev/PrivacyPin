@@ -1,5 +1,5 @@
 import { Database } from "bun:sqlite";
-import { User, Ping, WithoutId } from "./models";
+import { User, Ping, WithoutId, Link } from "./models";
 
 const db = new Database("database.sqlite")
 db.query(
@@ -15,7 +15,7 @@ db.query(
 db.query(
     `CREATE TABLE
     IF NOT EXISTS links
-    (id TEXT, sender_id TEXT, receiver_id TEXT, is_link_active INTEGER)`
+    (id TEXT, user_id_1 TEXT, user_id_2 TEXT, is_user_1_sending INTEGER, is_user_2_sending INTEGER)`
 ).run();
 
 export class ServerDatabase {
@@ -41,21 +41,21 @@ export class ServerDatabase {
     static insertPing(ping: WithoutId<Ping>) {
         let id = crypto.randomUUID();
 
-        const deleteQuery = db.prepare(
+        const delete_query = db.prepare(
             `DELETE FROM positions 
             WHERE user_id = $ping.user_id`
         );
 
-        deleteQuery.run({ $user_id: ping.user_id });
+        delete_query.run({ $user_id: ping.user_id });
 
-        const insertQuery = db.prepare(
+        const insert_query = db.prepare(
             `INSERT INTO positions 
             (id, user_id, longitude, latitude, timestamp) 
             VALUES 
             ($id, $ping.user_id, $ping.longitude, $ping.latitude, $ping.timestamp)`
         );
 
-        insertQuery.run({ $id: id, $user_id: ping.user_id, $longitude: ping.longitude, $latitude: ping.latitude, $timestamp: ping.timestamp });
+        insert_query.run({ $id: id, $user_id: ping.user_id, $longitude: ping.longitude, $latitude: ping.latitude, $timestamp: ping.timestamp }); //! Make this shorter and all others by using list comphrehenion or smth
     }
 
     static getPing(user_id: string): Ping {
@@ -68,37 +68,44 @@ export class ServerDatabase {
         return query.get({ $user_id: user_id }) as Ping;
     }
 
-    // friends that can receive your location
-    static getReceiverFriends(sender_user_id: string): User[] {
-
+    static getFriends(my_user_id: string): Link[] {
         const query = db.prepare(
             `SELECT *
             FROM links
-            WHERE sender_id = $sender_id`
-        )
-        return query.all({ $sender_id: sender_user_id }) as User[];
+            WHERE $user_id IN (user_id_1, user_id_2)`
+        );
+        return query.all({ $user_id: my_user_id}) as Link[];
     }
 
-    // friends that can send their location to you
-    static getSenderFriends(receiver_user_id: string): User[] {
-
-        const query = db.prepare(
-            `SELECT *
-            FROM links
-            WHERE receiver_id = $receiver_id`
-        )
-        return query.all({ $sender_id: receiver_user_id }) as User[];
+    static modifyLink() {
     }
 
     static createFriendLink(sender_user_id: string, receiver_user_id: string) {
-        let id = crypto.randomUUID();
-
-        const query = db.prepare(
-            `INSERT INTO links
-            (id, sender_id, receiver_id)
-            VALUES
-            ($id, $sender_id, $receiver_id)`
+        const select_query = db.prepare(
+            `SELECT id, user_id_1, user_id_2 
+            FROM links 
+            WHERE (user_id_1 = $user_id_1 AND user_id_2 = $user_id_2) 
+            OR (user_id_1 = $user_id_2 AND user_id_2 = $user_id_1)`
         );
-        query.run({$id: id, $sender_id: sender_user_id, $receiver_id: receiver_user_id});
+        const link: Link = select_query.get({$user_id_1: sender_user_id, $user_id_2: receiver_user_id}) as Link
+        if (link == null) {
+            let id = crypto.randomUUID();
+            const insertQuery = db.prepare(
+                `INSERT INTO links (id, user_id_1, user_id_2, is_user_1_sending, is_user_2_sending)
+                VALUES ($id, $user_id_1, $user_id_2, 1, NULL)
+                ON CONFLICT DO NOTHING`
+            );
+            insertQuery.run({$id: id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id})
+        }
+        else {
+            const updateQuery = db.prepare(
+                `UPDATE links
+                SET
+                    is_user_1_sending = CASE WHEN user_id_1 = $user_id_1 AND user_id_2 = $user_id_2 THEN 1 ELSE is_user_1_sending END,
+                    is_user_2_sending = CASE WHEN user_id_1 = $user_id_1 AND user_id_2 = $user_id_2 THEN NULL ELSE is_user_2_sending END
+                WHERE id = $link_id`
+            );
+            updateQuery.run({$link_id: link.id})
+        }
     }
 }

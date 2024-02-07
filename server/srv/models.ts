@@ -15,7 +15,8 @@ export interface Ping {
 
 export interface Link {
     id: string;
-    sender_id: string;
-    receiver_id: string;
-    is_link_active: boolean;
+    user_id_1: string;
+    user_id_2: string;
+    is_user_1_sending: boolean;
+    is_user_2_sending: boolean;
 }

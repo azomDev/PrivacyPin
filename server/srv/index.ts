@@ -53,6 +53,17 @@ const server = Bun.serve({
             db.createFriendLink(sender_user_id, receiver_user_id);
             return new Response();
         }
+        else if (url.pathname === "/get_friends") {
+            const user: User = await getJsonObject(req);
+            const jsonObject: any = await getJsonObject(req);
+            const sender_user_id: string = jsonObject.sender_user_id
+            const receiver_user_id: string = jsonObject.receiver_user_id;
+            db.createFriendLink(sender_user_id, receiver_user_id);
+            return new Response();
+        }
+        else if (url.pathname === "/modify_link") {
+            return new Response("404");
+        }
         else return new Response("404!");
     },
 });

@@ -101,7 +101,7 @@ export class ServerDatabase {
                 `INSERT INTO links (id, user_id_1, user_id_2, is_user_1_sending, is_user_2_sending)
                 VALUES ($id, $user_id_1, $user_id_2, 1, NULL)
                 ON CONFLICT DO NOTHING`
-            ); //? Is the ON CONFLICT DO NOTHING needed?
+            );
             insertQuery.run({$id: id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id})
         }
         else {

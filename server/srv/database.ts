@@ -1,5 +1,5 @@
 import { Database } from "bun:sqlite";
-import { User, Ping, WithoutId, SQLiteLink, FrontendLink, mapFrontendLinkFromDb } from "./models";
+import { User, Ping, WithoutId, FrontendLink, mapLinkToFrontendLink, Link } from "./models";
 
 const db = new Database("database.sqlite")
 db.query(
@@ -71,11 +71,11 @@ export class ServerDatabase {
             FROM links
             WHERE $user_id IN (user_id_1, user_id_2)`
         );
-        const sqlite_links: SQLiteLink[] = select_query.all({ $user_id: my_user_id}) as SQLiteLink[];
-        return sqlite_links.map((dbRow) => mapFrontendLinkFromDb(dbRow, my_user_id)) as FrontendLink[];
+        const links: Link[] = select_query.all({ $user_id: my_user_id}) as Link[];
+        return links.map((dbRow) => mapLinkToFrontendLink(dbRow, my_user_id)) as FrontendLink[]; // TODO optimization now?
     }
 
-    static modifyLink(sender_user_id: string, receiver_user_id: string, new_value: boolean) {
+    static modifyLink(sender_user_id: string, receiver_user_id: string, new_value: number) {
         const updateQuery = db.prepare(
             `UPDATE links
             SET
@@ -84,7 +84,7 @@ export class ServerDatabase {
             WHERE (user_id_1 = $user_id_1 AND user_id_2 = $user_id_2) 
                 OR (user_id_1 = $user_id_2 AND user_id_2 = $user_id_1)`
         );
-        updateQuery.run({$user_id_1: sender_user_id, $user_id_2: receiver_user_id, $new_value: Number(new_value)});
+        updateQuery.run({$user_id_1: sender_user_id, $user_id_2: receiver_user_id, $new_value: new_value});
     }
 
     static createLink(sender_user_id: string, receiver_user_id: string): FrontendLink {
@@ -94,7 +94,7 @@ export class ServerDatabase {
             WHERE (user_id_1 = $user_id_1 AND user_id_2 = $user_id_2) 
             OR (user_id_1 = $user_id_2 AND user_id_2 = $user_id_1)`
         );
-        const link: SQLiteLink = select_query.get({$user_id_1: sender_user_id, $user_id_2: receiver_user_id}) as SQLiteLink
+        const link: Link = select_query.get({$user_id_1: sender_user_id, $user_id_2: receiver_user_id}) as Link;
         if (link == null) {
             let id = crypto.randomUUID();
             const insertQuery = db.prepare(
@@ -103,7 +103,7 @@ export class ServerDatabase {
                 ON CONFLICT DO NOTHING`
             );
             insertQuery.run({$id: id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id})
-            return {id: id, receiver_user_id: receiver_user_id, am_i_sending: true};
+            return {id: id, receiver_user_id: receiver_user_id, am_i_sending: 1};
         }
         else {
             const updateQuery = db.prepare(

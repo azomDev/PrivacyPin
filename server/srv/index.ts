@@ -57,7 +57,7 @@ const server = Bun.serve({
             const json_object: any = await req.json();
             const sender_user_id: string = json_object.sender_user_id
             const receiver_user_id: string = json_object.receiver_user_id;
-            const new_value: boolean = json_object.am_i_sending;
+            const new_value: number = json_object.am_i_sending;
             db.modifyLink(sender_user_id, receiver_user_id, new_value);
             return new Response();
         }

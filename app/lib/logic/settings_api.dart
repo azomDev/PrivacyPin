@@ -32,11 +32,12 @@ class SettingsAPI {
     return value;
   }
 
-  static void setSetting<T>(String key, T value, {bool save_in_kotlin = false}) async {
+  static Future<void> setSetting<T>(String key, T value, {bool save_in_kotlin = false}) async {
     if (save_in_kotlin) {
       const platform = MethodChannel("com.example.app/my_channel");
       try {
         final String result = await platform.invokeMethod("changeSetting", {"key": key, "value": value as String});
+        // TODO update to match kotlin better
         print(result);
       } on PlatformException catch (e) {
         print("Failed to send data to Kotlin: ${e.message}");
@@ -57,13 +58,3 @@ class SettingsAPI {
     }
   }
 }
-
-// class KotlinAPI {
-//   static String _mapToString(Map<String, dynamic> inputMap) {
-//     List<String> keyValuePairs = inputMap.entries.map((entry) {
-//       return '"${entry.key}": "${entry.value}"';
-//     }).toList();
-
-//     return '{${keyValuePairs.join(', ')}}';
-//   }
-// }

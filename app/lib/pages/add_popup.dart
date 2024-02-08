@@ -1,3 +1,4 @@
+import "package:app/pages/add_links.dart";
 import "package:flutter/material.dart";
 
 class AddPopup extends StatefulWidget {
@@ -15,17 +16,20 @@ class _AddPopupState extends State<AddPopup> {
           children: [
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Temporary
-                // Do something
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FriendsPage()),
+                );
               },
               child: const Text('Add online'),
             ),
-            const SizedBox(width: 10), // Add some spacing between buttons
+            const SizedBox(width: 10),
             ElevatedButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                   content: Text("QR not yet implemented"),
                 ));
+                Navigator.of(context).pop();
               },
               child: const Text('Add with QR'),
             ),

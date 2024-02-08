@@ -1,5 +1,5 @@
-// ignore_for_file: constant_identifier_names
-
+import "package:app/logic/settings_api.dart";
+import "package:app/pages/settings.dart";
 import "package:path/path.dart";
 import "package:sqflite/sqflite.dart";
 import 'models.dart';
@@ -62,14 +62,37 @@ class SQLDatabase {
   }
 
   static Future<void> insertUsers(List<User> users) async {
-    // TODO
+    print("DATABASE: Inserting users: $users");
+    Batch batch = _db.batch();
+    for (User user in users) {
+      batch.insert(_users_table, user.toMap());
+    }
+    await batch.commit();
+    print("DATABASE: Users inserted successfully!");
   }
 
   static Future<void> insertLinks(List<Link> links) async {
-    // TODO
+    print("DATABASE: Inserting links: $links");
+    Batch batch = _db.batch();
+    for (Link link in links) {
+      batch.insert(_links_table, link.toMap());
+    }
+    await batch.commit();
+    print("DATABASE: Links inserted successfully!");
   }
 
   static Future<void> modifyLink(String link_id, bool new_value) async {
-    // TODO
+    print("DATABASE: Modifying link $link_id with new value: $new_value");
+    await _db.update(
+      _links_table,
+      {'am_i_sending': new_value ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [link_id],
+    );
+    print("DATABASE: Link modified successfully!");
+  }
+
+  static Future<void> createLink(Link link) async {
+    await _db.insert(_links_table, link.toMap());
   }
 }

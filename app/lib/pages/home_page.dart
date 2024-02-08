@@ -20,10 +20,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _fetchUsersFromDatabase();
+    _fetchLinksFromDatabase();
   }
 
-  Future<void> _fetchUsersFromDatabase() async {
+  Future<void> _fetchLinksFromDatabase() async {
     List<Link> links = await SQLDatabase.getLinks();
     setState(() {
       _links = links;
@@ -75,6 +75,6 @@ class _HomePageState extends State<HomePage> {
     List<Link> links = await ServerAPI.getLinks();
     await SQLDatabase.insertUsers(users);
     await SQLDatabase.insertLinks(links);
-    _fetchUsersFromDatabase();
+    _fetchLinksFromDatabase();
   }
 }

@@ -87,7 +87,7 @@ export class ServerDatabase {
         updateQuery.run({$user_id_1: sender_user_id, $user_id_2: receiver_user_id, $new_value: Number(new_value)});
     }
 
-    static createLink(sender_user_id: string, receiver_user_id: string) {
+    static createLink(sender_user_id: string, receiver_user_id: string): FrontendLink {
         const select_query = db.prepare(
             `SELECT id, user_id_1, user_id_2 
             FROM links 
@@ -103,6 +103,7 @@ export class ServerDatabase {
                 ON CONFLICT DO NOTHING`
             );
             insertQuery.run({$id: id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id})
+            return {id: id, receiver_user_id: receiver_user_id, am_i_sending: true};
         }
         else {
             const updateQuery = db.prepare(
@@ -114,5 +115,6 @@ export class ServerDatabase {
             );
             updateQuery.run({$link_id: link.id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id})
         }
+        throw new Error("At some point in the future you should not be here");
     }
 }

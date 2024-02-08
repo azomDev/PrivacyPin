@@ -1,8 +1,8 @@
 import 'package:app/logic/database_api.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../logic/http_api.dart'; // Assuming this file contains ServerAPI
-import '../logic/models.dart'; // Assuming this file contains User and Link classes
+import '../logic/http_api.dart';
+import '../logic/models.dart';
 
 class UsersList extends StatefulWidget {
   final List<Link> links;
@@ -19,7 +19,6 @@ class _UsersListState extends State<UsersList> {
   @override
   void initState() {
     super.initState();
-    // You might want to fetch data here or use the provided links
   }
 
   @override

@@ -114,7 +114,7 @@ export class ServerDatabase {
                 WHERE id = $link_id`
             );
             updateQuery.run({$link_id: link.id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id})
+            return {id: link.id, receiver_user_id: receiver_user_id, am_i_sending: 1};
         }
-        throw new Error("At some point in the future you should not be here");
     }
 }

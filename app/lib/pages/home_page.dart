@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../logic/database_api.dart';
 import '../logic/http_api.dart';
 import '../logic/models.dart';
-import 'friend_window.dart';
-import 'person_list.dart';
+import 'add_popup.dart';
+import '../components/user_list.dart';
 import 'settings.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,18 +15,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Person> _persons = [];
+  List<Link> _links = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchPersonsFromDatabase();
+    _fetchUsersFromDatabase();
   }
 
-  Future<void> _fetchPersonsFromDatabase() async {
-    List<Person> persons = await SQLDatabase.getAllFriends();
+  Future<void> _fetchUsersFromDatabase() async {
+    List<Link> links = await SQLDatabase.getLinks();
     setState(() {
-      _persons = persons;
+      _links = links;
     });
   }
 
@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () async {
-              await refreshPersonsList();
+              await refreshUsersAndLinks();
             },
           ),
           IconButton(
@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: PersonsList(persons: _persons),
+      body: UsersList(links: _links),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
@@ -68,12 +68,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> refreshPersonsList() async {
-    await SQLDatabase.nukeDatabase();
-    List<Person> persons = await ServerAPI.getAllUsers();
-    for (Person person in persons) {
-      await SQLDatabase.insertPerson(person);
-    }
-    _fetchPersonsFromDatabase();
+  Future<void> refreshUsersAndLinks() async {
+    await SQLDatabase.nukeUsersTable();
+    await SQLDatabase.nukeLinksTable();
+    List<User> users = await ServerAPI.getAllUsers();
+    List<Link> links = await ServerAPI.getLinks();
+    await SQLDatabase.insertUsers(users);
+    await SQLDatabase.insertLinks(links);
+    _fetchUsersFromDatabase();
   }
 }

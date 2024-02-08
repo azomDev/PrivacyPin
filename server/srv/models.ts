@@ -26,8 +26,27 @@ export type SQLiteLink = Omit<Link, "is_user_1_sending" | "is_user_2_sending"> &
     is_user_2_sending: number;
 };
 
-export const mapLinkFromDb = (dbRow: SQLiteLink): Link => ({
-    ...dbRow,
-    is_user_1_sending: Boolean(dbRow.is_user_1_sending),
-    is_user_2_sending: Boolean(dbRow.is_user_2_sending),
-});
+export interface FrontendLink {
+    id: string;
+    receiver_user_id: string;
+    am_i_sending: boolean;
+}
+
+export const mapFrontendLinkFromDb = (dbRow: SQLiteLink, user_id: string): FrontendLink => {
+    if (user_id === dbRow.user_id_1) {
+        return {
+            ...dbRow,
+            receiver_user_id: dbRow.user_id_1,
+            am_i_sending: Boolean(dbRow.is_user_1_sending),
+        };
+    } else if (user_id === dbRow.user_id_2) {
+        return {
+            ...dbRow,
+            receiver_user_id: dbRow.user_id_2,
+            am_i_sending: Boolean(dbRow.is_user_2_sending),
+        };
+    }
+    else {
+        throw new Error("Invalid user_id");
+    }
+};

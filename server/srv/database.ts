@@ -1,5 +1,5 @@
 import { Database } from "bun:sqlite";
-import { User, Ping, WithoutId, Link, SQLiteLink, mapLinkFromDb } from "./models";
+import { User, Ping, WithoutId, SQLiteLink, FrontendLink, mapFrontendLinkFromDb } from "./models";
 
 const db = new Database("database.sqlite")
 db.query(
@@ -65,14 +65,14 @@ export class ServerDatabase {
         return select_query.get({ $user_id: user_id }) as Ping;
     }
 
-    static getLinks(my_user_id: string): Link[] {
+    static getLinks(my_user_id: string): FrontendLink[] {
         const select_query = db.prepare(
             `SELECT *
             FROM links
             WHERE $user_id IN (user_id_1, user_id_2)`
         );
         const sqlite_links: SQLiteLink[] = select_query.all({ $user_id: my_user_id}) as SQLiteLink[];
-        return sqlite_links.map(mapLinkFromDb) as Link[];
+        return sqlite_links.map((dbRow) => mapFrontendLinkFromDb(dbRow, my_user_id)) as FrontendLink[];
     }
 
     static modifyLink(sender_user_id: string, receiver_user_id: string, new_value: boolean) {

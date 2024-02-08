@@ -7,6 +7,7 @@ enum SettingName {
   pingFrequency,
   serverUrl,
   userId,
+  tempSwitcher,
 }
 
 class SettingsPage extends StatefulWidget {
@@ -82,22 +83,22 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
 
             // Privacy Tab
-            Column(
+            const Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 SettingTile<int>(
-                  tileType: TileType.number,
+                  tile_type: TileType.number,
                   title: "Ping frequency",
                   description: "Adjust location update interval in minutes",
-                  getInitialValue: () => SettingsAPI.getSettingOrSetDefault<int>(SettingName.pingFrequency.toString(), 15),
-                  onValueChanged: (newValue) => SettingsAPI.setSetting<int>(SettingName.pingFrequency.toString(), newValue),
+                  setting_name: SettingName.pingFrequency,
+                  default_value: 15,
                 ),
                 SettingTile<bool>(
-                  tileType: TileType.switcher,
-                  title: "Ping frequency",
-                  description: "Adjust location update interval in minutes",
-                  getInitialValue: () => SettingsAPI.getSettingOrSetDefault<bool>("temp", true),
-                  onValueChanged: (newValue) => SettingsAPI.setSetting<bool>("temp", newValue),
+                  tile_type: TileType.switcher,
+                  title: "Switcher Placeholder",
+                  description: "Does nothing lol",
+                  setting_name: SettingName.tempSwitcher,
+                  default_value: false,
                 ),
               ],
             ),

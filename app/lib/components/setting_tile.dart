@@ -6,18 +6,18 @@ import 'package:flutter/services.dart';
 enum TileType { number, switcher }
 
 class SettingTile<T> extends StatefulWidget {
-  final TileType tileType;
+  final TileType tile_type;
   final String title;
   final String description;
-  final Future<T> Function() getInitialValue;
-  final Function(T) onValueChanged;
+  final SettingName setting_name;
+  final T default_value;
 
   const SettingTile({
-    required this.tileType,
+    required this.tile_type,
     required this.title,
     required this.description,
-    required this.getInitialValue,
-    required this.onValueChanged,
+    required this.setting_name,
+    required this.default_value,
   });
 
   @override
@@ -25,13 +25,7 @@ class SettingTile<T> extends StatefulWidget {
 }
 
 class _SettingTileState<T> extends State<SettingTile<T>> {
-  late TextEditingController _textEditingController;
-
-  @override
-  void initState() async {
-    super.initState();
-    var a = await widget.getInitialValue();
-  }
+  late TextEditingController _text_editing_controller;
 
   @override
   Widget build(BuildContext context) {
@@ -40,18 +34,18 @@ class _SettingTileState<T> extends State<SettingTile<T>> {
       subtitle: Text(widget.description),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
       trailing: FutureBuilder<dynamic>(
-        future: widget.getInitialValue(),
+        future: SettingsAPI.getSettingOrSetDefault(widget.setting_name.toString(), widget.default_value),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-            if (widget.tileType == TileType.number) {
-              _textEditingController = TextEditingController(text: snapshot.data.toString());
+            if (widget.tile_type == TileType.number) {
+              _text_editing_controller = TextEditingController(text: snapshot.data.toString());
               return _buildNumberInput();
             } else {
               return _buildSwitch(snapshot.data);
             }
           } else {
-            if (widget.tileType == TileType.number) {
-              _textEditingController = TextEditingController(text: "");
+            if (widget.tile_type == TileType.number) {
+              _text_editing_controller = TextEditingController(text: "");
               return _buildNumberInput();
             } else {
               return _buildSwitch(false);
@@ -66,24 +60,23 @@ class _SettingTileState<T> extends State<SettingTile<T>> {
     return SizedBox(
         width: 70.0,
         child: TextFormField(
-          controller: _textEditingController,
+          controller: _text_editing_controller,
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onEditingComplete: () {
-            SettingsAPI.setSetting<T>(SettingName.pingFrequency.toString(), widget.hello);
+            SettingsAPI.setSetting<int>(widget.setting_name.toString(), int.parse(_text_editing_controller.text));
             FocusScope.of(context).unfocus(); // To hide the keyboard apparently
           },
         ));
   }
 
-  Widget _buildSwitch(bool switchValue) {
+  Widget _buildSwitch(bool switch_value) {
     return Switch(
-      value: switchValue,
-      onChanged: (bool newValue) {
+      value: switch_value,
+      onChanged: (bool new_value) {
         setState(() {
-          // Your logic here
-          widget.onValueChanged(newValue);
+          SettingsAPI.setSetting<bool>(widget.setting_name.toString(), new_value);
         });
       },
     );
@@ -91,8 +84,8 @@ class _SettingTileState<T> extends State<SettingTile<T>> {
 
   @override
   void dispose() {
-    if (widget.tileType == TileType.number) {
-      _textEditingController.dispose();
+    if (widget.tile_type == TileType.number) {
+      _text_editing_controller.dispose();
     }
     super.dispose();
   }

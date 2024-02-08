@@ -4,7 +4,7 @@ import { User, Ping, WithoutId, FrontendLink } from "./models";
 // http://10.0.2.2:3000
 
 // test: curl -X POST -H "Content-Type: application/json" -d '{"user_id": "AN_ID", "longitude": 123.3, "latitude": 123.8, "timestamp": 12345}' http://localhost:3000/send_ping
-// test: ex
+// test: curl -X GET http://localhost:3000/get_all_users
 
 const server = Bun.serve({
     port: 8080,
@@ -43,8 +43,8 @@ const server = Bun.serve({
             const json_object: any = await req.json();
             const sender_user_id: string = json_object.sender_user_id
             const receiver_user_id: string = json_object.receiver_user_id;
-            db.createLink(sender_user_id, receiver_user_id);
-            return new Response();
+            const link: FrontendLink = db.createLink(sender_user_id, receiver_user_id);
+            return Response.json(link);
         }
         else if (url.pathname === "/get_links") {
             console.log("Received a request on api /get_links");

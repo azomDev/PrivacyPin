@@ -4,12 +4,10 @@ class User {
 
   User(this.id, this.username);
 
-  // Create a User object from a map
   User.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         username = map["username"];
 
-  // Convert User object to a map
   Map<String, dynamic> toMap() {
     return {"id": id, "username": username};
   }
@@ -26,6 +24,10 @@ class Link {
       : id = map["id"],
         receiver_user_id = map["receiver_user_id"],
         am_i_sending = map["am_i_sending"];
+
+  Map<String, dynamic> toMap() {
+    return {"id": id, "receiver_user_id": receiver_user_id, "am_i_sending": am_i_sending};
+  }
 }
 
 class Ping {

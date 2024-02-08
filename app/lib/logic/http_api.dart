@@ -24,7 +24,6 @@ class ServerAPI {
     return Ping.fromMap(response_data);
   }
 
-  // [{"id":"8d432e14-4ba3-41ff-be84-7d42c0d410c7","username":"oi"},{"id":"1dca4a47-1d78-4533-8133-335122869807","username":"test2"},{"id":"4b1092ad-af54-47c3-a44d-441011409af6","username":"test"},{"id":"8f94ea08-9356-48a5-a45a-213af540f25d","username":"a_name"}]
   static Future<List<User>> getAllUsers() async {
     final server_url = SettingsAPI.getSetting<String>(SettingName.serverUrl.toString());
     final url = Uri.parse("$server_url/get_all_users");
@@ -36,10 +35,11 @@ class ServerAPI {
     return users;
   }
 
-  static Future<void> createLink(String receiver_user_id) async {
+  static Future<Link> createLink(String receiver_user_id) async {
     final my_user_id = SettingsAPI.getSetting<String>(SettingName.userId.toString());
     final body = jsonEncode({"sender_user_id": my_user_id, "receiver_user_id": receiver_user_id});
-    await post(body, "create_link");
+    final response_body = await post(body, "create_link");
+    return Link.fromMap(jsonDecode(response_body));
   }
 
   static Future<List<Link>> getLinks() async {

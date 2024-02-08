@@ -43,9 +43,9 @@ class _SignupPageState extends State<SignupPage> {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
-                // await SettingsAPI.setSetting<String>("server_url", _server_url_controller.text, save_in_kotlin: true);
-                // String userId = await ServerAPI.createAccount(_username_controller.text);
-                // await SettingsAPI.setSetting<String>("user_id", userId, save_in_kotlin: true);
+                await SettingsAPI.setSetting<String>("server_url", _server_url_controller.text, save_in_kotlin: true);
+                String userId = await ServerAPI.createAccount(_username_controller.text);
+                await SettingsAPI.setSetting<String>("user_id", userId, save_in_kotlin: true);
                 widget.callback();
               },
               child: const Text('Signup'),

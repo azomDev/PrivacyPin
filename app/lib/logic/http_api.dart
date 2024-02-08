@@ -51,7 +51,7 @@ class ServerAPI {
     return links;
   }
 
-  static Future<void> modifyLink(String receiver_user_id, bool new_value) async {
+  static Future<void> modifyLink(String receiver_user_id, int new_value) async {
     final my_user_id = SettingsAPI.getSetting<String>(SettingName.userId.toString());
     final body = jsonEncode({"sender_user_id": my_user_id, "receiver_user_id": receiver_user_id, "am_i_sending": new_value});
     await post(body, "modify_link");

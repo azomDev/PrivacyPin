@@ -16,14 +16,9 @@ class User {
 class Link {
   String id;
   String receiver_user_id;
-  bool am_i_sending;
+  int am_i_sending;
 
   Link(this.id, this.receiver_user_id, this.am_i_sending);
-
-  Link.fromDbMap(Map<String, dynamic> map)
-      : id = map["id"],
-        receiver_user_id = map["receiver_user_id"],
-        am_i_sending = (map["am_i_sending"] as int == 1);
 
   Link.fromMap(Map<String, dynamic> map)
       : id = map["id"],
@@ -31,7 +26,7 @@ class Link {
         am_i_sending = map["am_i_sending"];
 
   Map<String, dynamic> toMap() {
-    return {"id": id, "receiver_user_id": receiver_user_id, "am_i_sending": (am_i_sending ? 1 : 0)};
+    return {"id": id, "receiver_user_id": receiver_user_id, "am_i_sending": am_i_sending};
   }
 }
 

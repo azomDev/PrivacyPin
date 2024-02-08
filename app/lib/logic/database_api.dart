@@ -55,7 +55,7 @@ class SQLDatabase {
   static Future<List<Link>> getLinks() async {
     List<Map<String, dynamic>> maps = await _db.query(_links_table);
     return List.generate(maps.length, (index) {
-      return Link.fromDbMap(maps[index]);
+      return Link.fromMap(maps[index]);
     });
   }
 
@@ -79,11 +79,11 @@ class SQLDatabase {
     print("DATABASE: Links inserted successfully!");
   }
 
-  static Future<void> modifyLink(String link_id, bool new_value) async {
+  static Future<void> modifyLink(String link_id, int new_value) async {
     print("DATABASE: Modifying link $link_id with new value: $new_value");
     await _db.update(
       _links_table,
-      {'am_i_sending': new_value ? 1 : 0},
+      {'am_i_sending': new_value},
       where: 'id = ?',
       whereArgs: [link_id],
     );

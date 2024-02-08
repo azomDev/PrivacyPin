@@ -45,12 +45,12 @@ class UserListItem extends StatefulWidget {
 }
 
 class _UserListItemState extends State<UserListItem> {
-  late bool amISending;
+  late bool am_i_sending;
 
   @override
   void initState() {
     super.initState();
-    amISending = widget.link.am_i_sending;
+    am_i_sending = widget.link.am_i_sending == 1;
   }
 
   @override
@@ -81,13 +81,13 @@ class _UserListItemState extends State<UserListItem> {
                   },
                 ),
                 IconButton(
-                  icon: Icon(amISending ? Icons.arrow_upward : Icons.arrow_downward),
+                  icon: Icon(am_i_sending ? Icons.arrow_upward : Icons.arrow_downward), // TODO better icons
                   onPressed: () async {
-                    bool new_value = !amISending;
-                    await ServerAPI.modifyLink(user.id, new_value);
-                    await SQLDatabase.modifyLink(widget.link.id, new_value);
+                    bool new_value = !am_i_sending;
+                    await ServerAPI.modifyLink(user.id, new_value ? 1 : 0);
+                    await SQLDatabase.modifyLink(widget.link.id, new_value ? 1 : 0);
                     setState(() {
-                      amISending = new_value;
+                      am_i_sending = new_value;
                     });
                   },
                 ),

@@ -18,6 +18,13 @@ PrivacyPin is still in early development, and the usage instructions will be pro
 
 Contributions to PrivacyPin are welcome! If you'd like to contribute, you can work on an issue, open an issue yourself or message me.
 
+## Roadmap
+
+- [ ] Basic app/server with basic location sharing and no encryption/security/privacy
+- [ ] Adding access notification
+- [ ] Adding semi-SOS feature
+- [ ] Adding encryptions protocols
+
 ## License
 
 Distributed under the GNU General Public License v3.0. See `LICENSE` for more information.

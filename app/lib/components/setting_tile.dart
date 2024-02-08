@@ -74,10 +74,11 @@ class _SettingTileState<T> extends State<SettingTile<T>> {
   Widget _buildSwitch(bool switch_value) {
     return Switch(
       value: switch_value,
-      onChanged: (bool new_value) {
+      onChanged: (bool new_value) async {
         setState(() {
-          SettingsAPI.setSetting<bool>(widget.setting_name.toString(), new_value);
+          switch_value = !switch_value;
         });
+        await SettingsAPI.setSetting<bool>(widget.setting_name.toString(), new_value);
       },
     );
   }

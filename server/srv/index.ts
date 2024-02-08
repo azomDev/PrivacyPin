@@ -13,9 +13,8 @@ const server = Bun.serve({
         if (url.pathname === "/create_account") {
             console.log("Received a request on api /create_user");
             const user_without_id: WithoutId<User> = await req.json() as WithoutId<User>;
-            console.log(user_without_id);
-            const user_with_id: User = db.createUser(user_without_id);
-            return Response.json(user_with_id);
+            const id: string = db.createUser(user_without_id);
+            return new Response(id);
         }
         else if (url.pathname === "/send_ping") {
             console.log("Received a request on api /send_ping");
@@ -50,6 +49,7 @@ const server = Bun.serve({
             console.log("Received a request on api /get_links");
             const my_user_id: string = (await req.json() as any).my_user_id;
             const links: FrontendLink[] = db.getLinks(my_user_id);
+            console.log(links)
             return Response.json(links)
         }
         else if (url.pathname === "/modify_link") {

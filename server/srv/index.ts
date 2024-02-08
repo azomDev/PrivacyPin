@@ -1,10 +1,10 @@
 import { ServerDatabase as db } from "./database";
 import { User, Ping, WithoutId, FrontendLink } from "./models";
 
-// http://10.0.2.2:3000
+// http://10.0.2.2:8080
 
-// test: curl -X POST -H "Content-Type: application/json" -d '{"user_id": "AN_ID", "longitude": 123.3, "latitude": 123.8, "timestamp": 12345}' http://localhost:3000/send_ping
-// test: curl -X GET http://localhost:3000/get_all_users
+// curl -X POST -H "Content-Type: application/json" -d '{"user_id": "AN_ID", "longitude": 123.3, "latitude": 123.8, "timestamp": 12345}' http://localhost:8080/send_ping
+// curl -X GET http://localhost:8080/get_all_users
 
 const server = Bun.serve({
     port: 8080,

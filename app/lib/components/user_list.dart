@@ -81,7 +81,7 @@ class _UserListItemState extends State<UserListItem> {
                   },
                 ),
                 IconButton(
-                  icon: Icon(am_i_sending ? Icons.arrow_upward : Icons.arrow_downward), // TODO better icons
+                  icon: Icon(am_i_sending ? Icons.visibility : Icons.visibility_off),
                   onPressed: () async {
                     bool new_value = !am_i_sending;
                     await ServerAPI.modifyLink(user.id, new_value ? 1 : 0);

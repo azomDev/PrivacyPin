@@ -4,3 +4,5 @@ linter:
     rules:
         use_key_in_widget_constructors: false
         avoid_print: false
+        non_constant_identifier_names: false
+        constant_identifier_names: false

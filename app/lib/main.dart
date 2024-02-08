@@ -1,3 +1,4 @@
+import 'package:app/logic/database_api.dart';
 import 'package:app/logic/settings_api.dart';
 import 'package:app/pages/settings.dart';
 import "package:flutter/material.dart";
@@ -7,6 +8,7 @@ import 'pages/signup_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SettingsAPI.initializeSettingsAPI();
+  await SQLDatabase.initDatabase();
   runApp(MyApp());
 }
 

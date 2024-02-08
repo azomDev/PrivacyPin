@@ -10,30 +10,30 @@ class SettingsAPI {
 
   static T? getSetting<T>(String key) {
     switch (T) {
-      case int:
+      case const (int):
         return _prefs.getInt(key) as T?;
-      case double:
+      case const (double):
         return _prefs.getDouble(key) as T?;
-      case bool:
+      case const (bool):
         return _prefs.getBool(key) as T?;
-      case String:
+      case const (String):
         return _prefs.getString(key) as T?;
       default:
         throw Exception("Unsupported type $T");
     }
   }
 
-  static Future<T> getSettingOrSetDefault<T>(String key, T defaultValue) async {
+  static Future<T> getSettingOrSetDefault<T>(String key, T default_value) async {
     T? value = getSetting<T>(key);
     if (value == null) {
-      setSetting<T>(key, defaultValue);
-      return defaultValue;
+      setSetting<T>(key, default_value);
+      return default_value;
     }
     return value;
   }
 
-  static void setSetting<T>(String key, T value, {bool saveInKotlin = false}) async {
-    if (saveInKotlin) {
+  static void setSetting<T>(String key, T value, {bool save_in_kotlin = false}) async {
+    if (save_in_kotlin) {
       const platform = MethodChannel("com.example.app/my_channel");
       try {
         final String result = await platform.invokeMethod("changeSetting", {"key": key, "value": value as String});
@@ -44,13 +44,13 @@ class SettingsAPI {
     }
 
     switch (T) {
-      case int:
+      case const (int):
         await _prefs.setInt(key, value as int);
-      case double:
+      case const (double):
         await _prefs.setDouble(key, value as double);
-      case bool:
+      case const (bool):
         await _prefs.setBool(key, value as bool);
-      case String:
+      case const (String):
         await _prefs.setString(key, value as String);
       default:
         throw Exception("Unsupported type $T");

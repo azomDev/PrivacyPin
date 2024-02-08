@@ -11,8 +11,8 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  final TextEditingController _serverUrlController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _server_url_controller = TextEditingController();
+  final TextEditingController _username_controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class _SignupPageState extends State<SignupPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _usernameController,
+              controller: _username_controller,
               decoration: const InputDecoration(
                 labelText: 'Enter Username',
                 border: OutlineInputBorder(),
@@ -34,7 +34,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
             const SizedBox(height: 16.0),
             TextField(
-              controller: _serverUrlController,
+              controller: _server_url_controller,
               decoration: const InputDecoration(
                 labelText: 'Enter Server URL',
                 border: OutlineInputBorder(),
@@ -43,9 +43,9 @@ class _SignupPageState extends State<SignupPage> {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
-                // SettingsAPI.setSetting<String>("server_url", _serverUrlController.text, saveInKotlin: true);
-                // String userId = await ServerAPI.createAccount(_usernameController.text, _serverUrlController.text);
-                // SettingsAPI.setSetting<String>("user_id", userId, saveInKotlin: true);
+                // await SettingsAPI.setSetting<String>("server_url", _server_url_controller.text, save_in_kotlin: true);
+                // String userId = await ServerAPI.createAccount(_username_controller.text);
+                // await SettingsAPI.setSetting<String>("user_id", userId, save_in_kotlin: true);
                 widget.callback();
               },
               child: const Text('Signup'),

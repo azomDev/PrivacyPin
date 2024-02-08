@@ -24,7 +24,7 @@ export class ServerDatabase {
         return select_query.all() as User[];
     }
 
-    static createUser(user: WithoutId<User>): User {
+    static createUser(user: WithoutId<User>): string {
         let id = crypto.randomUUID();
 
         const insert_query = db.prepare(
@@ -35,7 +35,7 @@ export class ServerDatabase {
         );
 
         insert_query.run({ $id: id, $username: user.username });
-        return { id: id, username: user.username};
+        return id;
     }
 
     static insertPing(ping: WithoutId<Ping>) {

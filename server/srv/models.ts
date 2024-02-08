@@ -34,15 +34,16 @@ export interface FrontendLink {
 
 export const mapFrontendLinkFromDb = (dbRow: SQLiteLink, user_id: string): FrontendLink => {
     if (user_id === dbRow.user_id_1) {
+        console.log("test")
         return {
-            ...dbRow,
-            receiver_user_id: dbRow.user_id_1,
+            id: dbRow.id,
+            receiver_user_id: dbRow.user_id_2,
             am_i_sending: Boolean(dbRow.is_user_1_sending),
         };
     } else if (user_id === dbRow.user_id_2) {
         return {
-            ...dbRow,
-            receiver_user_id: dbRow.user_id_2,
+            id: dbRow.id,
+            receiver_user_id: dbRow.user_id_1,
             am_i_sending: Boolean(dbRow.is_user_2_sending),
         };
     }

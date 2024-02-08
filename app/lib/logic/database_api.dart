@@ -1,5 +1,3 @@
-import "package:app/logic/settings_api.dart";
-import "package:app/pages/settings.dart";
 import "package:path/path.dart";
 import "package:sqflite/sqflite.dart";
 import 'models.dart';
@@ -57,7 +55,7 @@ class SQLDatabase {
   static Future<List<Link>> getLinks() async {
     List<Map<String, dynamic>> maps = await _db.query(_links_table);
     return List.generate(maps.length, (index) {
-      return Link.fromMap(maps[index]);
+      return Link.fromDbMap(maps[index]);
     });
   }
 

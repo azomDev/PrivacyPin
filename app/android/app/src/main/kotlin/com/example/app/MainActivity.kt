@@ -25,26 +25,26 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result: MethodChannel.Result ->
                 if (call.method == "changePingInterval") {
-                    // val data = call.arguments as Map<String, Int>;
-                    // val interval = data["pingFrequency"]!!.toLong();
-                    // Log.d("MainActivity", "Received data from Flutter: $interval");
-                    // MyScheduler.startRepeatingAlarm(context, interval);
-                    // // TODO put it in a shared preference, after version 0.1
-                    // result.success("Data received successfully");
+                    val data = call.arguments as Map<String, Int>;
+                    val interval = data["pingFrequency"]!!.toLong();
+                    Log.d("MainActivity", "Received data from Flutter: $interval");
+                    WorkManagerUtil.manageLocationWork(context, interval);
+                    result.success("Data received successfully");
                 }
                 else if (call.method == "changeSetting"){
                     val data = call.arguments as Map<String, String>;
-                        val sharedPref = context.getSharedPreferences("com.example.app.preferences", Context.MODE_PRIVATE)
-                        val editor = sharedPref.edit()
-                        editor.putString(data["key"], data["value"])
-                        editor.apply()
+                    val sharedPref = context.getSharedPreferences("com.example.app.preferences", Context.MODE_PRIVATE);
+                    val editor = sharedPref.edit();
+                    editor.putString(data["key"], data["value"]);
+                    editor.apply();
+                    result.success("yay");
                 }
                 else {
-                    result.notImplemented()
+                    result.notImplemented();
                 }
             }
 
-            Log.d("MAIN ACTIVITY", "Main activity almost done")
-            //! WorkManagerUtil.manageLocationWork(context, 15)
+            Log.d("MAIN ACTIVITY", "Main activity almost done");
+            WorkManagerUtil.manageLocationWork(context, 15);
     }
 }

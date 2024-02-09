@@ -36,9 +36,8 @@ class SettingsAPI {
     if (save_in_kotlin) {
       const platform = MethodChannel("com.example.app/my_channel");
       try {
-        final String result = await platform.invokeMethod("changeSetting", {"key": key, "value": value as String});
+        await platform.invokeMethod("changeSetting", {"key": key, "value": value as String});
         // TODO update to match kotlin better
-        print(result);
       } on PlatformException catch (e) {
         print("Failed to send data to Kotlin: ${e.message}");
       }

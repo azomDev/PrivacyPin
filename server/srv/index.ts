@@ -23,6 +23,7 @@ const server = Bun.serve({
             console.log("/send_ping - INPUT : longitude: " + ping.longitude);
             console.log("/send_ping - INPUT : latitude: " + ping.latitude);
             console.log("/send_ping - INPUT : timestamp: " + ping.timestamp);
+            console.log(ping);
             db.insertPing(ping);
             return new Response();
         }
@@ -49,7 +50,6 @@ const server = Bun.serve({
             console.log("Received a request on api /get_links");
             const my_user_id: string = (await req.json() as any).my_user_id;
             const links: FrontendLink[] = db.getLinks(my_user_id);
-            console.log(links)
             return Response.json(links)
         }
         else if (url.pathname === "/modify_link") {

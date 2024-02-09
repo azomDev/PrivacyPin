@@ -30,8 +30,8 @@ class LocationWorker(appContext: Context, workerParams: WorkerParameters):
         val timestamp = System.currentTimeMillis()
 
         val sharedPref = applicationContext.getSharedPreferences("com.example.app.preferences", Context.MODE_PRIVATE)
-        val server_url = sharedPref.getString("server_url", "defaultValueidk")
-        val user_id = sharedPref.getString("user_id", "defaultValueidk")
+        val server_url = sharedPref.getString("SettingName.serverUrl", "defaultValueidk")
+        val user_id = sharedPref.getString("SettingName.userId", "defaultValueidk")
 
         val jsonString = """{"user_id": "$user_id", "longitude": "$longitude", "latitude": "$latitude", "timestamp": "$timestamp"}"""
 

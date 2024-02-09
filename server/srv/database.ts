@@ -43,15 +43,15 @@ export class ServerDatabase {
 
         const delete_query = db.prepare(
             `DELETE FROM positions 
-            WHERE user_id = $ping.user_id`
+            WHERE user_id = $user_id`
         );
-        delete_query.run({ $user_id: ping.user_id });
+        delete_query.run({ $user_id: ping.user_id });        
 
         const insert_query = db.prepare(
             `INSERT INTO positions 
             (id, user_id, longitude, latitude, timestamp) 
             VALUES 
-            ($id, $ping.user_id, $ping.longitude, $ping.latitude, $ping.timestamp)`
+            ($id, $user_id, $longitude, $latitude, $timestamp)`
         );
         insert_query.run({ $id: id, $user_id: ping.user_id, $longitude: ping.longitude, $latitude: ping.latitude, $timestamp: ping.timestamp });
     }

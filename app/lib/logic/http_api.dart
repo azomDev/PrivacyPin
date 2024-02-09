@@ -18,7 +18,7 @@ class ServerAPI {
   }
 
   static Future<Ping> getPing(String user_id_to_get_from) async {
-    final body = jsonEncode({"user_id_to_get_from": user_id_to_get_from});
+    final body = jsonEncode({"receiver_user_id": user_id_to_get_from});
     final response_body = await post(body, "get_ping");
     final Map<String, dynamic> response_data = jsonDecode(response_body);
     return Ping.fromMap(response_data);

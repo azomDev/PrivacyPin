@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 import { User, Ping, WithoutId, FrontendLink, mapLinkToFrontendLink, Link } from "./models";
 
-const db = new Database("database.sqlite")
+const db = new Database("database.sqlite");
 db.prepare(
     `CREATE TABLE 
     IF NOT EXISTS positions 
@@ -42,7 +42,7 @@ export class ServerDatabase {
         db.prepare(
             `DELETE FROM positions 
             WHERE user_id = $user_id`
-        ).run({ $user_id: ping.user_id });        
+        ).run({ $user_id: ping.user_id });
 
         db.prepare(
             `INSERT INTO positions 
@@ -53,20 +53,24 @@ export class ServerDatabase {
     }
 
     static getPing(user_id: string): Ping {
-        const ping = db.prepare(
-            `SELECT * 
+        const ping = db
+            .prepare(
+                `SELECT * 
             FROM positions 
             WHERE user_id = $user_id`
-        ).get({ $user_id: user_id }) as Ping;
+            )
+            .get({ $user_id: user_id }) as Ping;
         return ping;
     }
 
     static getLinks(my_user_id: string): FrontendLink[] {
-        const links = db.prepare(
-            `SELECT *
+        const links = db
+            .prepare(
+                `SELECT *
             FROM links
             WHERE $user_id IN (user_id_1, user_id_2)`
-        ).all({ $user_id: my_user_id}) as Link[];
+            )
+            .all({ $user_id: my_user_id }) as Link[];
         return links.map((dbRow) => mapLinkToFrontendLink(dbRow, my_user_id)) as FrontendLink[];
     }
 
@@ -78,33 +82,34 @@ export class ServerDatabase {
                 is_user_2_sending = CASE WHEN user_id_1 = $user_id_2 AND user_id_2 = $user_id_1 THEN $new_value ELSE is_user_2_sending END
             WHERE (user_id_1 = $user_id_1 AND user_id_2 = $user_id_2) 
                 OR (user_id_1 = $user_id_2 AND user_id_2 = $user_id_1)`
-        ).run({$user_id_1: sender_user_id, $user_id_2: receiver_user_id, $new_value: new_value});
+        ).run({ $user_id_1: sender_user_id, $user_id_2: receiver_user_id, $new_value: new_value });
     }
 
     static createLink(sender_user_id: string, receiver_user_id: string): FrontendLink {
-        const link = db.prepare(
-            `SELECT id, user_id_1, user_id_2 
+        const link = db
+            .prepare(
+                `SELECT id, user_id_1, user_id_2 
             FROM links 
             WHERE (user_id_1 = $user_id_1 AND user_id_2 = $user_id_2) 
             OR (user_id_1 = $user_id_2 AND user_id_2 = $user_id_1)`
-        ).get({$user_id_1: sender_user_id, $user_id_2: receiver_user_id}) as Link;
+            )
+            .get({ $user_id_1: sender_user_id, $user_id_2: receiver_user_id }) as Link;
         if (link == null) {
             let id = crypto.randomUUID();
             db.prepare(
                 `INSERT INTO links (id, user_id_1, user_id_2, is_user_1_sending, is_user_2_sending)
                 VALUES ($id, $user_id_1, $user_id_2, 1, NULL)`
-            ).run({$id: id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id});
-            return {id: id, receiver_user_id: receiver_user_id, am_i_sending: 1};
-        }
-        else {
+            ).run({ $id: id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id });
+            return { id: id, receiver_user_id: receiver_user_id, am_i_sending: 1 };
+        } else {
             db.prepare(
                 `UPDATE links
                 SET
                     is_user_1_sending = CASE WHEN user_id_1 = $user_id_1 AND user_id_2 = $user_id_2 THEN 1 ELSE is_user_1_sending END,
                     is_user_2_sending = CASE WHEN user_id_1 = $user_id_2 AND user_id_2 = $user_id_1 THEN 1 ELSE is_user_2_sending END
                 WHERE id = $link_id`
-            ).run({$link_id: link.id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id})
-            return {id: link.id, receiver_user_id: receiver_user_id, am_i_sending: 1};
+            ).run({ $link_id: link.id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id });
+            return { id: link.id, receiver_user_id: receiver_user_id, am_i_sending: 1 };
         }
     }
 }

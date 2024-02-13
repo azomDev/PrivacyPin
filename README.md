@@ -4,11 +4,11 @@ PrivacyPin is a secure location sharing app designed to prioritize user privacy.
 
 ## Key Features
 
-- **User-Controlled Location Sharing**: Users have full control over who can view their location and when it is visible.
-- **Real-Time Access Notifications**: Receive notifications whenever someone accesses your position.
-- **Self-Hostable Server**: The server is self-hostable, ensuring that users do not rely on big tech companies to access their location data.
-- **Post-Quantum Encryption**: Utilizes encryption techniques that are resistant to attacks from quantum computers, ensuring maximum security.
-- **Semi-SOS Feature**: Includes a feature for urgent situations that require quick attention but may not be life-threatening.
+-   **User-Controlled Location Sharing**: Users have full control over who can view their location and when it is visible.
+-   **Real-Time Access Notifications**: Receive notifications whenever someone accesses your position.
+-   **Self-Hostable Server**: The server is self-hostable, ensuring that users do not rely on big tech companies to access their location data.
+-   **Post-Quantum Encryption**: Utilizes encryption techniques that are resistant to attacks from quantum computers, ensuring maximum security.
+-   **Semi-SOS Feature**: Includes a feature for urgent situations that require quick attention but may not be life-threatening.
 
 ## Usage
 
@@ -20,10 +20,10 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 
 ## Roadmap
 
-- [ ] Basic app/server with basic location sharing and no encryption/security/privacy
-- [ ] Adding access notification
-- [ ] Adding semi-SOS feature
-- [ ] Adding encryptions protocols
+-   [x] Basic (unstable) app/server with basic location sharing without encryption/security/privacy
+-   [ ] Adding encryptions protocols
+-   [ ] Adding access notification
+-   [ ] Adding semi-SOS feature
 
 ## License
 

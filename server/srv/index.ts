@@ -12,13 +12,12 @@ const server = Bun.serve({
         const url = new URL(req.url);
         if (url.pathname === "/create_account") {
             console.log("Received a request on api /create_user");
-            const user_without_id: WithoutId<User> = await req.json() as WithoutId<User>;
+            const user_without_id: WithoutId<User> = (await req.json()) as WithoutId<User>;
             const id: string = db.createUser(user_without_id);
             return new Response(id);
-        }
-        else if (url.pathname === "/send_ping") {
+        } else if (url.pathname === "/send_ping") {
             console.log("Received a request on api /send_ping");
-            const ping: WithoutId<Ping> = await req.json() as WithoutId<Ping>;
+            const ping: WithoutId<Ping> = (await req.json()) as WithoutId<Ping>;
             console.log("/send_ping - INPUT : user_id: " + ping.user_id);
             console.log("/send_ping - INPUT : longitude: " + ping.longitude);
             console.log("/send_ping - INPUT : latitude: " + ping.latitude);
@@ -26,42 +25,36 @@ const server = Bun.serve({
             console.log(ping);
             db.insertPing(ping);
             return new Response();
-        }
-        else if (url.pathname === "/get_ping") {
+        } else if (url.pathname === "/get_ping") {
             console.log("Received a request on api /get_ping");
-            const receiver_user_id: string = (await req.json() as any).receiver_user_id;
+            const receiver_user_id: string = ((await req.json()) as any).receiver_user_id;
             const ping: Ping = db.getPing(receiver_user_id);
             return Response.json(ping);
-        }
-        else if (url.pathname === "/get_all_users") {
+        } else if (url.pathname === "/get_all_users") {
             console.log("Received a request on api /get_all_users");
             let all_users: User[] = db.getAllUsers();
             return Response.json(all_users);
-        }
-        else if (url.pathname === "/create_link") {
+        } else if (url.pathname === "/create_link") {
             console.log("Received a request on api /create_link");
             const json_object: any = await req.json();
-            const sender_user_id: string = json_object.sender_user_id
+            const sender_user_id: string = json_object.sender_user_id;
             const receiver_user_id: string = json_object.receiver_user_id;
-            const link: FrontendLink = db.createLink(sender_user_id, receiver_user_id);
-            return Response.json(link);
-        }
-        else if (url.pathname === "/get_links") {
+            db.createLink(sender_user_id, receiver_user_id);
+            return new Response();
+        } else if (url.pathname === "/get_links") {
             console.log("Received a request on api /get_links");
-            const my_user_id: string = (await req.json() as any).my_user_id;
+            const my_user_id: string = ((await req.json()) as any).my_user_id;
             const links: FrontendLink[] = db.getLinks(my_user_id);
-            return Response.json(links)
-        }
-        else if (url.pathname === "/modify_link") {
+            return Response.json(links);
+        } else if (url.pathname === "/modify_link") {
             console.log("Received a request on api /modify_link");
             const json_object: any = await req.json();
-            const sender_user_id: string = json_object.sender_user_id
+            const sender_user_id: string = json_object.sender_user_id;
             const receiver_user_id: string = json_object.receiver_user_id;
             const new_value: number = json_object.am_i_sending;
             db.modifyLink(sender_user_id, receiver_user_id, new_value);
             return new Response();
-        }
-        else return new Response("404");
+        } else return new Response("404");
     },
 });
 

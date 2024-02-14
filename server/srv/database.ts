@@ -18,6 +18,12 @@ db.prepare(
     (id TEXT, user_id_1 TEXT, user_id_2 TEXT, is_user_1_sending INTEGER, is_user_2_sending INTEGER)`
 ).run();
 
+// db.prepare(
+//     `CREATE TABLE
+//     IF NOT EXISTS links
+//     (id TEXT, user_id_1 TEXT, user_id_2 TEXT, is_user_1_sending INTEGER, is_user_2_sending INTEGER, user_1_encrypted_location_decryption_key BLOB, user_2_encrypted_location_decryption_key, BLOB)`
+// ).run();
+
 export class ServerDatabase {
     static getAllUsers(): User[] {
         const users: User[] = db.prepare(`SELECT * FROM users`).all() as User[];
@@ -85,31 +91,11 @@ export class ServerDatabase {
         ).run({ $user_id_1: sender_user_id, $user_id_2: receiver_user_id, $new_value: new_value });
     }
 
-    static createLink(sender_user_id: string, receiver_user_id: string): FrontendLink {
-        const link = db
-            .prepare(
-                `SELECT id, user_id_1, user_id_2 
-            FROM links 
-            WHERE (user_id_1 = $user_id_1 AND user_id_2 = $user_id_2) 
-            OR (user_id_1 = $user_id_2 AND user_id_2 = $user_id_1)`
-            )
-            .get({ $user_id_1: sender_user_id, $user_id_2: receiver_user_id }) as Link;
-        if (link == null) {
-            let id = crypto.randomUUID();
-            db.prepare(
-                `INSERT INTO links (id, user_id_1, user_id_2, is_user_1_sending, is_user_2_sending)
-                VALUES ($id, $user_id_1, $user_id_2, 1, NULL)`
-            ).run({ $id: id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id });
-            return { id: id, receiver_user_id: receiver_user_id, am_i_sending: 1 };
-        } else {
-            db.prepare(
-                `UPDATE links
-                SET
-                    is_user_1_sending = CASE WHEN user_id_1 = $user_id_1 AND user_id_2 = $user_id_2 THEN 1 ELSE is_user_1_sending END,
-                    is_user_2_sending = CASE WHEN user_id_1 = $user_id_2 AND user_id_2 = $user_id_1 THEN 1 ELSE is_user_2_sending END
-                WHERE id = $link_id`
-            ).run({ $link_id: link.id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id });
-            return { id: link.id, receiver_user_id: receiver_user_id, am_i_sending: 1 };
-        }
+    static createLink(sender_user_id: string, receiver_user_id: string) {
+        let id = crypto.randomUUID();
+        db.prepare(
+            `INSERT INTO links (id, user_id_1, user_id_2, is_user_1_sending, is_user_2_sending)
+                VALUES ($id, $user_id_1, $user_id_2, 1, 0)`
+        ).run({ $id: id, $user_id_1: sender_user_id, $user_id_2: receiver_user_id });
     }
 }

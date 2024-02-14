@@ -35,11 +35,10 @@ class ServerAPI {
     return users;
   }
 
-  static Future<Link> createLink(String receiver_user_id) async {
+  static Future<void> createLink(String receiver_user_id) async {
     final my_user_id = SettingsAPI.getSetting<String>(SettingName.userId.toString());
     final body = jsonEncode({"sender_user_id": my_user_id, "receiver_user_id": receiver_user_id});
-    final response_body = await post(body, "create_link");
-    return Link.fromMap(jsonDecode(response_body));
+    await post(body, "create_link");
   }
 
   static Future<List<Link>> getLinks() async {

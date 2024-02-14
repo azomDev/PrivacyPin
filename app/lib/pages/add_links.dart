@@ -25,8 +25,7 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   void addFriend(User user) async {
-    Link link = await ServerAPI.createLink(user.id);
-    SQLDatabase.createLink(link);
+    await ServerAPI.createLink(user.id);
   }
 
   @override

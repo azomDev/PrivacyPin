@@ -7,7 +7,7 @@ PrivacyPin is a secure location sharing app designed to prioritize user privacy.
 -   **User-Controlled Location Sharing**: Users have full control over who can view their location and when it is visible.
 -   **Real-Time Access Notifications**: Receive notifications whenever someone accesses your position.
 -   **Self-Hostable Server**: The server is self-hostable, ensuring that users do not rely on big tech companies to access their location data.
--   **Post-Quantum Encryption**: Utilizes encryption techniques that are resistant to attacks from quantum computers, ensuring maximum security.
+-   **Post-Quantum Encryption**: Utilizes encryption techniques that are resistant to attacks from classical and quantum computers, ensuring maximum security.
 -   **Semi-SOS Feature**: Includes a feature for urgent situations that require quick attention but may not be life-threatening.
 
 ## Usage

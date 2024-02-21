@@ -12,47 +12,25 @@ class ServerAPI {
     return response.body;
   }
 
-  static Future<String> createAccount(String username) async {
-    final body = jsonEncode({"username": username});
+  static Future<String> createAccount(String registration_key, String public_signing_key) async {
+    final body = jsonEncode({"registration_key": registration_key, "public_signing_key": public_signing_key});
     return post(body, "create_account");
   }
 
   static Future<Ping> getPing(String user_id_to_get_from) async {
-    final body = jsonEncode({"receiver_user_id": user_id_to_get_from});
+    final body = jsonEncode({"requested_user_id": user_id_to_get_from});
     final response_body = await post(body, "get_ping");
-    final Map<String, dynamic> response_data = jsonDecode(response_body);
-    return Ping.fromMap(response_data);
+    return Ping.fromMap(jsonDecode(response_body));
   }
 
-  static Future<List<User>> getAllUsers() async {
-    final server_url = SettingsAPI.getSetting<String>(SettingName.serverUrl.toString());
-    final url = Uri.parse("$server_url/get_all_users");
-    final response = await http.get(url);
-
-    List<Map<String, dynamic>> jsonData = (jsonDecode(response.body) as List).cast<Map<String, dynamic>>();
-
-    List<User> users = jsonData.map((map) => User.fromMap(map)).toList();
-    return users;
+  static Future<void> updateLocationKey(SignedLocationKey signed_location_key) async {
+    final body = jsonEncode(signed_location_key);
+    await post(body, "update_location_key");
   }
 
-  static Future<void> createLink(String receiver_user_id) async {
-    final my_user_id = SettingsAPI.getSetting<String>(SettingName.userId.toString());
-    final body = jsonEncode({"sender_user_id": my_user_id, "receiver_user_id": receiver_user_id});
-    await post(body, "create_link");
-  }
-
-  static Future<List<Link>> getLinks() async {
-    final my_user_id = SettingsAPI.getSetting<String>(SettingName.userId.toString());
-    final body = jsonEncode({"my_user_id": my_user_id});
-    final response_body = await post(body, "get_links");
-    List<Map<String, dynamic>> jsonData = (jsonDecode(response_body) as List).cast<Map<String, dynamic>>();
-    List<Link> links = jsonData.map((map) => Link.fromMap(map)).toList();
-    return links;
-  }
-
-  static Future<void> modifyLink(String receiver_user_id, int new_value) async {
-    final my_user_id = SettingsAPI.getSetting<String>(SettingName.userId.toString());
-    final body = jsonEncode({"sender_user_id": my_user_id, "receiver_user_id": receiver_user_id, "am_i_sending": new_value});
-    await post(body, "modify_link");
+  static Future<LocationKey> getLocationKey(String my_user_id, String sender_user_id) async {
+    final body = jsonEncode({"sender_user_id": sender_user_id, "receiver_user_id": my_user_id});
+    final response_body = await post(body, "get_location_key");
+    return LocationKey.fromMap(jsonDecode(response_body));
   }
 }

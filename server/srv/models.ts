@@ -1,8 +1,10 @@
-export type WithoutId<T> = Omit<T, "id">
 export type Signed<T> = T & {signature: string}
 
-export interface ServerUser {
-    id: string;
+export interface LocationKey {
+    sender_user_id: string;
+    receiver_user_id: string;
+    location_key: string;
+    timestamp: string;
 }
 
 export interface Ping {
@@ -11,8 +13,3 @@ export interface Ping {
     timestamp: string;
 }
 
-export interface LocationKey {
-    user_id: string;
-    location_key: string;
-    timestamp: string;
-}

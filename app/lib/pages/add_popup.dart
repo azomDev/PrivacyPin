@@ -1,5 +1,4 @@
-import "package:app/pages/add_links.dart";
-import "package:flutter/material.dart";
+import 'package:flutter/material.dart';
 
 class AddPopup extends StatefulWidget {
   @override
@@ -10,28 +9,28 @@ class _AddPopupState extends State<AddPopup> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add user to track', textAlign: TextAlign.center),
+      title: const Text('Add a friend', textAlign: TextAlign.center),
       actions: <Widget>[
         Row(
           children: [
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => FriendsPage()),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Create QR not yet implemented"),
+                ));
+                Navigator.of(context).pop();
               },
-              child: const Text('Add online'),
+              child: const Text('Create QR'),
             ),
             const SizedBox(width: 10),
             ElevatedButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("QR not yet implemented"),
+                  content: Text("Scan QR not yet implemented"),
                 ));
                 Navigator.of(context).pop();
               },
-              child: const Text('Add with QR'),
+              child: const Text('Scan QR'),
             ),
           ],
         ),

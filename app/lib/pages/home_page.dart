@@ -15,18 +15,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Link> _links = [];
+  List<User> _users = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchLinksFromDatabase();
+    _fetchUsersFromDatabase();
   }
 
-  Future<void> _fetchLinksFromDatabase() async {
-    List<Link> links = await SQLDatabase.getLinks();
+  Future<void> _fetchUsersFromDatabase() async {
+    List<User> users = await SQLDatabase.getUsers();
     setState(() {
-      _links = links;
+      _users = users;
     });
   }
 
@@ -36,12 +36,6 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('PrivacyPin'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () async {
-              await refreshUsersAndLinks();
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
@@ -53,7 +47,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: UsersList(links: _links),
+      body: UsersList(users: _users),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
@@ -66,15 +60,5 @@ class _HomePageState extends State<HomePage> {
         child: const Icon(Icons.add),
       ),
     );
-  }
-
-  Future<void> refreshUsersAndLinks() async {
-    await SQLDatabase.nukeUsersTable();
-    await SQLDatabase.nukeLinksTable();
-    List<User> users = await ServerAPI.getAllUsers();
-    List<Link> links = await ServerAPI.getLinks();
-    await SQLDatabase.insertUsers(users);
-    await SQLDatabase.insertLinks(links);
-    _fetchLinksFromDatabase();
   }
 }

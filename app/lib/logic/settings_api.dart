@@ -1,6 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:flutter/services.dart";
 
+// todo use secure storing, but only after everything works, so that there's not another thing to tweak
+
 class SettingsAPI {
   static late SharedPreferences _prefs;
 
@@ -37,7 +39,7 @@ class SettingsAPI {
       const platform = MethodChannel("com.example.app/my_channel");
       try {
         await platform.invokeMethod("changeSetting", {"key": key, "value": value as String});
-        // TODO update to match kotlin better
+        // TODO update to match kotlin better?
       } on PlatformException catch (e) {
         print("Failed to send data to Kotlin: ${e.message}");
       }

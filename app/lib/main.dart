@@ -9,61 +9,61 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SettingsAPI.initializeSettingsAPI();
   await SQLDatabase.initDatabase();
-  runApp(MyApp());
+
+  int themeValue = await SettingsAPI.getSettingOrSetDefault<int>(SettingName.themeMode.toString(), 0);
+  ThemeMode themeMode;
+  switch (themeValue) {
+    case 0:
+      themeMode = ThemeMode.system;
+      break;
+    case 1:
+      themeMode = ThemeMode.light;
+      break;
+    case 2:
+      themeMode = ThemeMode.dark;
+      break;
+    default:
+      themeMode = ThemeMode.system;
+  }
+
+  bool is_logged_in = SettingsAPI.getSetting<String>("user_id") != null;
+  if (is_logged_in) {
+    runApp(MyApp(initialThemeMode: themeMode));
+  } else {
+    runApp(SignupPage(initial_theme_mode: themeMode));
+  }
 }
 
 class MyApp extends StatefulWidget {
-  static final GlobalKey<State<MyApp>> appKey = GlobalKey<_MyAppState>();
+  final ThemeMode initialThemeMode;
+  const MyApp({required this.initialThemeMode});
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.system;
-  late bool _isLoggedIn;
+  late ThemeMode _themeMode;
 
   @override
   void initState() {
     super.initState();
-    _loadTheme();
-    _isLoggedIn = SettingsAPI.getSetting<String>("user_id") != null;
-  }
-
-  void _loadTheme() async {
-    int themeValue = await SettingsAPI.getSettingOrSetDefault<int>(SettingName.themeMode.toString(), 0);
-    setState(() {
-      switch (themeValue) {
-        case 0:
-          _themeMode = ThemeMode.system;
-        case 1:
-          _themeMode = ThemeMode.light;
-        case 2:
-          _themeMode = ThemeMode.dark;
-      }
-    });
+    _themeMode = widget.initialThemeMode;
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'PrivacyPin',
-      theme: ThemeData(),
-      darkTheme: ThemeData.dark(),
-      themeMode: _themeMode,
-      home: _isLoggedIn
-          ? HomePage(
-              changeAppTheme: (ThemeMode newThemeMode) {
-                setState(() {
-                  _themeMode = newThemeMode;
-                });
-              },
-            )
-          : SignupPage(callback: () {
-              setState(() {
-                _isLoggedIn = true;
-              });
-            }),
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'PrivacyPin',
+        theme: ThemeData(),
+        darkTheme: ThemeData.dark(),
+        themeMode: _themeMode,
+        home: HomePage(
+          changeAppTheme: (ThemeMode newThemeMode) {
+            setState(() {
+              _themeMode = newThemeMode;
+            });
+          },
+        ));
   }
 }

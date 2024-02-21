@@ -20,10 +20,14 @@ db.prepare( // if the registration key is null, it's to store the last timestamp
 db.prepare(
     `CREATE TABLE 
     IF NOT EXISTS location_keys 
-    (user_id TEXT, location_key TEXT, timestamp TEXT)`
+    (sender_user_id TEXT, receiver_user_id TEXT, location_key TEXT, timestamp TEXT)`
 ).run();
 
-// todo on first run or something, add the registration key null entry for the timestamp
+const registrationKeyEntry = db.prepare(`SELECT * FROM registration_keys WHERE registration_key IS NULL`).get();
+
+if (!registrationKeyEntry) {
+    db.prepare(`INSERT INTO registration_keys (registration_key, timestamp) VALUES (NULL, ?)`).run(new Date().toISOString());
+}
 
 export class ServerDatabase {
     static createUser(public_signing_key: string): string {
@@ -50,12 +54,12 @@ export class ServerDatabase {
         ).run({$user_id: ping.user_id, $encrypted_ping: ping.encrypted_ping, $timestamp: ping.timestamp});
     }
 
-    static getPing(requested_user_id: string): Ping {
+    static getPing(sender_user_id: string): Ping {
         const ping: Ping = db.prepare(
             `SELECT * 
             FROM positions 
             WHERE user_id = $user_id`
-        ).get({ $user_id: requested_user_id }) as Ping;
+        ).get({ $user_id: sender_user_id }) as Ping;
         return ping;
     }
 
@@ -79,23 +83,33 @@ export class ServerDatabase {
     static updateLocationKey(location_key: LocationKey) {
         db.prepare(
             `DELETE FROM location_keys 
-            WHERE user_id = $user_id`
-        ).run({ $user_id: location_key.user_id });
+            WHERE sender_user_id = $sender_user_id`
+        ).run({ $sender_user_id: location_key.sender_user_id });
 
         db.prepare(
             `INSERT INTO location_keys 
             (user_id, location_key, timestamp) 
-            VALUES ($user_id, $location_key, $timestamp)`
-        ).run({$user_id: location_key.user_id, $location_key: location_key.location_key, $timestamp: location_key.timestamp});
+            VALUES ($sender_user_id, $receiver_user_id, $location_key, $timestamp)`
+        ).run({$sender_user_id: location_key.sender_user_id, $receiver_user_id: location_key.receiver_user_id, $location_key: location_key.location_key, $timestamp: location_key.timestamp});
     }
 
-    static getLocationKey(requested_user_id: string): LocationKey {
+    static getLocationKey(sender_user_id: string, receiver_user_id: string): LocationKey {
         const location_key: LocationKey = db.prepare(
             `SELECT * 
             FROM location_keys 
             WHERE user_id = $user_id`
-        ).get({ $user_id: requested_user_id }) as LocationKey;
+        ).get({ $sender_user_id: sender_user_id, $receiver_user_id: receiver_user_id }) as LocationKey;
         return location_key;
+    }
+
+    static getPublicSigningKey(user_id: string): string {
+        const result: string = db.prepare(
+            `SELECT public_signing_key 
+            FROM users 
+            WHERE user_id = $user_id`
+        ).get({ $user_id: user_id }) as string;
+
+        return result;
     }
 
     static isRegistrationKeyValidAndDelete(registration_key: string): boolean {
@@ -143,15 +157,5 @@ export class ServerDatabase {
         ).get({ $user_id: user_id }) as LocationKey;
 
         return lastLocationKey && new_timestamp < lastLocationKey.timestamp;
-    }
-
-    static getPublicSigningKey(user_id: string): string {
-        const result: string = db.prepare(
-            `SELECT public_signing_key 
-            FROM users 
-            WHERE user_id = $user_id`
-        ).get({ $user_id: user_id }) as string;
-
-        return result;
     }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../logic/database_api.dart';
-import '../logic/http_api.dart';
-import '../logic/models.dart';
+import '../apis/database_api.dart';
+import '../components/models.dart';
 import 'add_popup.dart';
 import '../components/user_list.dart';
 import 'settings.dart';
@@ -24,7 +23,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchUsersFromDatabase() async {
-    List<User> users = await SQLDatabase.getUsers();
+    List<User> users = await SQLDatabase.getAllUsers();
     setState(() {
       _users = users;
     });

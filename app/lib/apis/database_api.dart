@@ -1,5 +1,5 @@
 import "package:sqflite/sqflite.dart";
-import 'models.dart';
+import '../components/models.dart';
 
 class SQLDatabase {
   static const String _users_table = "users";
@@ -25,7 +25,7 @@ class SQLDatabase {
     await _db.insert(_users_table, user.toMap());
   }
 
-  static Future<List<User>> getUsers() async {
+  static Future<List<User>> getAllUsers() async {
     List<Map<String, dynamic>> maps = await _db.query(_users_table);
     return List.generate(maps.length, (index) {
       return User.fromMap(maps[index]);

@@ -1,22 +1,6 @@
 import 'dart:convert';
-import 'package:app/logic/crypto_utils.dart';
-
-class LocationKey {
-  String sender_user_id;
-  String receiver_user_id;
-  String location_key;
-  String timestamp;
-
-  LocationKey.fromMap(Map<String, dynamic> map)
-      : sender_user_id = map["sender_user_id"],
-        receiver_user_id = map["receiver_user_id"],
-        location_key = map["location_key"],
-        timestamp = map["timestamp"];
-
-  String decrypt(String secret_key) {
-    return CryptoUtils.decrypt(location_key, secret_key);
-  }
-}
+import 'package:app/apis/crypto_utils.dart';
+import 'package:app/apis/settings_api.dart';
 
 class Position {
   double latitude;
@@ -45,17 +29,20 @@ class SignedLocationKey {
 }
 
 class Ping {
-  String user_id;
+  String receiver_user_id;
+  String sender_user_id;
   String encrypted_ping;
   String timestamp;
 
   Ping.fromMap(Map<String, dynamic> map)
-      : user_id = map["user_id"],
+      : receiver_user_id = map["receiver_user_id"],
+        sender_user_id = map["receiver_user_id"],
         encrypted_ping = map["encrypted_ping"],
         timestamp = map["timestamp"];
 
-  Position decrypt(String ping_decryption_key) {
-    String decrypted_ping_string = CryptoUtils.decrypt(encrypted_ping, ping_decryption_key);
+  Future<Position> decrypt() async {
+    String secret_key = await SettingsAPI.getUserSecretKey(sender_user_id);
+    String decrypted_ping_string = await CryptoUtils.decrypt(encrypted_ping, secret_key);
     return Position.fromMap(jsonDecode(decrypted_ping_string));
   }
 }

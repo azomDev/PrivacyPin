@@ -17,9 +17,6 @@ class MainActivity : FlutterActivity() {
 
         super.onCreate(savedInstanceState);
 
-        // val policy = StrictMode.ThreadPolicy.Builder().permitAll().build();
-        // StrictMode.setThreadPolicy(policy);
-
         // Register the platform channel
 
         MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
@@ -29,13 +26,37 @@ class MainActivity : FlutterActivity() {
                     val interval = data["pingFrequency"]!!.toLong();
                     Log.d("MainActivity", "Received data from Flutter: $interval");
                     WorkManagerUtil.manageLocationWork(context, interval);
+
+                    val sharedPref = context.getSharedPreferences("com.example.app.preferences", Context.MODE_PRIVATE);
+                    val editor = sharedPref.edit();
+                    editor.putLong("pingFrequency", interval);
+                    editor.apply();
                     result.success("Data received successfully");
                 }
-                else if (call.method == "changeSetting"){
+                else if (call.method == "generateSigningKeyPair") {
+                    val jsonString = """{"private": "testPrivateKey", "public": "testPublicKey"}"""
+                    result.success(jsonString);
+                }
+                else if (call.method == "sign") {
+                    //val data = call.arguments as Map<String, String>;
+                    //val data_to_sign = data["data"]!!.toString();
+                    result.success("test");
+                }
+                else if (call.method == "decrypt") {
+                    //val data = call.arguments as Map<String, String>;
+                    //val encrypted_data = data["encrypted_data"]!!.toString();
+                    //val secret_key = data["secret_key"]!!.toString();
+                    result.success("testDecryptMessage");
+                }
+                else if (call.method == "generateSecretKey") {
+                    result.success("testSecretKey");
+                }
+                else if (call.method == "changeSetting"){ // todo if the setting is the ping interval, do something more
+                // todo also the input could be not only String but also int, double, String and bool
                     val data = call.arguments as Map<String, String>;
                     val sharedPref = context.getSharedPreferences("com.example.app.preferences", Context.MODE_PRIVATE);
                     val editor = sharedPref.edit();
-                    editor.putString(data["key"], data["value"]);
+                    editor.putString(data["key"]!!, data["value"]!!.toString());
                     editor.apply();
                     result.success("yay");
                 }

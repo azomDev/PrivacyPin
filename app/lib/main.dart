@@ -1,6 +1,6 @@
-import 'package:app/logic/database_api.dart';
-import 'package:app/logic/settings_api.dart';
-import 'package:app/pages/settings.dart';
+import 'package:app/apis/database_api.dart';
+import 'package:app/apis/kotlin_api.dart';
+import 'package:app/apis/settings_api.dart';
 import "package:flutter/material.dart";
 import 'pages/home_page.dart';
 import 'pages/signup_page.dart';
@@ -9,8 +9,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SettingsAPI.initializeSettingsAPI();
   await SQLDatabase.initDatabase();
+  KotlinAPI.initialize();
 
-  int themeValue = await SettingsAPI.getSettingOrSetDefault<int>(SettingName.themeMode.toString(), 0);
+  int themeValue = await SettingsAPI.getSetting(SettingName.themeMode);
   ThemeMode themeMode;
   switch (themeValue) {
     case 0:
@@ -26,8 +27,7 @@ void main() async {
       themeMode = ThemeMode.system;
   }
 
-  bool is_logged_in = SettingsAPI.getSetting<String>("user_id") != null;
-  if (is_logged_in) {
+  if (await SettingsAPI.isLoggedIn()) {
     runApp(MyApp(initialThemeMode: themeMode));
   } else {
     runApp(SignupPage(initial_theme_mode: themeMode));

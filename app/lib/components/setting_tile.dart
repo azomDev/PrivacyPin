@@ -1,30 +1,27 @@
-import 'package:app/logic/settings_api.dart';
-import 'package:app/pages/settings.dart';
+import 'package:app/apis/settings_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 enum TileType { number, switcher }
 
-class SettingTile<T> extends StatefulWidget {
+class SettingTile extends StatefulWidget {
   final TileType tile_type;
   final String title;
   final String description;
-  final SettingName setting_name;
-  final T default_value;
+  final SettingName setting;
 
   const SettingTile({
     required this.tile_type,
     required this.title,
     required this.description,
-    required this.setting_name,
-    required this.default_value,
+    required this.setting,
   });
 
   @override
-  State<SettingTile<T>> createState() => _SettingTileState<T>();
+  State<SettingTile> createState() => _SettingTileState();
 }
 
-class _SettingTileState<T> extends State<SettingTile<T>> {
+class _SettingTileState extends State<SettingTile> {
   late TextEditingController _text_editing_controller;
 
   @override
@@ -34,7 +31,7 @@ class _SettingTileState<T> extends State<SettingTile<T>> {
       subtitle: Text(widget.description),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
       trailing: FutureBuilder<dynamic>(
-        future: SettingsAPI.getSettingOrSetDefault(widget.setting_name.toString(), widget.default_value),
+        future: SettingsAPI.getSetting(widget.setting),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
             if (widget.tile_type == TileType.number) {
@@ -64,8 +61,9 @@ class _SettingTileState<T> extends State<SettingTile<T>> {
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          onEditingComplete: () {
-            SettingsAPI.setSetting<int>(widget.setting_name.toString(), int.parse(_text_editing_controller.text));
+          onEditingComplete: () async {
+            await SettingsAPI.setSetting(widget.setting, int.parse(_text_editing_controller.text));
+            if (!mounted) return;
             FocusScope.of(context).unfocus(); // To hide the keyboard apparently
           },
         ));
@@ -78,7 +76,7 @@ class _SettingTileState<T> extends State<SettingTile<T>> {
         setState(() {
           switch_value = !switch_value;
         });
-        await SettingsAPI.setSetting<bool>(widget.setting_name.toString(), new_value);
+        await SettingsAPI.setSetting(widget.setting, new_value);
       },
     );
   }

@@ -2,6 +2,10 @@
 
 PrivacyPin is a secure location sharing app designed to prioritize user privacy. It offers complete control over location sharing, allowing users to determine who can access their location and when. Additionally, it provides real-time notifications when someone accesses their position.
 
+## IMPORTANT
+
+This repository will be temporarily inactive for the next few months as we dedicate our efforts to the development of a robust security protocol. We anticipate resuming activity sometime in the summer.
+
 ## Key Features
 
 -   **User-Controlled Location Sharing**: Users have full control over who can view their location and when it is visible.

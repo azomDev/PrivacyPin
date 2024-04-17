@@ -36,4 +36,5 @@ Distributed under the GNU General Public License v3.0. See `LICENSE` for more in
 ## Contact
 
 Email - azom.developer@gmail.com\
+Signal - @azom.01\
 Discord - azom#6496

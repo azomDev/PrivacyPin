@@ -4,7 +4,8 @@ PrivacyPin is a secure location sharing app designed to prioritize user privacy.
 
 ## IMPORTANT
 
-This repository will be temporarily inactive for the next few months as we dedicate our efforts to the development of a robust security protocol. We anticipate resuming activity sometime in the summer.
+This repository will be temporarily inactive for the next few months as I dedicate my efforts to the development of a robust security protocol. I anticipate resuming activity sometime in the summer.
+However, I am very new to android developpement (I can't develop for ios) and things like secure storage and especially position updates is something I have a lot of trouble with. If anyone knows a thing or two, don't hesitate to chat with me about it :)
 
 ## Key Features
 

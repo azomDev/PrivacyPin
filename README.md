@@ -25,8 +25,8 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 
 ## Roadmap
 
--   [x] Basic (unstable) app/server with basic location sharing without encryption/security/privacy
--   [ ] Adding encryptions protocols
+-   [ ] Creation of robust security protocol
+-   [ ] Basic app/server that follows most of the protocol
 -   [ ] Adding access notification
 -   [ ] Adding semi-SOS feature
 

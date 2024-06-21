@@ -7,6 +7,8 @@ PrivacyPin is a secure, FOSS and self-hosted location sharing app designed to pr
 This repository will be temporarily inactive for the next few months as I dedicate my efforts to the development of a robust security protocol. I anticipate resuming activity sometime in the summer.
 However, I am very new to android developpement (I can't develop for ios) and things like secure storage and especially position updates is something I have a lot of trouble with. If anyone knows a thing or two, don't hesitate to chat with me about it :)
 
+Update: The protocol is at it's first draft. I am going to show it to a few people around me for basic corrections before having a first draft posted here on github.
+
 ## Key Features
 
 -   **User-Controlled Location Sharing**: Users have full control over who can view their location and when it is visible.

@@ -4,10 +4,9 @@ PrivacyPin is a secure, FOSS and self-hosted location sharing app designed to pr
 
 ## IMPORTANT
 
-This repository will be temporarily inactive for the next few months as I dedicate my efforts to the development of a robust security protocol. I anticipate resuming activity sometime in the summer.
-However, I am very new to android developpement (I can't develop for ios) and things like secure storage and especially position updates is something I have a lot of trouble with. If anyone knows a thing or two, don't hesitate to chat with me about it :)
+This project is currently in heavy development. I am now able to put more time than before, so I am currently working on having a MVP in 2025.
 
-Update: The protocol is at it's first draft. I am going to show it to a few people around me for basic corrections before having a first draft posted here on github.
+However, I am very new to android developpement and things like secure storage and especially position updates is something I have a lot of trouble with. If anyone knows a thing or two, don't hesitate to chat with me about it :)
 
 ## Key Features
 
@@ -15,7 +14,6 @@ Update: The protocol is at it's first draft. I am going to show it to a few peop
 -   **Real-Time Access Notifications**: Receive notifications whenever someone accesses your position.
 -   **Self-Hostable Server**: The server is self-hostable, ensuring that users do not rely on big tech companies to access their location data.
 -   **Post-Quantum Encryption**: Utilizes encryption techniques that are resistant to attacks from classical and quantum computers, ensuring maximum security.
--   **Semi-SOS Feature**: Includes a feature for urgent situations that require quick attention but may not be life-threatening.
 
 ## Usage
 
@@ -23,14 +21,13 @@ PrivacyPin is still in early development, and the usage instructions will be pro
 
 ## Contributing
 
-Contributions to PrivacyPin are welcome! If you'd like to contribute, you can work on an issue, open an issue yourself or message me.
+Contributions to PrivacyPin are welcome! If you'd like to contribute, you can work on an issue, open an issue yourself or message me. Currently, I'm working on an MVP, but if you would want to help this project in literally any way, send me a message :)
 
 ## Roadmap
 
 -   [ ] Creation of robust security protocol
 -   [ ] Basic app/server that follows most of the protocol
 -   [ ] Adding access notification
--   [ ] Adding semi-SOS feature
 
 ## License
 

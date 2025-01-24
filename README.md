@@ -25,7 +25,7 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 ## PrivacyPin Roadmap - MVP
 
 ### Phase 1: Setup and Foundation
-- [ ] Set up a monorepo structure to support both frontend and backend development.
+- [x] Set up a monorepo structure to support both frontend and backend development.
 - [ ] Configure **Bun** as the backend runtime and **Capacitor** for frontend development.
 - [ ] Configure the Bun SQLite database for storing user, location and other data. (table creation, temporary API)
 

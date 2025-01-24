@@ -9,6 +9,6 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "start": "bun run src/server.ts"
+    "dev": "bun run src/server.ts"
   }
 }

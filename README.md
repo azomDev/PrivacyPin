@@ -27,7 +27,7 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 ### Phase 1: Setup and Foundation
 - [x] Set up a monorepo structure to support both frontend and backend development.
 - [x] Configure **Bun** as the backend runtime and **Capacitor** for frontend development.
-- [ ] Configure the Bun SQLite database for storing user, location and other data. (table creation, temporary API)
+- [x] Configure the Bun SQLite database for storing user, location and other data. (table creation, temporary API)
 
 ### Phase 2: Core Location Sharing Features
 - [ ] Implement user registration (account creation key system).

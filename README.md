@@ -29,32 +29,42 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 - [x] Configure **Bun** as the backend runtime and **Capacitor** for frontend development.
 - [x] Configure the Bun SQLite database for storing user, location and other data. (table creation, temporary API)
 
-### Phase 2: Core Location Sharing Features
+### Phase 2: Basic User management and UI
 - [ ] Implement user registration (account creation key system).
-- [ ] Develop core location sharing APIs:
-    - [ ] Backend endpoint to receive location pings from users.
-    - [ ] Backend endpoint to serve location pings to authorized users.
-    - [ ] Frontend integration to send location pings (native functionality via Capacitor).
-    - [ ] Frontend integration to fetch location pings from the server.
-- [ ] Build a minimal frontend interface:
-    - [ ] Map view to display the user's current location.
-    - [ ] Basic UI for sharing location with trusted users.
+    - [ ] Backend HTTP (generate key, account creation).
+    - [ ] Backend database (key consuming, user creation).
+    - [ ] Frontend HTTP (create account).
+    - [ ] Frontend database (save account information).
+- [ ] Account creation screen.
 
 ## Phase 3: Friend Management
-- [ ] Develop a feature for adding friends:
-    - [ ] Backend API for sending and accepting friend requests.
+- [ ] Implement a feature for adding friends:
+    - [ ] Backend HTTP (sending friend request, accepting friend request).
+    - [ ] Backend database (creating friend request, accepting friend request, creating link).
     - [ ] Frontend database to store friend data.
-    - [ ] Frontend interface for adding a friend and displaying the friend list (using QR codes for local information exchange).
+- [ ] Develop a user interface for adding friends
+    - [ ] Display QR Code.
+    - [ ] Scan QR Code (Capacitor plugin).
+    - [ ] Create UI sequence for adding friends.
 - [ ] Restrict location sharing to trusted friends:
     - [ ] Update APIs to restrict location sharing to friends only.
     - [ ] Add UI to manage which friends can view the user's location.
 
-## Phase 4: Testing and Refinement
+## Phase 4: Core Location sharing Features
+- [ ] Implement core location sharing APIs:
+    - [ ] Backend HTTP (serve ping, receive ping).
+    - [ ] Backend database (store ping, get ping).
+    - [ ] Frontend HTTP (send ping, get ping).
+- [ ] Connect frontend to native
+    - [ ] Frontend integration to send location pings (native functionality via Capacitor).
+    - [ ] Frontend native access of database.
+
+## Phase 5: Testing and Refinement
 - [ ] Perform manual testing of API endpoints and frontend features.
 - [ ] Resolve bugs and ensure stability.
 - [ ] Collect feedback from testers to guide further development.
 
-### Phase 5: Initial Release
+### Phase 6: Initial Release
 - [ ] Package the app for Android and iOS using Capacitor.
 - [ ] Release self-hosting guide and MVP version for early feedback.
 

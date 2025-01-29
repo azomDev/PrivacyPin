@@ -37,7 +37,7 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
     - [ ] Frontend database (save account information).
 - [ ] Account creation screen.
 
-## Phase 3: Friend Management
+### Phase 3: Friend Management
 - [ ] Implement a feature for adding friends:
     - [ ] Backend HTTP (sending friend request, accepting friend request).
     - [ ] Backend database (creating friend request, accepting friend request, creating link).
@@ -50,7 +50,7 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
     - [ ] Update APIs to restrict location sharing to friends only.
     - [ ] Add UI to manage which friends can view the user's location.
 
-## Phase 4: Core Location sharing Features
+### Phase 4: Core Location sharing Features
 - [ ] Implement core location sharing APIs:
     - [ ] Backend HTTP (serve ping, receive ping).
     - [ ] Backend database (store ping, get ping).
@@ -59,7 +59,7 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
     - [ ] Frontend integration to send location pings (native functionality via Capacitor).
     - [ ] Frontend native access of database.
 
-## Phase 5: Testing and Refinement
+### Phase 5: Testing and Refinement
 - [ ] Perform manual testing of API endpoints and frontend features.
 - [ ] Resolve bugs and ensure stability.
 - [ ] Collect feedback from testers to guide further development.

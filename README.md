@@ -31,8 +31,8 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 
 ### Phase 2: Basic User management and UI
 - [ ] Implement user registration (account creation key system).
-    - [ ] Backend HTTP (generate key, account creation).
-    - [ ] Backend database (key consuming, user creation).
+    - [x] Backend HTTP (generate key, account creation).
+    - [x] Backend database (key consuming, user creation).
     - [ ] Frontend HTTP (create account).
     - [ ] Frontend database (save account information).
 - [ ] Account creation screen.

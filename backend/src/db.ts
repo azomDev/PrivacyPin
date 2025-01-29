@@ -49,7 +49,7 @@ export class ServerDatabase {
 	}
 
 	static consumeSignupKey(signup_key: string) {
-		const { changes } = db.prepare(`DELETE FROM signup_keys WHERE signup_key = ?`).run(signup_key);
+		const { changes } = db.prepare(`DELETE FROM signup_keys WHERE key = ?`).run(signup_key);
 		return changes > 0;
 	}
 

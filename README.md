@@ -30,12 +30,12 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 - [x] Configure the Bun SQLite database for storing user, location and other data. (table creation, temporary API)
 
 ### Phase 2: Basic User management and UI
-- [ ] Implement user registration (account creation key system).
+- [x] Implement user registration (account creation key system).
     - [x] Backend HTTP (generate key, account creation).
     - [x] Backend database (key consuming, user creation).
-    - [ ] Frontend HTTP (create account).
-    - [ ] Frontend database (save account information).
-- [ ] Account creation screen.
+    - [x] Frontend HTTP (create account).
+    - [x] Frontend database (save account information).
+- [x] Account creation screen.
 
 ### Phase 3: Friend Management
 - [ ] Implement a feature for adding friends:

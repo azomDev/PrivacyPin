@@ -4,7 +4,7 @@ import type { User } from "./models";
 
 export function createAccount(signup_key: string, pub_sign_key: string): Response {
 	if (!db.consumeSignupKey(signup_key)) {
-		return new Response("Invalid signup key", { status: 400 });
+		return new Response("Invalid signup key", { status: 599 });
 	}
 	const user_id = randomUUIDv7();
 	const user: User = { user_id, pub_sign_key, last_action_timestamp: Date.now() };
@@ -13,5 +13,8 @@ export function createAccount(signup_key: string, pub_sign_key: string): Respons
 }
 
 export function generateSignupKey(): Response {
-	return new Response(randomUUIDv7());
+	const new_signup_key = randomUUIDv7();
+	db.insertSignupKey(new_signup_key);
+
+	return new Response(new_signup_key);
 }

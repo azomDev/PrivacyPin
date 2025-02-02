@@ -26,7 +26,7 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 
 ### Phase 1: Setup and Foundation
 - [x] Set up a monorepo structure to support both frontend and backend development.
-- [x] Configure **Bun** as the backend runtime and **Capacitor** for frontend development.
+- [x] Configure **Bun** as the backend runtime and **Kotlin** for frontend development.
 - [x] Configure the Bun SQLite database for storing user, location and other data. (table creation, temporary API)
 
 ### Phase 2: Basic User management and UI
@@ -44,7 +44,7 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
     - [ ] Frontend database to store friend data.
 - [ ] Develop a user interface for adding friends
     - [ ] Display QR Code.
-    - [ ] Scan QR Code (Capacitor plugin).
+    - [ ] Scan QR Code.
     - [ ] Create UI sequence for adding friends.
 - [ ] Restrict location sharing to trusted friends:
     - [ ] Update APIs to restrict location sharing to friends only.
@@ -56,7 +56,7 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
     - [ ] Backend database (store ping, get ping).
     - [ ] Frontend HTTP (send ping, get ping).
 - [ ] Connect frontend to native
-    - [ ] Frontend integration to send location pings (native functionality via Capacitor).
+    - [ ] Frontend integration to send location pings.
     - [ ] Frontend native access of database.
 
 ### Phase 5: Testing and Refinement
@@ -65,7 +65,7 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 - [ ] Collect feedback from testers to guide further development.
 
 ### Phase 6: Initial Release
-- [ ] Package the app for Android and iOS using Capacitor.
+- [ ] Package the app for Android.
 - [ ] Release self-hosting guide and MVP version for early feedback.
 
 ## License

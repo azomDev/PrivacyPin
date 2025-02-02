@@ -68,10 +68,6 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 - [ ] Package the app for Android.
 - [ ] Release self-hosting guide and MVP version for early feedback.
 
-## License
-
-Distributed under the GNU General Public License v3.0. See `LICENSE` for more information.
-
 ## Contact
 
 Email - dev@azom.ca\

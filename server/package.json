@@ -1,14 +1,14 @@
 {
-  "name": "backend",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "scripts": {
-    "dev": "bun run src/server.ts"
-  }
+	"name": "backend",
+	"module": "src/server.ts",
+	"type": "module",
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"scripts": {
+		"dev": "bun run src/server.ts"
+	}
 }

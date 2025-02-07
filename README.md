@@ -3,7 +3,7 @@
 PrivacyPin is a secure, FOSS and self-hosted location sharing app designed to prioritize user privacy. It offers complete control over location sharing, allowing users to determine who can access their location and when. Additionally, it provides real-time notifications when someone accesses their position.
 
 > [!IMPORTANT]
-> I’m in the process of determining the foundation for this project and exploring which technologies to use for fast iterations. Currently, I’m considering **Bun** for the backend due to its comprehensive toolset (though it lacks cryptography support). For the frontend, I’m leaning toward **native Kotlin** since I need to use several native APIs.
+> I’m in the process of determining the foundation for this project and exploring which technologies to use for fast iterations. Currently, I’m considering **Bun** for the backend due to its comprehensive toolset (though it lacks cryptography support). For the frontend, I’m leaning toward **Flutter** .
 > 
 > If you’re interested in contributing to this exciting project, I’d love to hear from you! My primary challenge lies in native mobile development, but any assistance is greatly appreciated!
 
@@ -25,35 +25,34 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 ## PrivacyPin Roadmap - MVP
 
 ### Phase 1: Setup and Foundation
-- [x] Set up a monorepo structure to support both frontend and backend development.
-- [x] Configure **Bun** as the backend runtime and **Kotlin** for frontend development.
+- [x] Configure **Bun** as the backend runtime and **Flutter** for frontend development.
 - [x] Configure the Bun SQLite database for storing user, location and other data. (table creation, temporary API)
 
 ### Phase 2: Basic User management and UI
 - [x] Implement user registration (account creation key system).
     - [x] Backend HTTP (generate key, account creation).
     - [x] Backend database (key consuming, user creation).
-    - [x] Frontend HTTP (create account).
-    - [x] Frontend database (save account information).
+    - [ ] Frontend HTTP (create account).
+    - [ ] Frontend database (save account information).
 - [x] Account creation screen.
 
 ### Phase 3: Friend Management
 - [ ] Implement a feature for adding friends:
-    - [ ] Backend HTTP (sending friend request, accepting friend request).
-    - [ ] Backend database (creating friend request, accepting friend request, creating link).
+    - [x] Backend HTTP (sending friend request, accepting friend request).
+    - [x] Backend database (creating friend request, accepting friend request, creating link).
     - [ ] Frontend database to store friend data.
 - [ ] Develop a user interface for adding friends
     - [ ] Display QR Code.
     - [ ] Scan QR Code.
     - [ ] Create UI sequence for adding friends.
 - [ ] Restrict location sharing to trusted friends:
-    - [ ] Update APIs to restrict location sharing to friends only.
+    - [x] Update APIs to restrict location sharing to friends only.
     - [ ] Add UI to manage which friends can view the user's location.
 
 ### Phase 4: Core Location sharing Features
-- [ ] Implement core location sharing APIs:
-    - [ ] Backend HTTP (serve ping, receive ping).
-    - [ ] Backend database (store ping, get ping).
+- [x] Implement core location sharing APIs:
+    - [x] Backend HTTP (serve ping, receive ping).
+    - [x] Backend database (store ping, get ping).
     - [ ] Frontend HTTP (send ping, get ping).
 - [ ] Connect frontend to native
     - [ ] Frontend integration to send location pings.

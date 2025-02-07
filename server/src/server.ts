@@ -24,7 +24,8 @@ const server = Bun.serve({
 			const { sender_id, receiver_id } = (await req.json()) as { sender_id: string; receiver_id: string };
 			return getPing(sender_id, receiver_id);
 		} else if (endpoint === "/delete-account") {
-			// todo
+			// todo delete user from users table, delete all friend requests and pings where the user is involved and also links between this user and other users
+			// if it's the admin you can't delete the account
 		}
 		return new Response("Not found", { status: 404 });
 	},

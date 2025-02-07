@@ -42,7 +42,7 @@ db.prepare(
 	CREATE TABLE IF NOT EXISTS users (
 		user_id TEXT UNIQUE,
 		pub_sign_key TEXT UNIQUE,
-		last_action_timestamp INTEGER, -- later, change this to a challenge-response system that uses for example a UUIDv7 challenge so there is still the timestamp, but it is not stored.
+		last_action_timestamp INTEGER -- later, change this to a challenge-response system that uses for example a UUIDv7 challenge so there is still the timestamp, but it is not stored.
 	)
 `,
 ).run();

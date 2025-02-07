@@ -10,7 +10,8 @@ db.prepare(
 		sender_id TEXT,
 		receiver_id TEXT,
 		encrypted_ping TEXT,
-		recency_index INTEGER
+		UNIQUE(sender_id, receiver_id) -- for now, we will only have one ping per directional user pair
+		-- recency_index INTEGER
 	)
 `,
 ).run();
@@ -38,43 +39,15 @@ db.prepare(
 
 db.prepare(
 	`
-	CREATE TRIGGER IF NOT EXISTS increment_recency_index
-	BEFORE INSERT ON positions
-	FOR EACH ROW
-	BEGIN
-		-- Calculate the next recency_index for the given sender_id and receiver_id
-		SELECT IFNULL(MAX(recency_index), -1) + 1
-		INTO NEW.recency_index
-		FROM positions
-		WHERE sender_id = NEW.sender_id AND receiver_id = NEW.receiver_id;
-
-		-- Get the maximum pings for this user
-		DECLARE max_pings INTEGER;
-
-		SELECT max_pings INTO max_pings
-		FROM users
-		WHERE user_id = NEW.sender_id;
-
-		-- If the number of pings exceeds the limit, delete the oldest ones
-		DELETE FROM positions
-		WHERE sender_id = NEW.sender_id AND receiver_id = NEW.receiver_id
-		AND recency_index < (SELECT MAX(recency_index) - max_pings + 1
-				FROM positions
-				WHERE sender_id = NEW.sender_id AND receiver_id = NEW.receiver_id);
-	END;
-`,
-).run();
-
-db.prepare(
-	`
 	CREATE TABLE IF NOT EXISTS users (
 		user_id TEXT UNIQUE,
 		pub_sign_key TEXT UNIQUE,
-		last_action_timestamp INTEGER,
-		max_pings INTEGER
+		last_action_timestamp INTEGER, -- later, change this to a challenge-response system that uses for example a UUIDv7 challenge so there is still the timestamp, but it is not stored.
 	)
 `,
 ).run();
+
+// later, we want that with every requests (or every few requests), we rotate the pub_sign_key, but keeping a long term key in case the device is unable to rotate the key for some amount of time.
 
 db.prepare(
 	`
@@ -112,20 +85,26 @@ export class ServerDatabase {
 	}
 
 	static addPing(ping: Ping) {
-		db.prepare(
+		const delete_query = db.prepare(
 			`
 			DELETE FROM positions
 			WHERE sender_id = ?
 			AND receiver_id = ?
 		`,
-		).run(ping.sender_id, ping.receiver_id);
+		);
 
-		db.prepare(
+		const insert_query = db.prepare(
 			`
-			INSERT INTO positions (sender_id, receiver_id, encrypted_ping)
+			INSERT INTO positions
+			(sender_id, receiver_id, encrypted_ping)
 			VALUES (?, ?, ?)
 		`,
-		).run(ping.sender_id, ping.receiver_id, ping.encrypted_ping);
+		);
+
+		db.transaction(() => {
+			delete_query.run(ping.sender_id, ping.receiver_id);
+			insert_query.run(ping.sender_id, ping.receiver_id, ping.encrypted_ping);
+		})();
 	}
 
 	static getPing(sender_id: string, receiver_id: string): Ping | null {

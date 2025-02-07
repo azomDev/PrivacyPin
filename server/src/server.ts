@@ -36,4 +36,3 @@ console.log(`Server started on port ${server.port}`);
 // so basically the create account for a visitor will be when people adds themselves as friends from different servers. If they are already a visitor of the other's server, no need to create an account, just link the two users.
 // - a way to fetch pings as a visitor
 // - a way to send, accept friend requests and create links between visitor and user (never between two visitors)
-// the weirdest ever symbol I can write in a comment is (that is not an emoji): §, but we can do even weirder: 𓂀

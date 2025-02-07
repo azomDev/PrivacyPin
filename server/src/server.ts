@@ -23,8 +23,9 @@ const server = Bun.serve({
 		} else if (endpoint === "/get-ping") {
 			const { sender_id, receiver_id } = (await req.json()) as { sender_id: string; receiver_id: string };
 			return getPing(sender_id, receiver_id);
+		} else if (endpoint === "/delete-account") {
+			// todo
 		}
-
 		return new Response("Not found", { status: 404 });
 	},
 });

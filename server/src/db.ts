@@ -4,7 +4,7 @@ import type { Ping, User } from "./models";
 const db = new Database("database.sqlite", { create: true, strict: true });
 
 // todo fix positions to have recency working everywhere
-db.prepare(
+db.run(
 	`
 	CREATE TABLE IF NOT EXISTS positions (
 		sender_id TEXT,
@@ -14,9 +14,9 @@ db.prepare(
 		-- recency_index INTEGER
 	)
 `,
-).run();
+);
 
-db.prepare(
+db.run(
 	`
 	CREATE TABLE IF NOT EXISTS friend_requests (
 		sender_id TEXT,
@@ -24,7 +24,7 @@ db.prepare(
 		UNIQUE(sender_id, accepter_id)
 	)
 `,
-).run();
+);
 
 db.prepare(
 	`
@@ -37,7 +37,7 @@ db.prepare(
 `,
 ).run();
 
-db.prepare(
+db.run(
 	`
 	CREATE TABLE IF NOT EXISTS users (
 		user_id TEXT UNIQUE,
@@ -45,17 +45,17 @@ db.prepare(
 		last_action_timestamp INTEGER -- later, change this to a challenge-response system that uses for example a UUIDv7 challenge so there is still the timestamp, but it is not stored.
 	)
 `,
-).run();
+);
 
 // later, we want that with every requests (or every few requests), we rotate the pub_sign_key, but keeping a long term key in case the device is unable to rotate the key for some amount of time.
 
-db.prepare(
+db.run(
 	`
 	CREATE TABLE IF NOT EXISTS signup_keys (
 		key TEXT UNIQUE
 	)
 `,
-).run();
+);
 
 export class ServerDatabase {
 	static linkExists(user_id_1: string, user_id_2: string): boolean {

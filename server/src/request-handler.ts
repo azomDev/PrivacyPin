@@ -14,7 +14,7 @@ export class RequestHandler {
 		return Response.json(challenge);
 	}
 
-	static createAccount(signup_key: string, pub_sign_key: string): Response {
+	static createAccount(signup_key: string, pub_sign_key: Uint8Array): Response {
 		if (!db.consumeSignupKey(signup_key)) {
 			return new Response("Invalid signup key", { status: 599 });
 		}
@@ -64,7 +64,7 @@ export class RequestHandler {
 		}
 
 		const ping = db.getPing(sender_id, receiver_id);
-		if (!ping) {
+		if (ping === null) {
 			return new Response("No ping found", { status: 599 });
 		}
 		return Response.json(ping);

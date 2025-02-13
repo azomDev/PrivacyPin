@@ -65,13 +65,16 @@ export class ServerDatabase {
 		);
 	}
 
-	// todo check if this works
+	static getPubKey(user_id: string): Uint8Array | null {
+		const result = this.db.prepare(`SELECT pub_sign_key FROM users WHERE user_id = ?`).get(user_id) as User | null;
+		return result ? result.pub_sign_key : null;
+	}
+
 	static noUsers(): boolean {
 		const result = this.db.prepare(`SELECT EXISTS (SELECT 1 FROM users) AS user_exists`).get() as { user_exists: number };
 		return result.user_exists === 0;
 	}
 
-	// todo check if this works
 	static noSignupKeys(): boolean {
 		const result = this.db.prepare(`SELECT EXISTS (SELECT 1 FROM signup_keys) AS signup_key_exists`).get() as {
 			signup_key_exists: number;

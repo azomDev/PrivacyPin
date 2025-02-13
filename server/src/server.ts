@@ -1,7 +1,6 @@
 import { RequestHandler as RH } from "./request-handler";
 import { type Challenge, type FriendRequest, type Ping, type SignData } from "./models";
 import { challenges, initServer, isAdmin, isSignatureValid } from "./utils";
-import { randomUUIDv7 } from "bun";
 
 await initServer();
 
@@ -10,24 +9,22 @@ const server = Bun.serve({
 	async fetch(req) {
 		const url = new URL(req.url);
 		const endpoint = url.pathname;
-		const req_content = await req.text(); // if it's a GET, then it's an empty string
+		const req_content = await req.text();
 
 		if (endpoint === "/challenge") {
 			return RH.challenge(req_content); // in case of the /challenge endpoint, the body is directly the user_id as a string
 		} else if (endpoint === "/create-account") {
-			const { signup_key, pub_sign_key } = JSON.parse(req_content) as { signup_key: string; pub_sign_key: string };
+			const { signup_key, pub_sign_key } = JSON.parse(req_content) as { signup_key: string; pub_sign_key: Uint8Array };
 			return RH.createAccount(signup_key, pub_sign_key);
 		}
 
 		////////////////////////////////
 
 		const sign_data_header = req.headers.get("sign-data");
-		if (sign_data_header === null) {
-			return new Response("todo", { status: 599 });
-		}
+		if (sign_data_header === null) return new Response("todo", { status: 599 });
 		const sign_data = JSON.parse(sign_data_header) as SignData;
 
-		if (!isSignatureValid(req_content, sign_data)) {
+		if (!(await isSignatureValid(req_content, sign_data))) {
 			return new Response("todo", { status: 599 });
 		}
 
@@ -56,9 +53,3 @@ const server = Bun.serve({
 });
 
 console.log(`Server started on port ${server.port}`);
-
-// for other servers, we need:
-// - a way to create a user account as a visitor (meaning they only want to fetch pings). No need for a signup key for this since we don't need to prevent spam as a visitor can only fetch pings and already needs to be "reffered" by another user, meaning that the other user on that server must say to the server that it's ok that the visitor creates an account.
-// so basically the create account for a visitor will be when people adds themselves as friends from different servers. If they are already a visitor of the other's server, no need to create an account, just link the two users.
-// - a way to fetch pings as a visitor
-// - a way to send, accept friend requests and create links between visitor and user (never between two visitors)

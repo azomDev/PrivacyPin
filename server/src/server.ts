@@ -1,31 +1,55 @@
-import { acceptFriendRequest, createAccount, createFriendRequest, generateSignupKey, getPing, sendPing } from "./httpAPI";
-import type { FriendRequest, Ping } from "./models";
+import { RequestHandler as RH } from "./request-handler";
+import { type Challenge, type FriendRequest, type Ping, type SignData } from "./models";
+import { challenges, initServer, isAdmin, isSignatureValid } from "./utils";
+import { randomUUIDv7 } from "bun";
+
+await initServer();
 
 const server = Bun.serve({
 	port: 8080,
 	async fetch(req) {
 		const url = new URL(req.url);
 		const endpoint = url.pathname;
-		if (endpoint === "/create-account") {
-			const { signup_key, pub_sign_key } = (await req.json()) as { signup_key: string; pub_sign_key: string };
-			return createAccount(signup_key, pub_sign_key);
-		} else if (endpoint === "/generate-signup-key") {
-			return generateSignupKey();
+		const req_content = await req.text(); // if it's a GET, then it's an empty string
+
+		if (endpoint === "/challenge") {
+			return RH.challenge(req_content); // in case of the /challenge endpoint, the body is directly the user_id as a string
+		} else if (endpoint === "/create-account") {
+			const { signup_key, pub_sign_key } = JSON.parse(req_content) as { signup_key: string; pub_sign_key: string };
+			return RH.createAccount(signup_key, pub_sign_key);
+		}
+
+		////////////////////////////////
+
+		const sign_data_header = req.headers.get("sign-data");
+		if (sign_data_header === null) {
+			return new Response("todo", { status: 599 });
+		}
+		const sign_data = JSON.parse(sign_data_header) as SignData;
+
+		if (!isSignatureValid(req_content, sign_data)) {
+			return new Response("todo", { status: 599 });
+		}
+
+		if (endpoint === "/generate-signup-key") {
+			if (!(await isAdmin(sign_data.user_id))) return new Response("todo", { status: 599 });
+			return RH.generateSignupKey();
 		} else if (endpoint === "/create-friend-request") {
-			const friend_request = (await req.json()) as FriendRequest;
-			return createFriendRequest(friend_request);
+			const friend_request = JSON.parse(req_content) as FriendRequest;
+			if (friend_request.sender_id !== sign_data.user_id) return new Response("todo", { status: 599 });
+			return RH.createFriendRequest(friend_request);
 		} else if (endpoint === "/accept-friend-request") {
-			const friend_request = (await req.json()) as FriendRequest;
-			return acceptFriendRequest(friend_request);
+			const friend_request = JSON.parse(req_content) as FriendRequest;
+			if (friend_request.accepter_id !== sign_data.user_id) return new Response("todo", { status: 599 });
+			return RH.acceptFriendRequest(friend_request);
 		} else if (endpoint === "/send-ping") {
-			const ping = (await req.json()) as Ping;
-			return sendPing(ping);
+			const ping = JSON.parse(req_content) as Ping;
+			if (ping.sender_id !== sign_data.user_id) return new Response("todo", { status: 599 });
+			return RH.sendPing(ping);
 		} else if (endpoint === "/get-ping") {
-			const { sender_id, receiver_id } = (await req.json()) as { sender_id: string; receiver_id: string };
-			return getPing(sender_id, receiver_id);
-		} else if (endpoint === "/delete-account") {
-			// todo delete user from users table, delete all friend requests and pings where the user is involved and also links between this user and other users
-			// if it's the admin you can't delete the account
+			const { sender_id, receiver_id } = JSON.parse(req_content) as { sender_id: string; receiver_id: string };
+			if (receiver_id !== sign_data.user_id) return new Response("todo", { status: 599 });
+			return RH.getPing(sender_id, receiver_id);
 		}
 		return new Response("Not found", { status: 404 });
 	},

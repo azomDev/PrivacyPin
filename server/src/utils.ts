@@ -4,14 +4,34 @@ import { ServerDatabase as db } from "./database";
 
 export const challenges = new Map<string, Challenge>();
 
-export function isSignatureValid(content_as_string: string, sign_data: SignData): boolean {
-	// temp info, content_as_string is an empty string for a GET request (which has no body)
-	// todo the rest
+export async function isSignatureValid(content_as_string: string, sign_data: SignData): Promise<boolean> {
+	const challenge = challenges.get(sign_data.user_id);
+	if (challenge === undefined) return false;
+	challenges.delete(sign_data.user_id);
 
-	// the server receives the request on the chosen api, and checks if their is an entry for a challenge for that user_id
-	// the server checks the validity of the signature and if everything is ok, can process the request
-	// the validity should not be if the entry is present in the challenges object, it should check the timestamp inside with the current timestamp
-	return true;
+	const CHALLENGE_LIFETIME = 10 * 1000; // 10 seconds
+	if (Date.now() - challenge.timestamp > CHALLENGE_LIFETIME) {
+		return false;
+	}
+
+	const string_to_verify = content_as_string + sign_data.user_id + challenge.nonce + challenge.timestamp;
+	const buffer_to_verify = Buffer.from(string_to_verify);
+
+	const raw_public_key = db.getPubKey(sign_data.user_id);
+	if (raw_public_key === null) return false;
+
+	const public_key = await crypto.subtle.importKey("raw", raw_public_key, "Ed25519", false, ["verify"]);
+
+	const verifyResult = await crypto.subtle.verify(
+		{
+			name: "Ed25519",
+		},
+		public_key,
+		sign_data.signature,
+		buffer_to_verify,
+	);
+
+	return verifyResult;
 }
 
 export async function isAdmin(user_id: string): Promise<boolean> {

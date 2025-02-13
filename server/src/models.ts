@@ -1,8 +1,6 @@
-import { getAllJSDocTagsOfKind } from "typescript";
-
 export type User = {
 	user_id: string;
-	pub_sign_key: string;
+	pub_sign_key: Uint8Array;
 };
 
 export type Ping = {
@@ -17,8 +15,11 @@ export type FriendRequest = {
 };
 
 export type SignData = {
-	signature: string;
+	signature: Uint8Array;
 	user_id: string;
 };
 
-export type Challenge = { timestamp: number; nonce: string };
+export type Challenge = {
+	timestamp: number;
+	nonce: string;
+};

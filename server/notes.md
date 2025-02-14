@@ -8,3 +8,6 @@ for other servers, we need:
 so basically the create account for a visitor will be when people adds themselves as friends from different servers. If they are already a visitor of the other's server, no need to create an account, just link the two users.
 - a way to fetch pings as a visitor
 - a way to send, accept friend requests and create links between visitor and user (never between two visitors)
+
+
+later, we want that with every requests (or every few requests), we rotate the pub_sign_key, but keeping a long term key in case the device is unable to rotate the key for some amount of time.

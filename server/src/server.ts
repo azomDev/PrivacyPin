@@ -1,6 +1,6 @@
 import { RequestHandler as RH } from "./request-handler";
-import { type Challenge, type FriendRequest, type Ping, type SignData } from "./models";
-import { challenges, initServer, isAdmin, isSignatureValid } from "./utils";
+import { type FriendRequest, type Ping, type SignData } from "./models";
+import { initServer, isAdmin, isSignatureValid } from "./utils";
 
 await initServer();
 
@@ -43,10 +43,10 @@ const server = Bun.serve({
 			const ping = JSON.parse(req_content) as Ping;
 			if (ping.sender_id !== sign_data.user_id) return new Response("todo", { status: 599 });
 			return RH.sendPing(ping);
-		} else if (endpoint === "/get-ping") {
+		} else if (endpoint === "/get-pings") {
 			const { sender_id, receiver_id } = JSON.parse(req_content) as { sender_id: string; receiver_id: string };
 			if (receiver_id !== sign_data.user_id) return new Response("todo", { status: 599 });
-			return RH.getPing(sender_id, receiver_id);
+			return RH.getPings(sender_id, receiver_id);
 		}
 		return new Response("Not found", { status: 404 });
 	},

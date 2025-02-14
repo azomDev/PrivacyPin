@@ -57,16 +57,16 @@ export class RequestHandler {
 		return new Response();
 	}
 
-	static getPing(sender_id: string, receiver_id: string): Response {
+	static getPings(sender_id: string, receiver_id: string): Response {
 		// check if a link exists between the two users
 		if (!db.linkExists(sender_id, receiver_id)) {
 			return new Response("No link found", { status: 599 });
 		}
 
-		const ping = db.getPing(sender_id, receiver_id);
-		if (ping === null) {
-			return new Response("No ping found", { status: 599 });
+		const pings = db.getPings(sender_id, receiver_id);
+		if (pings === null) {
+			return new Response("No pings found", { status: 599 });
 		}
-		return Response.json(ping);
+		return Response.json(pings);
 	}
 }

@@ -6,7 +6,7 @@ export type User = {
 export type Ping = {
 	sender_id: string;
 	receiver_id: string;
-	encrypted_ping: string;
+	encrypted_ping: Uint8Array;
 };
 
 export type FriendRequest = {

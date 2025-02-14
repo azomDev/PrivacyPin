@@ -3,7 +3,7 @@
 PrivacyPin is a secure, FOSS and self-hosted location sharing app designed to prioritize user privacy. It offers complete control over location sharing, allowing users to determine who can access their location and when. Additionally, it provides real-time notifications when someone accesses their position.
 
 > [!IMPORTANT]
-> I’m in the process of determining the foundation for this project and exploring which technologies to use for fast iterations. Currently, I’m considering **Bun** for the backend due to its comprehensive toolset (though it lacks cryptography support). For the frontend, I’m leaning toward **Flutter** .
+> I’m in the process of rapidly iterating to establish a base on which testing can begin.
 > 
 > If you’re interested in contributing to this exciting project, I’d love to hear from you! My primary challenge lies in native mobile development, but any assistance is greatly appreciated!
 

@@ -1,98 +1,121 @@
 import { Database } from "bun:sqlite";
 import type { Ping, User } from "./models";
 
-export class ServerDatabase {
-	private static db: Database = new Database("database.sqlite", { create: true, strict: true });
+const db = new Database("database.sqlite", { create: true, strict: true });
+initializeDatabase();
 
-	static {
-		ServerDatabase.initialize();
-	}
+function initializeDatabase() {
+	db.run(`
+		CREATE TABLE IF NOT EXISTS positions (
+			sender_id TEXT,
+			receiver_id TEXT,
+			encrypted_ping BLOB,
+			recency_index INTEGER,
+			UNIQUE(sender_id, receiver_id, recency_index)
+		)
+	`);
 
-	private static initialize() {
-		this.db.run(`
-			CREATE TABLE IF NOT EXISTS positions (
-				sender_id TEXT,
-				receiver_id TEXT,
-				encrypted_ping BLOB,
-				recency_index INTEGER,
-				UNIQUE(sender_id, receiver_id, recency_index)
-			)
-		`);
+	db.run(`
+		CREATE TABLE IF NOT EXISTS friend_requests (
+			sender_id TEXT,
+			accepter_id TEXT,
+			UNIQUE(sender_id, accepter_id)
+		)
+	`);
 
-		this.db.run(`
-			CREATE TABLE IF NOT EXISTS friend_requests (
-				sender_id TEXT,
-				accepter_id TEXT,
-				UNIQUE(sender_id, accepter_id)
-			)
-		`);
+	db.run(`
+		CREATE TABLE IF NOT EXISTS links (
+			user_id_1 TEXT,
+			user_id_2 TEXT,
+			user_1_max_ping INTEGER DEFAULT 1,
+			user_2_max_ping INTEGER DEFAULT 1,
+			user_1_ping_index INTEGER DEFAULT 0,
+			user_2_ping_index INTEGER DEFAULT 0,
+			CHECK(user_id_1 < user_id_2),
+			UNIQUE(user_id_1, user_id_2)
+		)
+	`);
 
-		this.db.run(`
-			CREATE TABLE IF NOT EXISTS links (
-				user_id_1 TEXT,
-				user_id_2 TEXT,
-				user_1_max_ping INTEGER DEFAULT 1,
-				user_2_max_ping INTEGER DEFAULT 1,
-				user_1_ping_index INTEGER DEFAULT 0,
-				user_2_ping_index INTEGER DEFAULT 0,
-				CHECK(user_id_1 < user_id_2),
-				UNIQUE(user_id_1, user_id_2)
-			)
-		`);
+	db.run(`
+		CREATE TABLE IF NOT EXISTS users (
+			user_id TEXT UNIQUE,
+			pub_sign_key BLOB UNIQUE
+		)
+	`);
 
-		this.db.run(`
-			CREATE TABLE IF NOT EXISTS users (
-				user_id TEXT UNIQUE,
-				pub_sign_key BLOB UNIQUE
-			)
-		`);
+	db.run(`
+		CREATE TABLE IF NOT EXISTS signup_keys (
+			key TEXT UNIQUE
+		)
+	`);
+}
 
-		this.db.run(`
-			CREATE TABLE IF NOT EXISTS signup_keys (
-				key TEXT UNIQUE
-			)
-		`);
-	}
+export function getPubKey(user_id: string): string | null {
+	// prettier-ignore
+	const result = db.prepare(`
+		SELECT pub_sign_key FROM users WHERE user_id = ?
+	`).get(user_id) as null | {pub_sign_key: string};
 
-	static getPubKey(user_id: string): Uint8Array | null {
-		const result = this.db.prepare(`SELECT pub_sign_key FROM users WHERE user_id = ?`).get(user_id) as User | null;
-		return result !== null ? result.pub_sign_key : null;
-	}
+	if (result === null) return null;
 
-	static noUsers(): boolean {
-		const result = this.db.prepare(`SELECT EXISTS (SELECT 1 FROM users) AS user_exists`).get() as { user_exists: number };
-		return result.user_exists === 0;
-	}
+	return result.pub_sign_key;
+}
 
-	static noSignupKeys(): boolean {
-		const result = this.db.prepare(`SELECT EXISTS (SELECT 1 FROM signup_keys) AS signup_key_exists`).get() as {
-			signup_key_exists: number;
-		};
-		return result.signup_key_exists === 0;
-	}
+export function noUsers(): boolean {
+	// prettier-ignore
+	const result = db.prepare(`
+		SELECT EXISTS (SELECT 1 FROM users) AS user_exists
+	`).get() as {user_exists: number};
 
-	static linkExists(user_id_1: string, user_id_2: string): boolean {
-		const [id1, id2] = user_id_1 < user_id_2 ? [user_id_1, user_id_2] : [user_id_2, user_id_1];
-		const result = this.db.prepare(`SELECT * FROM links WHERE user_id_1 = ? AND user_id_2 = ?`).get(id1, id2);
-		return result !== null;
-	}
+	return result.user_exists === 0;
+}
 
-	static insertSignupKey(signup_key: string) {
-		this.db.prepare(`INSERT INTO signup_keys (key) VALUES (?)`).run(signup_key);
-	}
+export function hasSignupKeys(): boolean {
+	//prettier-ignore
+	const result = db.prepare(`
+		SELECT EXISTS (SELECT 1 FROM signup_keys) AS signup_key_exists
+	`).get() as {signup_key_exists: number};
 
-	static consumeSignupKey(signup_key: string) {
-		const { changes } = this.db.prepare(`DELETE FROM signup_keys WHERE key = ?`).run(signup_key);
-		return changes > 0;
-	}
+	return result.signup_key_exists === 1;
+}
 
-	static createUser(user: User) {
-		const { user_id, pub_sign_key } = user;
-		this.db.prepare(`INSERT INTO users (user_id, pub_sign_key) VALUES (?, ?, ?)`).run(user_id, pub_sign_key);
-	}
+export function linkExists(user_id_1: string, user_id_2: string): boolean {
+	// prettier-ignore
+	const result = db.prepare(`
+		SELECT * FROM links
+		WHERE
+			(user_id_1 = $id1 AND user_id_2 = $id2)
+			OR  (user_id_1 = $id2 AND user_id_2 = $id1)
+	`).get({ id1: user_id_1, id2: user_id_2 });
 
-	static addPing(ping: Ping) {
-		const index_update_query = this.db.prepare(`
+	return result !== null;
+}
+
+export function insertSignupKey(signup_key: string) {
+	// prettier-ignore
+	db.prepare(`
+		INSERT INTO signup_keys (key) VALUES (?)
+	`).run(signup_key);
+}
+
+export function consumeSignupKey(signup_key: string) {
+	// prettier-ignore
+	const { changes } = db.prepare(`
+		DELETE FROM signup_keys WHERE key = ?
+	`).run(signup_key);
+
+	return changes > 0;
+}
+
+export function createUser(user: User) {
+	// prettier-ignore
+	db.prepare(`
+		INSERT INTO users (user_id, pub_sign_key) VALUES (?, ?)
+	`).run(user.user_id, user.pub_sign_key);
+}
+
+export function addPing(ping: Ping) {
+	const index_update_query = db.prepare(`
 			UPDATE links
 			SET
 				user_1_ping_index = CASE
@@ -108,8 +131,8 @@ export class ServerDatabase {
 				OR (user_id_1 = $receiver_id AND user_id_2 = $sender_id)
 		`);
 
-		// todo check this sql statement to check if it is correct
-		const ping_insert_query = this.db.prepare(`
+	// todo check this sql statement to check if it is correct
+	const ping_insert_query = db.prepare(`
 			INSERT INTO positions (sender_id, receiver_id, encrypted_ping, recency_index)
 			SELECT
 				$sender_id AS sender_id,
@@ -120,45 +143,53 @@ export class ServerDatabase {
 					ELSE user_2_ping_index
 				END AS recency_index
 			FROM links
-			WHERE user_id_1 = $id1 AND user_id_2 = $id2
+			WHERE
+				(user_id_1 = $sender_id AND user_id_2 = $receiver_id)
+				OR (user_id_1 = $receiver_id AND user_id_2 = $sender_id)
 			ON CONFLICT(sender_id, receiver_id, recency_index)
 			DO UPDATE SET encrypted_ping = excluded.encrypted_ping
 		`);
 
-		const [id1, id2] = ping.sender_id < ping.receiver_id ? [ping.sender_id, ping.receiver_id] : [ping.receiver_id, ping.sender_id];
-		this.db.transaction(() => {
-			index_update_query.run({ sender_id: ping.sender_id, receiver_id: ping.receiver_id });
-			ping_insert_query.run({
-				sender_id: ping.sender_id,
-				receiver_id: ping.receiver_id,
-				encrypted_ping: ping.encrypted_ping,
-				id1: id1,
-				id2: id2,
-			});
-		})();
-	}
+	db.transaction(() => {
+		index_update_query.run({ sender_id: ping.sender_id, receiver_id: ping.receiver_id });
+		ping_insert_query.run({
+			sender_id: ping.sender_id,
+			receiver_id: ping.receiver_id,
+			encrypted_ping: ping.encrypted_ping,
+		});
+	})();
+}
 
-	static getPings(sender_id: string, receiver_id: string): Ping[] | null {
-		const result = this.db
-			.prepare(`SELECT encrypted_ping FROM positions WHERE sender_id = ? AND receiver_id = ?`)
-			.all(sender_id, receiver_id) as Ping[] | null;
+export function getPings(sender_id: string, receiver_id: string): Ping[] | null {
+	// prettier-ignore
+	const result = db.prepare(`
+		SELECT encrypted_ping FROM positions
+		WHERE sender_id = ? AND receiver_id = ?
+	`).all(sender_id, receiver_id) as Ping[] | null;
 
-		return result;
-	}
+	return result;
+}
 
-	static createFriendRequest(sender_id: string, accepter_id: string) {
-		this.db.prepare(`INSERT INTO friend_requests (sender_id, accepter_id) VALUES (?, ?)`).run(sender_id, accepter_id);
-	}
+export function createFriendRequest(sender_id: string, accepter_id: string) {
+	// prettier-ignore
+	db.prepare(`
+		INSERT OR IGNORE INTO friend_requests (sender_id, accepter_id) VALUES (?, ?)
+	`).run(sender_id, accepter_id);
+}
 
-	static consumeFriendRequest(sender_id: string, accepter_id: string): boolean {
-		const { changes } = this.db
-			.prepare(`DELETE FROM friend_requests WHERE sender_id = ? AND accepter_id = ?`)
-			.run(sender_id, accepter_id);
-		return changes > 0;
-	}
+export function consumeFriendRequest(sender_id: string, accepter_id: string): boolean {
+	// prettier-ignore
+	const { changes } = db.prepare(`
+		DELETE FROM friend_requests WHERE sender_id = ? AND accepter_id = ?
+	`).run(sender_id, accepter_id);
 
-	static createLink(user_id_1: string, user_id_2: string) {
-		const [id1, id2] = user_id_1 < user_id_2 ? [user_id_1, user_id_2] : [user_id_2, user_id_1];
-		this.db.prepare(`INSERT INTO links (user_id_1, user_id_2) VALUES (?, ?)`).run(id1, id2);
-	}
+	return changes > 0;
+}
+
+export function createLink(user_id_1: string, user_id_2: string) {
+	// prettier-ignore
+	db.prepare(`
+		INSERT INTO links (user_id_1, user_id_2)
+		VALUES (LEAST($id1, $id2), GREATEST($id1, $id2))
+	`).run({ id1: user_id_1, id2: user_id_2 });
 }

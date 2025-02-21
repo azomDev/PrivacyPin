@@ -1,47 +1,111 @@
-// here, we want a page that will make the users follow a specific sequence of qr scan then qr code display or vice versa
-// The page is called with a bool isFirst to determine if the user starts with a qr code or a qr scan
+import 'dart:convert';
 
-// to add friends:
-// - popup of buttons "1st" and "2nd" that determine the order of who scans who first
-// - for "1st", it is a qr code, for "2nd", it is a scanner
-// - when the scan is done, "2nd" send a friend request to the server
-// - for "1st", it is a scanner, for 2nd", it is a qr code
-// - when the scan is done, "1st" sends a message to the server to accept the friend request. Meanwhile, "2nd" is fetching each second the status of the Link on the server.
-// - Once the link has been created ("1st" got an ok response and "2nd" fetched a confirmation message) the screen shows a confirmation popup
+import 'package:flutter/material.dart';
+import 'package:privacypin/home.dart';
+import 'package:privacypin/server_api.dart';
+import 'package:privacypin/storing.dart';
+import 'package:privacypin/utils.dart';
 
-// todo this entire file just a basic thing :P
-import "package:flutter/material.dart";
-
-class AddFriendPage extends StatelessWidget {
-  final bool isFirst;
-
-  const AddFriendPage({super.key, required this.isFirst});
+class AddFriendWidget extends StatelessWidget {
+  const AddFriendWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Add Friend"),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(isFirst ? "You are the 1st" : "You are the 2nd"),
-            ElevatedButton(
-              onPressed: () {
-                // todo open qr code scanner
-              },
-              child: const Text("Scan QR Code"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // todo open qr code generator
-              },
-              child: const Text("Generate QR Code"),
-            ),
-          ],
-        ),
+    final TextEditingController usernameController = TextEditingController();
+    final TextEditingController userIdController = TextEditingController();
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          TextField(
+            controller: usernameController,
+            decoration: const InputDecoration(labelText: "Username"),
+          ),
+          TextField(
+            controller: userIdController,
+            decoration: const InputDecoration(labelText: "User ID"),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  String userId = userIdController.text;
+                  final myUserId = await NativeStorage.get("user_id");
+                  await post(
+                      "/create-friend-request",
+                      jsonEncode({
+                        "sender_id": myUserId,
+                        "accepter_id": userId,
+                      }));
+
+                  bool isFriend = false;
+
+                  while (!isFriend) {
+                    final response = await post(
+                        "/is-friend-request-accepted",
+                        jsonEncode({
+                          "sender_id": myUserId,
+                          "accepter_id": userId,
+                        }));
+
+                    await Future.delayed(const Duration(seconds: 1));
+                    isFriend = response == "true";
+                  }
+
+                  final friendListJsonString =
+                      await NativeStorage.get("friends");
+
+                  final List<User> friendList =
+                      jsonDecode(friendListJsonString);
+                  friendList.add(User(
+                      userIdController.text, usernameController.text, true));
+                  await NativeStorage.store("friends", jsonEncode(friendList));
+                  // now we need to show the home page
+                  if (!context.mounted) return;
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(friends: friendList),
+                    ),
+                  );
+                },
+                child: const Text("Send"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  String username = usernameController.text;
+                  String userId = userIdController.text;
+                  await post(
+                      "/accept-friend-request",
+                      jsonEncode({
+                        "username": username,
+                        "user_id": userId,
+                      }));
+
+                  final friendListJsonString =
+                      await NativeStorage.get("friends");
+
+                  final List<User> friendList =
+                      jsonDecode(friendListJsonString);
+                  friendList.add(User(
+                      userIdController.text, usernameController.text, true));
+                  await NativeStorage.store("friends", jsonEncode(friendList));
+                  // now we need to show the home page
+                  if (!context.mounted) return;
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(friends: friendList),
+                    ),
+                  );
+                },
+                child: const Text("Accept"),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

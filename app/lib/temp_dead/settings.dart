@@ -4,7 +4,9 @@
 // - delete account button
 // - set time between pings (background location tracking refresh rate)
 
-// todo check this entire file to add coments and to finish it
+// IMPORTANT
+// for MVP, we don't need settings
+
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatefulWidget {

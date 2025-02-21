@@ -1,21 +1,39 @@
+import "dart:convert";
+
 import "package:flutter/material.dart";
 import "package:privacypin/home.dart";
+import "package:privacypin/storing.dart";
+import 'dart:typed_data';
+import 'package:http/http.dart' as http;
+import "package:privacypin/server_api.dart";
+
+import 'package:cryptography/cryptography.dart';
 
 class AccountCreationScreen extends StatelessWidget {
   AccountCreationScreen({super.key});
-  final TextEditingController _keyController = TextEditingController();
-  final TextEditingController _serverController = TextEditingController();
+  final TextEditingController _signupKeyController = TextEditingController();
+  final TextEditingController _serverURLController = TextEditingController();
 
   void processAccountCreation(BuildContext context) async {
-    // todo process account creation:
-    // generate a keypair securely
-    // send the public key and the account creation key to the server at the given URL
-    // if the server responds with a success message, store the private key securely? (Or is it generated directly in the secure enclave?)
-    // if the server responds with an error message, show an error dialog and allow the user to retry (how?)
-    //
-    // if the server responds with a sucess message, it will return the user id which needs to be stored
+    final algorithm = Ed25519();
+    final keyPair = await algorithm.newKeyPair();
+    final privateKey = await keyPair.extractPrivateKeyBytes();
+    final publicKey = (await keyPair.extractPublicKey()).bytes;
+
+    final userId = await createAccount(
+      _serverURLController.text,
+      base64Encode(publicKey),
+      _signupKeyController.text,
+    );
+
+    await NativeStorage.store("private_key", base64Encode(privateKey));
+    await NativeStorage.store("public_key", base64Encode(publicKey));
+    await NativeStorage.store("user_id", userId);
+    await NativeStorage.store("server_url", _serverURLController.text);
+    await NativeStorage.store("friends", "[]");
 
     // Navigate to HomePage
+    if (!context.mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomePage(friends: [])),
@@ -37,7 +55,7 @@ class AccountCreationScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             TextField(
-              controller: _keyController,
+              controller: _signupKeyController,
               decoration: const InputDecoration(
                 labelText: "Account Creation Key",
                 border: OutlineInputBorder(),
@@ -45,7 +63,7 @@ class AccountCreationScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             TextField(
-              controller: _serverController,
+              controller: _serverURLController,
               decoration: const InputDecoration(
                 labelText: "Server URL",
                 border: OutlineInputBorder(),

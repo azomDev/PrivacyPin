@@ -1,21 +1,20 @@
+import "dart:convert";
 import "package:flutter/material.dart";
 import "package:privacypin/add_friend.dart";
-import "package:privacypin/settings.dart";
+import "package:privacypin/server_api.dart";
+import "package:privacypin/temp_dead/settings.dart";
+import "package:privacypin/storing.dart";
 import "package:privacypin/utils.dart";
+import 'package:url_launcher/url_launcher.dart';
+
+Future<void> openGoogleMaps(double latitude, double longitude) async {
+  String mapsUrl = 'maps:q=$latitude,$longitude';
+  launchUrl(Uri.parse(mapsUrl));
+}
 
 class HomePage extends StatelessWidget {
   final List<User> friends;
   const HomePage({super.key, required this.friends});
-
-  Future<List<Ping>> getPings(User user) async {
-    // todo fetch pings from server
-    final pings = <Ping>[
-      Ping(37.7749, -122.4194, 1634025600),
-      Ping(37.7749, -122.4194, 1634025600),
-      Ping(37.7749, -122.4194, 1634025600),
-    ];
-    return pings;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,51 +22,6 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("PrivacyPin"),
         actions: [
-          // + Button
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text("Add Friend"),
-                    content:
-                        Text("Do you want to scan a QR code or generate one?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context); // Close the dialog
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  AddFriendPage(isFirst: true),
-                            ),
-                          );
-                        },
-                        child: Text("Generate QR"),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context); // Close the dialog
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  AddFriendPage(isFirst: false),
-                            ),
-                          );
-                        },
-                        child: Text("Scan QR"),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-          // Settings Button
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
@@ -79,35 +33,48 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: friends.length,
-        itemBuilder: (context, index) {
-          final person = friends[index];
-          return ListTile(
-            title: Text(person.username),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // GPS pin icon
-                IconButton(
-                  icon: const Icon(Icons.pin_drop),
-                  onPressed: () async {
-                    final pings = await getPings(person);
-                    // todo open external map to show first ping in list so with pings[0]
-                  },
-                ),
-                // Visibility toggle icon
-                IconButton(
-                    icon: Icon(person.amISending
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                    onPressed: () {
-                      // todo toggle visibilty by updating the User object where it is stored (it's the native code that will read it as well as here to display the correct icon)
-                    }),
-              ],
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: friends.length,
+              itemBuilder: (context, index) {
+                final person = friends[index];
+                return ListTile(
+                  title: Text(person.username),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.pin_drop),
+                        onPressed: () async {
+                          final myUserId = NativeStorage.get("user_id");
+                          final pingsAsStr = await post(
+                              "get-pings",
+                              jsonEncode({
+                                "sender_id": person.id,
+                                "receiver_id": myUserId
+                              }));
+                          List<Ping> pings = jsonDecode(pingsAsStr);
+                          openGoogleMaps(pings[0].latitude, pings[0].longitude);
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(person.amISending
+                            ? Icons.visibility_off
+                            : Icons.visibility),
+                        onPressed: () {
+                          dummySendPing(person.id);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+          const AddFriendWidget(),
+        ],
       ),
     );
   }

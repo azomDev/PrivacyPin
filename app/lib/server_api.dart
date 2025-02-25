@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:privacypin/storing.dart';
@@ -7,7 +6,7 @@ import 'package:privacypin/storing.dart';
 import 'package:http/http.dart' as http;
 
 Future<String> post(String endpoint, String jsonBody) async {
-  final serverUrl = await NativeStorage.get("server_url");
+  final serverUrl = (await NativeStorage.get("server_url"))!;
 
   final userId = await NativeStorage.get("user_id");
 
@@ -22,8 +21,8 @@ Future<String> post(String endpoint, String jsonBody) async {
 
   final base64PrivateKey = await NativeStorage.get("private_key");
   final base64PublicKey = await NativeStorage.get("public_key");
-  final privateKeyBytes = base64Decode(base64PrivateKey);
-  final publicKeyBytes = base64Decode(base64PublicKey);
+  final privateKeyBytes = base64Decode(base64PrivateKey!);
+  final publicKeyBytes = base64Decode(base64PublicKey!);
 
   final keyPair = SimpleKeyPairData(
     privateKeyBytes,
@@ -45,10 +44,13 @@ Future<String> post(String endpoint, String jsonBody) async {
     },
   );
 
+  if (response.statusCode != 200) {
+    throw Exception('Failed to post to $endpoint: ${response.body}');
+  }
+
   return response.body;
 }
 
-// only api that returns a Result for MVP since there is user entered data involved
 Future<String> createAccount(
     String serverUrl, String publicKey, String signupKey) async {
   final response = await http.post(
@@ -66,18 +68,21 @@ Future<String> createAccount(
   return response.body;
 }
 
+// todo delete later
 Future<void> dummySendPing(String friendId) async {
   final myUserId = await NativeStorage.get("user_id");
 
   await post(
-      "send-ping",
-      jsonEncode({
-        "sender_id": myUserId,
-        "receiver_id": friendId,
-        "encrypted_ping": jsonEncode({
-          "latitude": 0.0,
-          "longitude": 0.0,
-          "timestamp": DateTime.now().millisecondsSinceEpoch,
-        }),
-      }));
+      "/send-pings",
+      jsonEncode([
+        {
+          "sender_id": myUserId,
+          "receiver_id": friendId,
+          "encrypted_ping": jsonEncode({
+            "latitude": 1.2,
+            "longitude": 3.4,
+            "timestamp": DateTime.now().millisecondsSinceEpoch,
+          }),
+        }
+      ]));
 }

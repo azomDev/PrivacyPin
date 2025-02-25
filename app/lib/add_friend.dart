@@ -54,14 +54,15 @@ class AddFriendWidget extends StatelessWidget {
                     isFriend = response == "true";
                   }
 
+                  // todo adding the friend is not done proprely here and below
                   final friendListJsonString =
                       await NativeStorage.get("friends");
 
                   final List<User> friendList =
-                      jsonDecode(friendListJsonString);
-                  friendList.add(User(
-                      userIdController.text, usernameController.text, true));
-                  await NativeStorage.store("friends", jsonEncode(friendList));
+                      User.listFromJson(friendListJsonString ?? "[]");
+                  friendList.add(User(userId, usernameController.text, true));
+                  await NativeStorage.store(
+                      "friends", User.listToJson(friendList));
                   // now we need to show the home page
                   if (!context.mounted) return;
                   Navigator.pushReplacement(
@@ -75,23 +76,23 @@ class AddFriendWidget extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () async {
-                  String username = usernameController.text;
                   String userId = userIdController.text;
+                  final myUserId = await NativeStorage.get("user_id");
                   await post(
                       "/accept-friend-request",
                       jsonEncode({
-                        "username": username,
-                        "user_id": userId,
+                        "sender_id": userId,
+                        "accepter_id": myUserId,
                       }));
 
                   final friendListJsonString =
                       await NativeStorage.get("friends");
-
                   final List<User> friendList =
-                      jsonDecode(friendListJsonString);
-                  friendList.add(User(
-                      userIdController.text, usernameController.text, true));
-                  await NativeStorage.store("friends", jsonEncode(friendList));
+                      User.listFromJson(friendListJsonString ?? "[]");
+
+                  friendList.add(User(userId, usernameController.text, true));
+                  await NativeStorage.store(
+                      "friends", User.listToJson(friendList));
                   // now we need to show the home page
                   if (!context.mounted) return;
                   Navigator.pushReplacement(

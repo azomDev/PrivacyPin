@@ -8,7 +8,8 @@ import "package:privacypin/utils.dart";
 import 'package:url_launcher/url_launcher.dart';
 
 Future<void> openGoogleMaps(double latitude, double longitude) async {
-  String mapsUrl = 'maps:q=$latitude,$longitude';
+  String mapsUrl = "geo:0,0?q=$latitude,$longitude";
+
   launchUrl(Uri.parse(mapsUrl));
 }
 
@@ -48,14 +49,25 @@ class HomePage extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.pin_drop),
                         onPressed: () async {
-                          final myUserId = NativeStorage.get("user_id");
+                          final myUserId =
+                              (await NativeStorage.get("user_id"))!;
                           final pingsAsStr = await post(
-                              "get-pings",
+                              "/get-pings",
                               jsonEncode({
                                 "sender_id": person.id,
                                 "receiver_id": myUserId
                               }));
-                          List<Ping> pings = jsonDecode(pingsAsStr);
+                          List<Ping> pings = Ping.listFromJson(pingsAsStr);
+                          if (pings.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("No pings from this user"),
+                              ),
+                            );
+                            return;
+                          }
+                          print(pings[0].latitude);
+                          print(pings[0].longitude);
                           openGoogleMaps(pings[0].latitude, pings[0].longitude);
                         },
                       ),

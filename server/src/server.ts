@@ -32,7 +32,6 @@ const server = Bun.serve({
 		const header_data = JSON.parse(sign_data_header) as { signature: string; user_id: string };
 		const sign_data: SignData = { signature: Uint8Array.fromBase64(header_data.signature), user_id: header_data.user_id };
 
-		console.log(header_data.signature);
 		if (!(await isSignatureValid(req_content, sign_data))) {
 			return new Response("todo", { status: 599 });
 		}
@@ -45,21 +44,21 @@ const server = Bun.serve({
 			if (friend_request.sender_id !== sign_data.user_id) return new Response("todo", { status: 599 });
 			return RH.createFriendRequest(friend_request);
 		} else if (endpoint === "/accept-friend-request") {
+			console.log(req_content);
 			const friend_request = JSON.parse(req_content) as FriendRequest;
 			if (friend_request.accepter_id !== sign_data.user_id) return new Response("todo", { status: 599 });
 			return RH.acceptFriendRequest(friend_request);
-		} else if (endpoint === "/send-ping") {
-			// todo, later, make this api able to take in a list of pings from a single person to multiple people (each ping has a different receiver)
-			const ping = JSON.parse(req_content) as Ping;
-			if (ping.sender_id !== sign_data.user_id) return new Response("todo", { status: 599 });
-			return RH.sendPing(ping);
+		} else if (endpoint === "/send-pings") {
+			const pings = JSON.parse(req_content) as Ping[];
+			if (pings.some((ping) => ping.sender_id !== sign_data.user_id)) return new Response("todo", { status: 599 });
+			return RH.sendPings(pings);
 		} else if (endpoint === "/get-pings") {
 			const { sender_id, receiver_id } = JSON.parse(req_content) as { sender_id: string; receiver_id: string };
 			if (receiver_id !== sign_data.user_id) return new Response("todo", { status: 599 });
 			return RH.getPings(sender_id, receiver_id);
 		} else if (endpoint === "/is-friend-request-accepted") {
 			const friend_request = JSON.parse(req_content) as FriendRequest;
-			if (friend_request.accepter_id !== sign_data.user_id) return new Response("todo", { status: 599 });
+			if (friend_request.sender_id !== sign_data.user_id) return new Response("todo", { status: 599 });
 			return RH.isFriendRequestAccepted(friend_request);
 		}
 		return new Response("Not found", { status: 404 });

@@ -27,8 +27,8 @@ function initializeDatabase() {
 		CREATE TABLE IF NOT EXISTS links (
 			user_id_1 TEXT,
 			user_id_2 TEXT,
-			user_1_max_ping INTEGER DEFAULT 1,
-			user_2_max_ping INTEGER DEFAULT 1,
+			user_1_max_ping INTEGER DEFAULT 5,
+			user_2_max_ping INTEGER DEFAULT 5,
 			user_1_ping_index INTEGER DEFAULT 0,
 			user_2_ping_index INTEGER DEFAULT 0,
 			CHECK(user_id_1 < user_id_2),
@@ -114,60 +114,82 @@ export function createUser(user: User) {
 	`).run(user.user_id, user.pub_sign_key);
 }
 
-export function addPing(ping: Ping) {
+export function addPings(pings: Ping[]) {
 	const index_update_query = db.prepare(`
-			UPDATE links
-			SET
-				user_1_ping_index = CASE
-					WHEN user_id_1 = $sender_id THEN (user_1_ping_index + 1) % user_1_max_ping
-					ELSE user_1_ping_index
-				END,
-				user_2_ping_index = CASE
-					WHEN user_id_2 = $sender_id THEN (user_2_ping_index + 1) % user_2_max_ping
-					ELSE user_2_ping_index
-				END
-			WHERE
-				(user_id_1 = $sender_id AND user_id_2 = $receiver_id)
-				OR (user_id_1 = $receiver_id AND user_id_2 = $sender_id)
-		`);
+		UPDATE links
+		SET
+			user_1_ping_index = CASE
+				WHEN user_id_1 = $sender_id THEN (user_1_ping_index + 1) % user_1_max_ping
+				ELSE user_1_ping_index
+			END,
+			user_2_ping_index = CASE
+				WHEN user_id_2 = $sender_id THEN (user_2_ping_index + 1) % user_2_max_ping
+				ELSE user_2_ping_index
+			END
+		WHERE
+			(user_id_1 = $sender_id AND user_id_2 = $receiver_id)
+			OR (user_id_1 = $receiver_id AND user_id_2 = $sender_id)
+	`);
 
-	// todo check this sql statement to check if it is correct
 	const ping_insert_query = db.prepare(`
-			INSERT INTO positions (sender_id, receiver_id, encrypted_ping, recency_index)
-			SELECT
-				$sender_id AS sender_id,
-				$receiver_id AS receiver_id,
-				$encrypted_ping AS encrypted_ping,
-				CASE
-					WHEN $sender_id = user_id_1 THEN user_1_ping_index
-					ELSE user_2_ping_index
-				END AS recency_index
-			FROM links
-			WHERE
-				(user_id_1 = $sender_id AND user_id_2 = $receiver_id)
-				OR (user_id_1 = $receiver_id AND user_id_2 = $sender_id)
-			ON CONFLICT(sender_id, receiver_id, recency_index)
-			DO UPDATE SET encrypted_ping = excluded.encrypted_ping
-		`);
-
+		INSERT INTO positions (sender_id, receiver_id, encrypted_ping, recency_index)
+		SELECT
+			$sender_id AS sender_id,
+			$receiver_id AS receiver_id,
+			$encrypted_ping AS encrypted_ping,
+			CASE
+				WHEN $sender_id = user_id_1 THEN user_1_ping_index
+				ELSE user_2_ping_index
+			END AS recency_index
+		FROM links
+		WHERE
+			(user_id_1 = $sender_id AND user_id_2 = $receiver_id)
+			OR (user_id_1 = $receiver_id AND user_id_2 = $sender_id)
+		-- if the ping already exists, update the encrypted_ping data
+		ON CONFLICT(sender_id, receiver_id, recency_index)
+		DO UPDATE SET encrypted_ping = excluded.encrypted_ping
+	`);
 	db.transaction(() => {
-		index_update_query.run({ sender_id: ping.sender_id, receiver_id: ping.receiver_id });
-		ping_insert_query.run({
-			sender_id: ping.sender_id,
-			receiver_id: ping.receiver_id,
-			encrypted_ping: ping.encrypted_ping,
-		});
+		for (const ping of pings) {
+			index_update_query.run({ sender_id: ping.sender_id, receiver_id: ping.receiver_id });
+			ping_insert_query.run({
+				sender_id: ping.sender_id,
+				receiver_id: ping.receiver_id,
+				encrypted_ping: ping.encrypted_ping,
+			});
+		}
 	})();
 }
 
-export function getPings(sender_id: string, receiver_id: string): Ping[] | null {
+export function getPings(sender_id: string, receiver_id: string): string[] | null {
+	// prettier-ignore
+	const index_result = db.prepare(`
+		SELECT
+			CASE
+				WHEN user_id_1 = ? THEN user_1_ping_index
+				ELSE user_2_ping_index
+			END AS start_index
+		FROM links
+		WHERE (user_id_1 = ? AND user_id_2 = ?)
+		   OR (user_id_1 = ? AND user_id_2 = ?)
+	`)	.get(sender_id, sender_id, receiver_id, receiver_id, sender_id) as { start_index: number } | null;
+
+	if (!index_result) return null; // No link found
+
+	const start_index = index_result.start_index;
+
+	// Get pings ordered cyclically
 	// prettier-ignore
 	const result = db.prepare(`
-		SELECT encrypted_ping FROM positions
-		WHERE sender_id = ? AND receiver_id = ?
-	`).all(sender_id, receiver_id) as Ping[] | null;
+		SELECT encrypted_ping
+		FROM positions
+		WHERE sender_id = $sender_id AND receiver_id = $receiver_id
+		ORDER BY (recency_index - $start_index) % (SELECT COUNT(*) FROM positions WHERE sender_id = $sender_id AND receiver_id = $receiver_id)
+	`).all({ sender_id, receiver_id, start_index }) as {encrypted_ping: string}[] | null;
 
-	return result;
+	if (result === null) return null;
+
+	return result.map((row) => row.encrypted_ping);
 }
 
 export function createFriendRequest(sender_id: string, accepter_id: string) {
@@ -189,7 +211,10 @@ export function consumeFriendRequest(sender_id: string, accepter_id: string): bo
 export function createLink(user_id_1: string, user_id_2: string) {
 	// prettier-ignore
 	db.prepare(`
-		INSERT INTO links (user_id_1, user_id_2)
-		VALUES (LEAST($id1, $id2), GREATEST($id1, $id2))
+	INSERT INTO links (user_id_1, user_id_2)
+	VALUES (
+		CASE WHEN $id1 < $id2 THEN $id1 ELSE $id2 END,
+		CASE WHEN $id1 > $id2 THEN $id1 ELSE $id2 END
+	);
 	`).run({ id1: user_id_1, id2: user_id_2 });
 }

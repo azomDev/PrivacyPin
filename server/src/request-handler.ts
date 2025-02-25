@@ -37,6 +37,7 @@ export function createFriendRequest(friend_request: FriendRequest): Response {
 	const { sender_id, accepter_id } = friend_request;
 
 	if (sender_id === accepter_id) {
+		console.log("test");
 		return new Response("Sender and accepter cannot be the same user", { status: 599 });
 	}
 
@@ -44,9 +45,8 @@ export function createFriendRequest(friend_request: FriendRequest): Response {
 		return new Response("todo", { status: 599 });
 	}
 
-	console.log("test");
-
 	db.createFriendRequest(sender_id, accepter_id);
+
 	return new Response();
 }
 
@@ -60,8 +60,8 @@ export function acceptFriendRequest(friend_request: FriendRequest): Response {
 	return new Response();
 }
 
-export function sendPing(ping: Ping): Response {
-	db.addPing(ping);
+export function sendPings(pings: Ping[]): Response {
+	db.addPings(pings);
 	return new Response();
 }
 

@@ -25,11 +25,11 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 ## **Roadmap to Testing**:
 - [x] **Account System**
    - Public key authentication (initial version, key rotation to be added later).
-- [ ] **Friend System**
+- [x] **Friend System**
    - Adding/tracking friends.
-- [ ] **Ping System**
+- [x] **Ping System**
    - Sending/getting pings with complex SQL queries for storage.
-- [ ] **Basic Storage**
+- [x] **Basic Storage**
    - Store crypto keys & app state in a persistent, non-SQL store.
 - [ ] **Native Position Fetching**
    - Native location retrieval in Flutter.

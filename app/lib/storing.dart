@@ -1,19 +1,19 @@
-class NativeStorage {
-  // In-memory storage
-  static final Map<String, String> _storage = {};
+import 'package:shared_preferences/shared_preferences.dart';
 
-  // Store method to save data in memory
+class NativeStorage {
   static Future<void> store(String key, String value) async {
-    _storage[key] = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
   }
 
-  // Get method to retrieve data from memory
-  static Future<String> get(String key) async {
-    return _storage[key]!;
+  static Future<String?> get(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key);
   }
 
   static Future<bool> isLoggedIn() async {
-    return _storage["user_id"] != null;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey("user_id");
   }
 }
 
@@ -23,3 +23,5 @@ class NativeStorage {
 // server_url
 // settings (many)
 // friends
+
+// later do an enum or something for the keys so it's consistent

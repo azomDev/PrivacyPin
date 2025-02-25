@@ -1,12 +1,9 @@
 import "dart:convert";
-
 import "package:flutter/material.dart";
 import "package:privacypin/home.dart";
 import "package:privacypin/storing.dart";
-import 'dart:typed_data';
-import 'package:http/http.dart' as http;
 import "package:privacypin/server_api.dart";
-
+// todo cryptography package is not maintained anymore, use another package
 import 'package:cryptography/cryptography.dart';
 
 class AccountCreationScreen extends StatelessWidget {
@@ -15,8 +12,7 @@ class AccountCreationScreen extends StatelessWidget {
   final TextEditingController _serverURLController = TextEditingController();
 
   void processAccountCreation(BuildContext context) async {
-    final algorithm = Ed25519();
-    final keyPair = await algorithm.newKeyPair();
+    final keyPair = await Ed25519().newKeyPair();
     final privateKey = await keyPair.extractPrivateKeyBytes();
     final publicKey = (await keyPair.extractPublicKey()).bytes;
 

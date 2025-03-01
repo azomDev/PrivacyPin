@@ -1,6 +1,6 @@
 export type User = {
 	user_id: string;
-	pub_sign_key: Uint8Array;
+	pub_sign_key: string;
 };
 
 export type Ping = {

@@ -14,54 +14,98 @@ const server = Bun.serve({
 
 		// ONLY TEMPORARY WAY OF GENERATING SIGNUP KEYS FOR TESTING UNTIL IT IS IMPLEMENTED IN THE FRONTEND
 		if (endpoint === "/generate-signup-key") {
-			return RH.generateSignupKey();
+			const new_signup_key = RH.generateSignupKey();
+			return new Response(new_signup_key);
 		}
 
 		if (endpoint === "/challenge") {
-			return RH.challenge(req_content); // in case of the /challenge endpoint, the body is directly the user_id as a string
+			const challenge = RH.challenge(req_content);
+			return new Response(challenge); // in case of the /challenge endpoint, the body is directly the user_id as a string
 		} else if (endpoint === "/create-account") {
-			// todo pub_sign_key needs to be decoded frmo base64 but it works currently so check why it's working.
-			const { signup_key, pub_sign_key } = JSON.parse(req_content) as { signup_key: string; pub_sign_key: Uint8Array };
-			return RH.createAccount(signup_key, pub_sign_key);
+			const { signup_key, pub_sign_key } = JSON.parse(req_content) as {
+				signup_key: string;
+				pub_sign_key: string;
+			};
+			const user_id = RH.createAccount(signup_key, pub_sign_key);
+			return new Response(user_id);
 		}
 
 		////////////////////////////////
 
 		const sign_data_header = req.headers.get("sign-data");
-		if (sign_data_header === null) return new Response("todo", { status: 599 });
-		const header_data = JSON.parse(sign_data_header) as { signature: string; user_id: string };
-		const sign_data: SignData = { signature: Uint8Array.fromBase64(header_data.signature), user_id: header_data.user_id };
+		if (sign_data_header === null) throw new Error("todo");
+		const header_data = JSON.parse(sign_data_header) as {
+			signature: string;
+			user_id: string;
+		};
+		const sign_data: SignData = {
+			signature: Uint8Array.fromBase64(header_data.signature),
+			user_id: header_data.user_id,
+		};
 
 		if (!(await isSignatureValid(req_content, sign_data))) {
-			return new Response("todo", { status: 599 });
+			throw new Error("Invalid signature");
 		}
 
 		if (endpoint === "/generate-signup-key") {
-			if (!(await isAdmin(sign_data.user_id))) return new Response("todo", { status: 599 });
-			return RH.generateSignupKey();
+			if (!(await isAdmin(sign_data.user_id)))
+				throw new Error(
+					"User must be an admin to generate a signup key",
+				);
+			const signup_key = RH.generateSignupKey();
+			return new Response(signup_key);
 		} else if (endpoint === "/create-friend-request") {
 			const friend_request = JSON.parse(req_content) as FriendRequest;
-			if (friend_request.sender_id !== sign_data.user_id) return new Response("todo", { status: 599 });
-			return RH.createFriendRequest(friend_request);
+			if (friend_request.sender_id !== sign_data.user_id)
+				throw new Error(
+					"Sender ID mismatch: You can only create friend requests from your own account",
+				);
+			RH.createFriendRequest(friend_request);
+			return new Response();
 		} else if (endpoint === "/accept-friend-request") {
 			console.log(req_content);
 			const friend_request = JSON.parse(req_content) as FriendRequest;
-			if (friend_request.accepter_id !== sign_data.user_id) return new Response("todo", { status: 599 });
-			return RH.acceptFriendRequest(friend_request);
+			if (friend_request.accepter_id !== sign_data.user_id)
+				throw new Error(
+					"Accepter ID mismatch: You can only accept friend requests addressed to you",
+				);
+			RH.acceptFriendRequest(friend_request);
+			return new Response();
 		} else if (endpoint === "/send-pings") {
 			const pings = JSON.parse(req_content) as Ping[];
-			if (pings.some((ping) => ping.sender_id !== sign_data.user_id)) return new Response("todo", { status: 599 });
-			return RH.sendPings(pings);
+			if (pings.some((ping) => ping.sender_id !== sign_data.user_id))
+				throw new Error(
+					"Sender ID mismatch: You can only send pings from your own account",
+				);
+			RH.sendPings(pings);
+			return new Response();
 		} else if (endpoint === "/get-pings") {
-			const { sender_id, receiver_id } = JSON.parse(req_content) as { sender_id: string; receiver_id: string };
-			if (receiver_id !== sign_data.user_id) return new Response("todo", { status: 599 });
-			return RH.getPings(sender_id, receiver_id);
+			const { sender_id, receiver_id } = JSON.parse(req_content) as {
+				sender_id: string;
+				receiver_id: string;
+			};
+			if (receiver_id !== sign_data.user_id)
+				throw new Error(
+					"Access denied: You can only retrieve pings addressed to you",
+				);
+			const pings = RH.getPings(sender_id, receiver_id);
+			return Response.json(pings);
 		} else if (endpoint === "/is-friend-request-accepted") {
 			const friend_request = JSON.parse(req_content) as FriendRequest;
-			if (friend_request.sender_id !== sign_data.user_id) return new Response("todo", { status: 599 });
-			return RH.isFriendRequestAccepted(friend_request);
+			if (friend_request.sender_id !== sign_data.user_id)
+				throw new Error(
+					"Sender ID mismatch: You can only check the status of friend requests you sent",
+				);
+			const is_accepted = RH.isFriendRequestAccepted(friend_request);
+			return new Response(is_accepted.toString());
 		}
-		return new Response("Not found", { status: 404 });
+		throw new Error("Not found");
+	},
+	error(err: Error) {
+		console.error(err);
+		return new Response(err.message, {
+			status: 500,
+		});
 	},
 });
 

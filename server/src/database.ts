@@ -1,10 +1,11 @@
 import { Database } from "bun:sqlite";
 import type { Ping, User } from "./models";
 
-const db = new Database("database.sqlite", { create: true, strict: true });
+let db: Database;
 initializeDatabase();
 
 function initializeDatabase() {
+	db = new Database("database.sqlite", { create: true, strict: true });
 	db.run(`
 		CREATE TABLE IF NOT EXISTS positions (
 			sender_id TEXT,
@@ -48,6 +49,25 @@ function initializeDatabase() {
 			key TEXT UNIQUE
 		)
 	`);
+}
+
+export function RESET_DATABASE_FOR_TESTING() {
+	try {
+		db.run("PRAGMA foreign_keys = OFF;"); // Disable foreign key constraints temporarily
+
+		const tables = db
+			.query("SELECT name FROM sqlite_master WHERE type='table';")
+			.all() as { name: string }[];
+		for (const table of tables) {
+			if (table.name !== "sqlite_sequence") {
+				db.run(`DELETE FROM ${table.name};`);
+			}
+		}
+
+		db.run("PRAGMA foreign_keys = ON;"); // Re-enable foreign key constraints
+	} catch (error) {
+		console.error("Error resetting database:", error);
+	}
 }
 
 export function getPubKey(user_id: string): string | null {
@@ -149,9 +169,13 @@ export function addPings(pings: Ping[]) {
 		ON CONFLICT(sender_id, receiver_id, recency_index)
 		DO UPDATE SET encrypted_ping = excluded.encrypted_ping
 	`);
+
 	db.transaction(() => {
 		for (const ping of pings) {
-			index_update_query.run({ sender_id: ping.sender_id, receiver_id: ping.receiver_id });
+			index_update_query.run({
+				sender_id: ping.sender_id,
+				receiver_id: ping.receiver_id,
+			});
 			ping_insert_query.run({
 				sender_id: ping.sender_id,
 				receiver_id: ping.receiver_id,
@@ -161,7 +185,10 @@ export function addPings(pings: Ping[]) {
 	})();
 }
 
-export function getPings(sender_id: string, receiver_id: string): string[] | null {
+export function getPings(
+	sender_id: string,
+	receiver_id: string,
+): string[] | null {
 	// prettier-ignore
 	const index_result = db.prepare(`
 		SELECT
@@ -199,7 +226,10 @@ export function createFriendRequest(sender_id: string, accepter_id: string) {
 	`).run(sender_id, accepter_id);
 }
 
-export function consumeFriendRequest(sender_id: string, accepter_id: string): boolean {
+export function consumeFriendRequest(
+	sender_id: string,
+	accepter_id: string,
+): boolean {
 	// prettier-ignore
 	const { changes } = db.prepare(`
 		DELETE FROM friend_requests WHERE sender_id = ? AND accepter_id = ?

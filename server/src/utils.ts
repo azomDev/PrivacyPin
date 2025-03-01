@@ -1,27 +1,40 @@
 import { randomUUIDv7 } from "bun";
-import type { Challenge, SignData } from "./models";
+import { type Challenge, type SignData } from "./models";
 import * as db from "./database";
 
 export const Challenges = new Map<string, Challenge>();
 
-export async function isSignatureValid(content_as_string: string, sign_data: SignData): Promise<boolean> {
+export async function isSignatureValid(
+	content_as_string: string,
+	sign_data: SignData,
+): Promise<boolean> {
 	const challenge = Challenges.get(sign_data.user_id);
-	if (challenge === undefined) return false;
+	if (challenge === undefined) throw new Error("Challenge not found");
 	Challenges.delete(sign_data.user_id);
 
 	const CHALLENGE_LIFETIME = 10 * 1000; // 10 seconds
 	if (Date.now() - challenge.timestamp > CHALLENGE_LIFETIME) {
-		return false;
+		throw new Error("Challenge expired");
 	}
 
-	const string_to_verify = content_as_string + sign_data.user_id + challenge.nonce + challenge.timestamp;
+	const string_to_verify =
+		content_as_string +
+		sign_data.user_id +
+		challenge.nonce +
+		challenge.timestamp;
 	const buffer_to_verify = new TextEncoder().encode(string_to_verify);
 
 	const string_public_key = db.getPubKey(sign_data.user_id);
+	if (string_public_key === null) throw new Error("Public key not found");
 	const raw_public_key = Uint8Array.fromBase64(string_public_key);
-	if (raw_public_key === null) return false;
 
-	const public_key = await crypto.subtle.importKey("raw", raw_public_key, "Ed25519", false, ["verify"]);
+	const public_key = await crypto.subtle.importKey(
+		"raw",
+		raw_public_key,
+		"Ed25519",
+		false,
+		["verify"],
+	);
 
 	const verify_result = await crypto.subtle.verify(
 		{

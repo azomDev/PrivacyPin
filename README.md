@@ -31,8 +31,8 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
    - Sending/getting pings with complex SQL queries for storage.
 - [x] **Basic Storage**
    - Store crypto keys & app state in a persistent, non-SQL store.
-- [ ] **Native Position Fetching**
-   - Native location retrieval in Flutter.
+- [x] **Native Position Fetching** (done but not pushed since code is horrible, should be done in March)
+   - Native location retrieval in Kotlin.
 
 ## **Roadmap to First Release**:
 - [ ] **End-to-End Encryption**

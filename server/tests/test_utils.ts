@@ -43,8 +43,6 @@ export async function createAccount(
 }
 
 export async function createLink(
-	signup_key1: string,
-	signup_key2: string,
 	user1: { user_id: string; private_sign_key: CryptoKey },
 	user2: { user_id: string; private_sign_key: CryptoKey },
 ) {

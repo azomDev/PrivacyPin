@@ -3,12 +3,7 @@ import { rmSync } from "fs";
 import { initServer } from "../src/utils";
 import { RESET_DATABASE_FOR_TESTING } from "../src/database";
 import "../src/server.ts";
-import {
-	generateSignupKey,
-	createAccount,
-	createLink,
-	challengeAndPost,
-} from "./test_utils.ts";
+import { generateSignupKey, createAccount, createLink, challengeAndPost } from "./test_utils.ts";
 
 beforeEach(async () => {
 	// Reset server
@@ -41,7 +36,7 @@ describe("Bun Server Sequential Tests", () => {
 		const user1 = await createAccount(signup_key1);
 		const user2 = await createAccount(signup_key2);
 
-		await createLink(signup_key1, signup_key2, user1, user2);
+		await createLink(user1, user2);
 	});
 
 	it("should send and get pings", async () => {
@@ -51,7 +46,7 @@ describe("Bun Server Sequential Tests", () => {
 		const user1 = await createAccount(signup_key1);
 		const user2 = await createAccount(signup_key2);
 
-		await createLink(signup_key1, signup_key2, user1, user2);
+		await createLink(user1, user2);
 
 		const dummy_encrypted_ping = "this is a dummy ping";
 		const pings = [
@@ -62,12 +57,7 @@ describe("Bun Server Sequential Tests", () => {
 			},
 		];
 
-		await challengeAndPost(
-			"send-pings",
-			JSON.stringify(pings),
-			user1.user_id,
-			user1.private_sign_key,
-		);
+		await challengeAndPost("send-pings", JSON.stringify(pings), user1.user_id, user1.private_sign_key);
 
 		const get_response = await challengeAndPost(
 			"get-pings",

@@ -1,51 +1,72 @@
 import { randomUUIDv7 } from "bun";
-import { type Challenge, type SignData } from "./models";
 import * as db from "./database";
+import type { GlobalSignData as SignData } from "../../shared/globalTypes";
+import { getBufferForSignature } from "../../shared/utils";
+import { Database } from "bun:sqlite";
 
-export const Challenges = new Map<string, Challenge>();
+const challenge_db = new Database(":memory:");
+challenge_db.run(`
+	CREATE TABLE IF NOT EXISTS challenges (
+		challenge TEXT PRIMARY KEY,
+		cleanup_id INTEGER
+	)
+`);
 
-export async function isSignatureValid(
-	content_as_string: string,
-	sign_data: SignData,
-): Promise<boolean> {
-	const challenge = Challenges.get(sign_data.user_id);
-	if (challenge === undefined) throw new Error("Challenge not found");
-	Challenges.delete(sign_data.user_id);
+// random thought, but if you close the server and the challenges are "reseted", then if you quickly open the server again someone can send a replay attack
 
-	const CHALLENGE_LIFETIME = 10 * 1000; // 10 seconds
-	if (Date.now() - challenge.timestamp > CHALLENGE_LIFETIME) {
+let next_cleanup_index = 0;
+const max_cleanup_index = 3;
+
+setInterval(() => {
+	challenge_db.prepare("DELETE FROM challenges WHERE cleanup_id = ?").run(next_cleanup_index);
+	next_cleanup_index = (next_cleanup_index + 1) % (max_cleanup_index + 1);
+	console.log(`Cleaned up challenges with cleanup_id = ${next_cleanup_index}`);
+}, 60 * 1000); // 60 seconds
+
+export async function isSignatureValid(content_as_string: string, sign_data: SignData): Promise<boolean> {
+	const CHALLENGE_LIFETIME = 30 * 1000; // 30 seconds
+	if (Date.now() - Number(sign_data.timestamp) > CHALLENGE_LIFETIME) {
 		throw new Error("Challenge expired");
 	}
 
-	const string_to_verify =
-		content_as_string +
-		sign_data.user_id +
-		challenge.nonce +
-		challenge.timestamp;
-	const buffer_to_verify = new TextEncoder().encode(string_to_verify);
+	// prettier-ignore
+	const result = challenge_db.prepare(`
+		SELECT EXISTS (SELECT 1 FROM challenges WHERE challenge = ?) AS challenge_exists
+	`).get(sign_data.nonce) as {challenge_exists: number};
 
-	const string_public_key = db.getPubKey(sign_data.user_id);
-	if (string_public_key === null) throw new Error("Public key not found");
-	const raw_public_key = Uint8Array.fromBase64(string_public_key);
+	if (result.challenge_exists === 1) throw new Error("Challenge already used");
 
-	const public_key = await crypto.subtle.importKey(
-		"raw",
-		raw_public_key,
-		"Ed25519",
-		false,
-		["verify"],
-	);
+	////////////////////////////
+	////////////////////////////
+	////////////////////////////
 
-	const verify_result = await crypto.subtle.verify(
+	const buffer_to_verify = getBufferForSignature(content_as_string, sign_data.nonce, sign_data.timestamp, sign_data.user_id);
+
+	const raw_public_key = db.getPubKey(sign_data.user_id);
+	console.log(buffer_to_verify);
+	if (raw_public_key === null) throw new Error("Public key not found");
+	const parsed_public_key = JSON.parse(raw_public_key) as JsonWebKey;
+
+	const public_key = await crypto.subtle.importKey("jwk", parsed_public_key, "Ed25519", false, ["verify"]);
+
+	const signature_valid = await crypto.subtle.verify(
 		{
 			name: "Ed25519",
 		},
 		public_key,
-		sign_data.signature,
+		Uint8Array.fromBase64(sign_data.signature),
 		buffer_to_verify,
 	);
 
-	return verify_result;
+	if (!signature_valid) return false;
+
+	const cleanup_id = (next_cleanup_index + 2) % (max_cleanup_index + 1);
+	// prettier-ignore
+	challenge_db.prepare(`
+		INSERT INTO challenges (challenge, cleanup_id) VALUES (?, ?)
+	`).run(sign_data.nonce, cleanup_id);
+
+	return true;
 }
 
 export async function isAdmin(user_id: string): Promise<boolean> {

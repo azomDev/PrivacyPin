@@ -1,17 +1,18 @@
 import { Database } from "bun:sqlite";
-import type { Ping, User } from "./models";
+import type { Ping, User } from "./types";
 
 let db: Database;
 initializeDatabase();
 
 function initializeDatabase() {
 	db = new Database("database.sqlite", { create: true, strict: true });
+	// todo later do the rotating recency indexes for better privacy
 	db.run(`
 		CREATE TABLE IF NOT EXISTS positions (
 			sender_id TEXT,
 			receiver_id TEXT,
-			encrypted_ping BLOB,
-			recency_index INTEGER,
+			encrypted_ping TEXT, -- in base64 when encrypted mabye? todo
+			recency_index INTEGER PRIMARY KEY AUTOINCREMENT,
 			UNIQUE(sender_id, receiver_id, recency_index)
 		)
 	`);
@@ -28,10 +29,6 @@ function initializeDatabase() {
 		CREATE TABLE IF NOT EXISTS links (
 			user_id_1 TEXT,
 			user_id_2 TEXT,
-			user_1_max_ping INTEGER DEFAULT 5,
-			user_2_max_ping INTEGER DEFAULT 5,
-			user_1_ping_index INTEGER DEFAULT 0,
-			user_2_ping_index INTEGER DEFAULT 0,
 			CHECK(user_id_1 < user_id_2),
 			UNIQUE(user_id_1, user_id_2)
 		)
@@ -55,9 +52,7 @@ export function RESET_DATABASE_FOR_TESTING() {
 	try {
 		db.run("PRAGMA foreign_keys = OFF;"); // Disable foreign key constraints temporarily
 
-		const tables = db
-			.query("SELECT name FROM sqlite_master WHERE type='table';")
-			.all() as { name: string }[];
+		const tables = db.query("SELECT name FROM sqlite_master WHERE type='table';").all() as { name: string }[];
 		for (const table of tables) {
 			if (table.name !== "sqlite_sequence") {
 				db.run(`DELETE FROM ${table.name};`);
@@ -135,84 +130,25 @@ export function createUser(user: User) {
 }
 
 export function addPings(pings: Ping[]) {
-	const index_update_query = db.prepare(`
-		UPDATE links
-		SET
-			user_1_ping_index = CASE
-				WHEN user_id_1 = $sender_id THEN (user_1_ping_index + 1) % user_1_max_ping
-				ELSE user_1_ping_index
-			END,
-			user_2_ping_index = CASE
-				WHEN user_id_2 = $sender_id THEN (user_2_ping_index + 1) % user_2_max_ping
-				ELSE user_2_ping_index
-			END
-		WHERE
-			(user_id_1 = $sender_id AND user_id_2 = $receiver_id)
-			OR (user_id_1 = $receiver_id AND user_id_2 = $sender_id)
-	`);
-
 	const ping_insert_query = db.prepare(`
-		INSERT INTO positions (sender_id, receiver_id, encrypted_ping, recency_index)
-		SELECT
-			$sender_id AS sender_id,
-			$receiver_id AS receiver_id,
-			$encrypted_ping AS encrypted_ping,
-			CASE
-				WHEN $sender_id = user_id_1 THEN user_1_ping_index
-				ELSE user_2_ping_index
-			END AS recency_index
-		FROM links
-		WHERE
-			(user_id_1 = $sender_id AND user_id_2 = $receiver_id)
-			OR (user_id_1 = $receiver_id AND user_id_2 = $sender_id)
-		-- if the ping already exists, update the encrypted_ping data
-		ON CONFLICT(sender_id, receiver_id, recency_index)
-		DO UPDATE SET encrypted_ping = excluded.encrypted_ping
+		INSERT INTO positions (sender_id, receiver_id, encrypted_ping) VALUES (?, ?, ?)
 	`);
 
 	db.transaction(() => {
 		for (const ping of pings) {
-			index_update_query.run({
-				sender_id: ping.sender_id,
-				receiver_id: ping.receiver_id,
-			});
-			ping_insert_query.run({
-				sender_id: ping.sender_id,
-				receiver_id: ping.receiver_id,
-				encrypted_ping: ping.encrypted_ping,
-			});
+			ping_insert_query.run(ping.sender_id, ping.receiver_id, ping.encrypted_ping);
 		}
 	})();
 }
 
-export function getPings(
-	sender_id: string,
-	receiver_id: string,
-): string[] | null {
-	// prettier-ignore
-	const index_result = db.prepare(`
-		SELECT
-			CASE
-				WHEN user_id_1 = ? THEN user_1_ping_index
-				ELSE user_2_ping_index
-			END AS start_index
-		FROM links
-		WHERE (user_id_1 = ? AND user_id_2 = ?)
-		   OR (user_id_1 = ? AND user_id_2 = ?)
-	`)	.get(sender_id, sender_id, receiver_id, receiver_id, sender_id) as { start_index: number } | null;
-
-	if (!index_result) return null; // No link found
-
-	const start_index = index_result.start_index;
-
-	// Get pings ordered cyclically
+export function getPings(sender_id: string, receiver_id: string): string[] | null {
 	// prettier-ignore
 	const result = db.prepare(`
 		SELECT encrypted_ping
 		FROM positions
 		WHERE sender_id = $sender_id AND receiver_id = $receiver_id
-		ORDER BY (recency_index - $start_index) % (SELECT COUNT(*) FROM positions WHERE sender_id = $sender_id AND receiver_id = $receiver_id)
-	`).all({ sender_id, receiver_id, start_index }) as {encrypted_ping: string}[] | null;
+		ORDER BY recency_index
+	`).all({ sender_id, receiver_id }) as {encrypted_ping: string}[] | null;
 
 	if (result === null) return null;
 
@@ -226,10 +162,7 @@ export function createFriendRequest(sender_id: string, accepter_id: string) {
 	`).run(sender_id, accepter_id);
 }
 
-export function consumeFriendRequest(
-	sender_id: string,
-	accepter_id: string,
-): boolean {
+export function consumeFriendRequest(sender_id: string, accepter_id: string): boolean {
 	// prettier-ignore
 	const { changes } = db.prepare(`
 		DELETE FROM friend_requests WHERE sender_id = ? AND accepter_id = ?

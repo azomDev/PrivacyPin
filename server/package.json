@@ -9,6 +9,7 @@
 		"typescript": "^5.7.3"
 	},
 	"scripts": {
-		"dev": "bun run src/server.ts"
+		"dev": "bun run src/server.ts",
+		"test": "clear && bun test"
 	}
 }

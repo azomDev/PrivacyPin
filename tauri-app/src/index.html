@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script type="module" src="./init.ts"></script>
+	</head>
+
+	<body>
+		<!-- Account Creation Page (Initially Hidden) -->
+		<div id="account-creation-page" style="display: none">
+			<h1>Create an Account</h1>
+			<form id="account-creation-form">
+				<div>
+					<label for="server-url">Server URL:</label>
+					<input type="text" id="server-url" name="server-url" placeholder="Enter the server URL" required />
+				</div>
+
+				<div>
+					<label for="signup-key">Signup Key:</label>
+					<input type="text" id="signup-key" name="signup-key" placeholder="Enter your signup key" required />
+				</div>
+
+				<button type="submit">Submit</button>
+			</form>
+		</div>
+
+		<!-- Home Page -->
+		<div id="home-page">
+			<div id="friends-list"></div>
+
+			<div>
+				<h3>Add Friend</h3>
+				<p id="user-id-display"></p>
+				<form>
+					<div>
+						<label for="friend-name">Name:</label>
+						<input type="text" id="friend-name" placeholder="Enter friend name" />
+					</div>
+					<div>
+						<label for="friend-id">User ID:</label>
+						<input type="text" id="friend-id" placeholder="Enter user ID" />
+					</div>
+					<div>
+						<button type="button" id="send-friend-request">Send Friend Request</button>
+						<button type="button" id="accept-friend-request">Accept Friend Request</button>
+					</div>
+				</form>
+			</div>
+
+			<div id="generate-signup-key-container" style="display: none">
+				<button type="button" id="generate-signup-key">Generate Signup Key</button>
+				<p id="signup-key-display" style="display: none"></p>
+			</div>
+		</div>
+	</body>
+</html>

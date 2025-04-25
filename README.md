@@ -49,6 +49,6 @@ Contributions to PrivacyPin are welcome! If you'd like to contribute, you can wo
 
 ## Contact
 
-Email - dev@azom.ca\
-Signal - @azom.01\
-Discord - azom.
+Email : dev@azom.ca\
+Signal : @azom.01\
+Discord : _azom

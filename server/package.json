@@ -1,15 +1,16 @@
 {
-	"name": "backend",
+	"name": "@privacypin/server",
+	"private": true,
+	"version": "1.0.0",
 	"module": "src/server.ts",
 	"type": "module",
 	"devDependencies": {
-		"@types/bun": "latest"
+		"@types/bun": "^1.2.8"
 	},
 	"peerDependencies": {
 		"typescript": "^5.7.3"
 	},
-	"scripts": {
-		"dev": "bun run src/server.ts",
-		"test": "clear && bun test"
+	"dependencies": {
+		"@privacypin/shared": "1.0.0"
 	}
 }

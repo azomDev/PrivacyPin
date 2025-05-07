@@ -6,7 +6,7 @@ export type ServerUser = {
 export type ServerPing = {
 	sender_id: string;
 	receiver_id: string;
-	encrypted_ping: EncryptedPing;
+	encrypted_ping: ClientEncryptedPing;
 };
 
 export type GlobalFriendRequest = {
@@ -24,7 +24,8 @@ export type GlobalSignData = {
 export type ClientFriend = {
 	name: string;
 	id: string;
+	// symmetric_key: JsonWebKey;
 };
 
-export type EncryptedPing = string;
+export type ClientEncryptedPing = string;
 export type Base64String = string;

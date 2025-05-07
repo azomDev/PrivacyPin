@@ -1,11 +1,12 @@
 import { Database } from "bun:sqlite";
-import type { Ping, User } from "./types";
+import type { ServerPing, ServerUser } from "@privacypin/shared";
+import { CONFIG } from "./config";
 
 let db: Database;
 initializeDatabase();
 
 function initializeDatabase() {
-	db = new Database("database.sqlite", { create: true, strict: true });
+	db = new Database(CONFIG.DATABASE_PATH, { create: true, strict: true });
 	// todo later do the rotating recency indexes for better privacy
 	db.run(`
 		CREATE TABLE IF NOT EXISTS positions (
@@ -47,6 +48,45 @@ function initializeDatabase() {
 		)
 	`);
 }
+
+// todo for typesafe database
+//
+// create tables
+//
+// SELECT col1 FROM table WHERE col2 = ?
+//
+// SELECT EXISTS (SELECT 1 FROM table) AS newName
+// so an easy exist function
+//
+// SELECT * FROM table
+// WHERE
+// 	(col1 = $val1 AND col2 = $val2)
+// 	OR  (col1 = $val2 AND col2 = $val1)
+//
+//
+// DELETE FROM table WHERE col1 = ? AND col2 = ?
+//
+// INSERT INTO table (col1, col2) VALUES (?, ?)
+//
+// transactions
+//
+// 		SELECT col1
+// FROM table
+// WHERE col2 = $val1 AND col3 = $val2
+// ORDER BY col4
+//
+// INSERT OR IGNORE INTO friend_requests (sender_id, accepter_id) VALUES (?, ?)
+// but mabye the ignore is not needed so its like one of the examples above
+//
+// INSERT INTO links (user_id_1, user_id_2)
+// 	VALUES (
+// 		CASE WHEN $id1 < $id2 THEN $id1 ELSE $id2 END,
+// 		CASE WHEN $id1 > $id2 THEN $id1 ELSE $id2 END
+// 	);
+//
+//
+// things we dont need to do
+// reset database
 
 export function RESET_DATABASE_FOR_TESTING() {
 	try {
@@ -122,14 +162,14 @@ export function consumeSignupKey(signup_key: string) {
 	return changes > 0;
 }
 
-export function createUser(user: User) {
+export function createUser(user: ServerUser) {
 	// prettier-ignore
 	db.prepare(`
 		INSERT INTO users (user_id, pub_sign_key) VALUES (?, ?)
 	`).run(user.user_id, user.pub_sign_key);
 }
 
-export function addPings(pings: Ping[]) {
+export function addPings(pings: ServerPing[]) {
 	const ping_insert_query = db.prepare(`
 		INSERT INTO positions (sender_id, receiver_id, encrypted_ping) VALUES (?, ?, ?)
 	`);
@@ -160,6 +200,8 @@ export function createFriendRequest(sender_id: string, accepter_id: string) {
 	db.prepare(`
 		INSERT OR IGNORE INTO friend_requests (sender_id, accepter_id) VALUES (?, ?)
 	`).run(sender_id, accepter_id);
+	// print the content of the friend request TABLE
+	console.log(db.prepare("SELECT * FROM friend_requests").all());
 }
 
 export function consumeFriendRequest(sender_id: string, accepter_id: string): boolean {
@@ -167,6 +209,7 @@ export function consumeFriendRequest(sender_id: string, accepter_id: string): bo
 	const { changes } = db.prepare(`
 		DELETE FROM friend_requests WHERE sender_id = ? AND accepter_id = ?
 	`).run(sender_id, accepter_id);
+	console.log(sender_id, accepter_id)
 
 	return changes > 0;
 }

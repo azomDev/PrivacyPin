@@ -1,112 +1,84 @@
+import { isSignatureValid } from "./auth.ts";
+import { HTTPServer } from "@privacypin/shared";
+import { CONFIG } from "./config.ts";
 import * as RH from "./request-handler";
-import type { FriendRequest, Ping, SignData } from "./models";
-import { initServer, isAdmin, isSignatureValid } from "./utils";
+import { randomUUIDv7 } from "bun";
+import * as db from "./database";
+
+async function initServer() {
+	const admin_file = Bun.file(CONFIG.ADMIN_ID_PATH);
+	if (await admin_file.exists()) return; // No need to init the server
+	const new_signup_key = randomUUIDv7();
+	db.insertSignupKey(new_signup_key);
+	console.log(`Admin signup key: ${new_signup_key}`);
+}
 
 await initServer();
+console.log(`http://127.0.0.1:${CONFIG.PORT}`);
 
-const server = Bun.serve({
-	port: 8080,
-	async fetch(req) {
-		const url = new URL(req.url);
-		const endpoint = url.pathname;
-		const req_content = await req.text();
-		console.log(endpoint);
+// todo do we need runtime input request validation?
+// todo sign data header typesafety and runtime validation?
 
-		// ONLY TEMPORARY WAY OF GENERATING SIGNUP KEYS FOR TESTING UNTIL IT IS IMPLEMENTED IN THE FRONTEND
-		if (endpoint === "/generate-signup-key") {
-			const new_signup_key = RH.generateSignupKey();
-			return new Response(new_signup_key);
-		}
+// todo use this function, mabye add in the http api types an option to tell if the api is restricted to the admin
+export async function isAdmin(user_id: string): Promise<boolean> {
+	const admin_file = Bun.file(CONFIG.ADMIN_ID_PATH);
+	const admin_id = await admin_file.text();
+	return user_id === admin_id;
+}
 
-		if (endpoint === "/challenge") {
-			const challenge = RH.challenge(req_content);
-			return new Response(challenge); // in case of the /challenge endpoint, the body is directly the user_id as a string
-		} else if (endpoint === "/create-account") {
-			const { signup_key, pub_sign_key } = JSON.parse(req_content) as {
-				signup_key: string;
-				pub_sign_key: string;
-			};
-			const user_id = RH.createAccount(signup_key, pub_sign_key);
-			return new Response(user_id);
-		}
-
-		////////////////////////////////
-
-		const sign_data_header = req.headers.get("sign-data");
-		if (sign_data_header === null) throw new Error("todo");
-		const header_data = JSON.parse(sign_data_header) as {
-			signature: string;
-			user_id: string;
-		};
-		const sign_data: SignData = {
-			signature: Uint8Array.fromBase64(header_data.signature),
-			user_id: header_data.user_id,
-		};
-
-		if (!(await isSignatureValid(req_content, sign_data))) {
-			throw new Error("Invalid signature");
-		}
-
-		if (endpoint === "/generate-signup-key") {
-			if (!(await isAdmin(sign_data.user_id)))
-				throw new Error(
-					"User must be an admin to generate a signup key",
-				);
-			const signup_key = RH.generateSignupKey();
-			return new Response(signup_key);
-		} else if (endpoint === "/create-friend-request") {
-			const friend_request = JSON.parse(req_content) as FriendRequest;
-			if (friend_request.sender_id !== sign_data.user_id)
-				throw new Error(
-					"Sender ID mismatch: You can only create friend requests from your own account",
-				);
-			RH.createFriendRequest(friend_request);
-			return new Response();
-		} else if (endpoint === "/accept-friend-request") {
-			console.log(req_content);
-			const friend_request = JSON.parse(req_content) as FriendRequest;
-			if (friend_request.accepter_id !== sign_data.user_id)
-				throw new Error(
-					"Accepter ID mismatch: You can only accept friend requests addressed to you",
-				);
-			RH.acceptFriendRequest(friend_request);
-			return new Response();
-		} else if (endpoint === "/send-pings") {
-			const pings = JSON.parse(req_content) as Ping[];
-			if (pings.some((ping) => ping.sender_id !== sign_data.user_id))
-				throw new Error(
-					"Sender ID mismatch: You can only send pings from your own account",
-				);
-			RH.sendPings(pings);
-			return new Response();
-		} else if (endpoint === "/get-pings") {
-			const { sender_id, receiver_id } = JSON.parse(req_content) as {
-				sender_id: string;
-				receiver_id: string;
-			};
-			if (receiver_id !== sign_data.user_id)
-				throw new Error(
-					"Access denied: You can only retrieve pings addressed to you",
-				);
-			const pings = RH.getPings(sender_id, receiver_id);
-			return Response.json(pings);
-		} else if (endpoint === "/is-friend-request-accepted") {
-			const friend_request = JSON.parse(req_content) as FriendRequest;
-			if (friend_request.sender_id !== sign_data.user_id)
-				throw new Error(
-					"Sender ID mismatch: You can only check the status of friend requests you sent",
-				);
-			const is_accepted = RH.isFriendRequestAccepted(friend_request);
-			return new Response(is_accepted.toString());
-		}
-		throw new Error("Not found");
-	},
-	error(err: Error) {
-		console.error(err);
-		return new Response(err.message, {
-			status: 500,
-		});
+HTTPServer({
+	port: CONFIG.PORT,
+	signatureVerification: isSignatureValid,
+	handlers: {
+		"/create-account": {
+			process: ({signup_key, pub_sign_key}) => {
+				return RH.createAccount(signup_key, pub_sign_key);
+			},
+		},
+		"/generate-signup-key": {
+			process: () => {
+				return RH.generateSignupKey();
+			},
+		},
+		"/create-friend-request": {
+			check: (user_id, { sender_id, accepter_id }) => {
+				return user_id === sender_id;
+			},
+			process: (friend_request) => {
+				RH.createFriendRequest(friend_request);
+			},
+		},
+		"/accept-friend-request": {
+			check: (user_id, { sender_id, accepter_id }) => {
+				return user_id === accepter_id;
+			},
+			process: (friend_request) => {
+				RH.acceptFriendRequest(friend_request);
+			},
+		},
+		"/is-friend-request-accepted": {
+			check: (user_id, { sender_id, accepter_id }) => {
+				return user_id === sender_id;
+			},
+			process: (friend_request) => {
+				return RH.isFriendRequestAccepted(friend_request);
+			},
+		},
+		"/send-pings": {
+			check: (user_id, { pings }) => {
+				return pings.every((ping) => ping.sender_id === user_id);
+			},
+			process: ({ pings }) => {
+				RH.sendPings(pings);
+			},
+		},
+		"/get-pings": {
+			check: (user_id, { receiver_id }) => {
+				return user_id === receiver_id;
+			},
+			process: ({ sender_id, receiver_id }) => {
+				return RH.getPings(sender_id, receiver_id);
+			},
+		},
 	},
 });
-
-console.log(`Server started on port ${server.port}`);

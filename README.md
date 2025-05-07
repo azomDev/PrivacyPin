@@ -1,10 +1,10 @@
 # PrivacyPin
 
-PrivacyPin is a secure, FOSS and self-hosted location sharing app designed to prioritize user privacy. It offers complete control over location sharing, allowing users to determine who can access their location and when. Additionally, it provides real-time notifications when someone accesses their position.
+PrivacyPin is (going to be) a secure, FOSS and self-hosted location sharing app designed to prioritize user privacy. It offers complete control over location sharing, allowing users to determine who can access their location and when. Additionally, it provides real-time notifications when someone accesses their position.
 
 > [!IMPORTANT]
 > I’m in the process of rapidly iterating to establish a base on which testing can begin.
-> 
+>
 > If you’re interested in contributing to this exciting project, I’d love to hear from you! My primary challenge lies in native mobile development, but any assistance is greatly appreciated!
 
 ## Key Features
@@ -22,30 +22,42 @@ PrivacyPin is still in early development, and the usage instructions will be pro
 
 Contributions to PrivacyPin are welcome! If you'd like to contribute, you can work on an issue, open an issue yourself or message me. Currently, I'm working on an MVP, but if you would want to help this project in literally any way, send me a message :D
 
-## **Roadmap to Testing**:
-- [x] **Account System**
-   - Public key authentication (initial version, key rotation to be added later).
-- [x] **Friend System**
-   - Adding/tracking friends.
-- [x] **Ping System**
-   - Sending/getting pings with complex SQL queries for storage.
-- [x] **Basic Storage**
-   - Store crypto keys & app state in a persistent, non-SQL store.
-- [x] **Native Position Fetching** (done but not pushed since code is horrible, should be done in March)
-   - Native location retrieval in Kotlin.
+Here's a concise section you can add to your GitHub README:
 
-## **Roadmap to First Release**:
-- [ ] **End-to-End Encryption**
-   - Secure messaging and location data.
-- [ ] **Secure Storage for Crypto Keys**
-   - Proper secure storage for keys.
-- [ ] **Admin Panel**
-   - Interface for managing users, pings, friends, etc.
-- [ ] **Key Rotation**
-   - Implement key rotation for improved auth security.
+## Getting Started (Development)
 
+### Prerequisites
 
+Make sure you have the following installed:
 
+* [Bun](https://bun.sh/docs/installation)
+* [Rust (Cargo)](https://www.rust-lang.org/tools/install)
+
+### Setup
+
+```bash
+git clone https://github.com/azomDev/PrivacyPin.git
+cd PrivacyPin
+bun i
+```
+
+### Running the Environment
+
+Open **3–4 terminals** and run the following in each:
+
+```bash
+# Terminal 1
+bun run vite
+
+# Terminal 2
+bun run dev
+
+# Terminal 3
+bun run server
+
+# (Optional) Terminal 4 — to run another app instance
+bun run dev
+```
 
 ## Contact
 

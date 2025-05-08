@@ -1,5 +1,4 @@
-import type { ClientEncryptedPing, GlobalFriendRequest, ServerPing } from "./globalTypes";
-import type { GlobalSignData } from "./globalTypes";
+import type { ClientEncryptedPing, GlobalFriendRequest, ServerPing, GlobalSignData } from "./globalTypes";
 
 type HandlerConfig<K extends keyof APIRoutes> =
 	APIRoutes[K]["auth"] extends true

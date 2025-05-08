@@ -7,9 +7,9 @@ export function createAccount(signup_key: string, pub_sign_key: JsonWebKey): { u
 	if (!db.consumeSignupKey(signup_key)) {
 		throw new Error("Invalid signup key");
 	}
-	// const user_id = randomUUIDv7();
 	// temporary smaller id for testing
 	const user_id = Math.random().toString(36).slice(2, 8);
+	// const user_id = randomUUIDv7();
 	let is_admin = false;
 	if (db.noUsers()) {
 		// Admin creating an account
@@ -22,14 +22,19 @@ export function createAccount(signup_key: string, pub_sign_key: JsonWebKey): { u
 }
 
 export function generateSignupKey(): { signup_key: string } {
-	// const signup_key = randomUUIDv7();
 	// temporary smaller id for testing
 	const signup_key = Math.random().toString(36).slice(2, 8);
+	// const signup_key = randomUUIDv7();
 	db.insertSignupKey(signup_key);
+
+	// After a delay, delete the signup key if it has not been used.
+	setInterval(() => {
+		db.consumeSignupKey(signup_key);
+	}, 24 * 60 * 60 * 1000); // 1 day
+
 	return { signup_key };
 }
 
-// todo when sending a friend request, do the timer thing to delete all of them after x amount of time that resets each time?
 export function createFriendRequest(friend_request: FriendRequest) {
 	const { sender_id, accepter_id } = friend_request;
 
@@ -42,6 +47,11 @@ export function createFriendRequest(friend_request: FriendRequest) {
 	}
 
 	db.createFriendRequest(sender_id, accepter_id);
+
+	// After a delay, delete the friend request if it has not been used.
+	setInterval(() => {
+		db.consumeFriendRequest(sender_id, accepter_id);
+	}, 60 * 1000); // 60 seconds
 }
 
 export function acceptFriendRequest(friend_request: FriendRequest) {
@@ -54,12 +64,11 @@ export function acceptFriendRequest(friend_request: FriendRequest) {
 }
 
 export function sendPings(pings: ServerPing[]) {
-	// todo check that a link exists between the two users
+	// todo check that a link exists between the users
 	db.addPings(pings);
 }
 
 export function getPings(sender_id: string, receiver_id: string): { pings: string[] } {
-	// check if a link exists between the two users
 	if (!db.linkExists(sender_id, receiver_id)) {
 		throw new Error("No link found");
 	}

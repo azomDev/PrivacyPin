@@ -1,15 +1,13 @@
-import { randomUUIDv7 } from "bun";
+// Implementation of https://github.com/azomDev/Protocol-Concepts/blob/main/proto1.md
+
 import * as db from "./database";
 import type { GlobalSignData as SignData } from "@privacypin/shared";
 import { getBufferForSignature } from "@privacypin/shared";
 
-// todo cleanup of signup keys
-// todo cleanup of friend requests
-
 const challenges = new Map<string, number>();
 
 let next_cleanup_index = 0;
-const max_cleanup_index = 3;
+const max_cleanup_index = 4;
 const CHALLENGE_LIFETIME = 30 * 1000; // 30 seconds
 
 setInterval(() => {
@@ -30,7 +28,7 @@ export async function isSignatureValid(content_as_string: string, sign_data: Sig
 	const is_valid = await verifySignature(sign_data, buffer_to_verify);
 	if (!is_valid) return false;
 
-	const cleanup_id = (next_cleanup_index + 2) % (max_cleanup_index + 1);
+	const cleanup_id = (next_cleanup_index + 3) % (max_cleanup_index + 1);
 	challenges.set(sign_data.nonce, cleanup_id);
 
 	return true;

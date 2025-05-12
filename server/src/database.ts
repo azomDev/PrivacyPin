@@ -1,8 +1,10 @@
 import { Database } from "bun:sqlite";
 import type { ServerPing, ServerUser } from "@privacypin/shared";
 import { CONFIG } from "./config";
+import { mkdir } from "node:fs/promises";
 
 let db: Database;
+await mkdir("./output");
 initializeDatabase();
 
 function initializeDatabase() {

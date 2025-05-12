@@ -12,6 +12,6 @@
 		"vite": "bun run --cwd ./privacypin vite",
 		"app": "bun run --cwd ./privacypin tauri dev",
 		"nvidia": "WEBKIT_DISABLE_DMABUF_RENDERER=1 bun run --cwd ./privacypin tauri dev",
-		"server": "bun run server/src/server.ts"
+		"server": "bun run --cwd ./server ./src/server.ts"
 	}
 }

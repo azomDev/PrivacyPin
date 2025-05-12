@@ -1,5 +1,6 @@
 {
 	"name": "@privacypin/server",
+	"license": "AGPL-3.0-only",
 	"private": true,
 	"version": "1.0.0",
 	"module": "src/server.ts",

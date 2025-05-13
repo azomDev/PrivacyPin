@@ -2,7 +2,7 @@
 	import type { PageProps } from './$types';
 	import { apiRequest } from "../../utils/api.ts";
 	import { showLatestFriendPing,  sendPings, appReset} from '../../utils/temp.ts';
-	import { acceptFriendRequest, sendFriendRequest } from '../../utils/friends_temp.ts';
+	import { acceptFriendRequest, sendFriendRequest } from '../../utils/friends-temp.ts';
 
 	let friend_name = $state("");
 	let friend_id = $state("");

@@ -7,6 +7,15 @@ import { CyclicExpiryQueue } from "./cyclic-expiry-queue";
 const signup_key_queue = new CyclicExpiryQueue<string>(24 * 60 * 60 * 1000); // 1 day
 const friend_request_queue = new CyclicExpiryQueue<FriendRequest>(24 * 60 * 60 * 1000); // 1 day
 
+
+export async function initServer() {
+	const admin_file = Bun.file(CONFIG.ADMIN_ID_PATH);
+	if (await admin_file.exists()) return; // No need to init the server
+	const new_signup_key = randomUUIDv7();
+	signup_key_queue.add(new_signup_key);
+	console.log(`Admin signup key: ${new_signup_key}`);
+}
+
 export function createAccount(signup_key: string, pub_sign_key: JsonWebKey): { user_id: string; is_admin: boolean } {
 	if (!signup_key_queue.consume(signup_key)) {
 		throw new Error("Invalid signup key");

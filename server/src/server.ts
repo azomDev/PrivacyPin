@@ -4,14 +4,7 @@ import { CONFIG } from "./config.ts";
 import * as RH from "./request-handler";
 import { randomUUIDv7 } from "bun";
 import * as db from "./database";
-
-async function initServer() {
-	const admin_file = Bun.file(CONFIG.ADMIN_ID_PATH);
-	if (await admin_file.exists()) return; // No need to init the server
-	const new_signup_key = randomUUIDv7();
-	db.insertSignupKey(new_signup_key);
-	console.log(`Admin signup key: ${new_signup_key}`);
-}
+import { initServer } from "./request-handler";
 
 await initServer();
 console.log(`http://127.0.0.1:${CONFIG.PORT}`);

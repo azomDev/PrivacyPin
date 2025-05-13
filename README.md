@@ -39,7 +39,6 @@ Make sure you have the following installed:
 git clone https://github.com/azomDev/PrivacyPin.git
 cd PrivacyPin
 bun i
-bun init
 ```
 
 ### Running the Environment

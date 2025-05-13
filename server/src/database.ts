@@ -21,14 +21,6 @@ function initializeDatabase() {
 	`);
 
 	db.run(`
-		CREATE TABLE IF NOT EXISTS friend_requests (
-			sender_id TEXT,
-			accepter_id TEXT,
-			UNIQUE(sender_id, accepter_id)
-		)
-	`);
-
-	db.run(`
 		CREATE TABLE IF NOT EXISTS links (
 			user_id_1 TEXT,
 			user_id_2 TEXT,
@@ -41,12 +33,6 @@ function initializeDatabase() {
 		CREATE TABLE IF NOT EXISTS users (
 			user_id TEXT UNIQUE,
 			pub_sign_key BLOB UNIQUE
-		)
-	`);
-
-	db.run(`
-		CREATE TABLE IF NOT EXISTS signup_keys (
-			key TEXT UNIQUE
 		)
 	`);
 }
@@ -127,15 +113,6 @@ export function noUsers(): boolean {
 	return result.user_exists === 0;
 }
 
-export function hasSignupKeys(): boolean {
-	//prettier-ignore
-	const result = db.prepare(`
-		SELECT EXISTS (SELECT 1 FROM signup_keys) AS signup_key_exists
-	`).get() as {signup_key_exists: number};
-
-	return result.signup_key_exists === 1;
-}
-
 export function linkExists(user_id_1: string, user_id_2: string): boolean {
 	// prettier-ignore
 	const result = db.prepare(`
@@ -146,22 +123,6 @@ export function linkExists(user_id_1: string, user_id_2: string): boolean {
 	`).get({ id1: user_id_1, id2: user_id_2 });
 
 	return result !== null;
-}
-
-export function insertSignupKey(signup_key: string) {
-	// prettier-ignore
-	db.prepare(`
-		INSERT INTO signup_keys (key) VALUES (?)
-	`).run(signup_key);
-}
-
-export function consumeSignupKey(signup_key: string) {
-	// prettier-ignore
-	const { changes } = db.prepare(`
-		DELETE FROM signup_keys WHERE key = ?
-	`).run(signup_key);
-
-	return changes > 0;
 }
 
 export function createUser(user: ServerUser) {
@@ -195,25 +156,6 @@ export function getPings(sender_id: string, receiver_id: string): string[] | nul
 	if (result === null) return null;
 
 	return result.map((row) => row.encrypted_ping);
-}
-
-export function createFriendRequest(sender_id: string, accepter_id: string) {
-	// prettier-ignore
-	db.prepare(`
-		INSERT OR IGNORE INTO friend_requests (sender_id, accepter_id) VALUES (?, ?)
-	`).run(sender_id, accepter_id);
-	// print the content of the friend request TABLE
-	console.log(db.prepare("SELECT * FROM friend_requests").all());
-}
-
-export function consumeFriendRequest(sender_id: string, accepter_id: string): boolean {
-	// prettier-ignore
-	const { changes } = db.prepare(`
-		DELETE FROM friend_requests WHERE sender_id = ? AND accepter_id = ?
-	`).run(sender_id, accepter_id);
-	console.log(sender_id, accepter_id)
-
-	return changes > 0;
 }
 
 export function createLink(user_id_1: string, user_id_2: string) {

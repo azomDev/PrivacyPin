@@ -2,9 +2,13 @@ import { randomUUIDv7 } from "bun";
 import * as db from "./database";
 import type { GlobalFriendRequest as FriendRequest, ServerPing, ServerUser } from "@privacypin/shared";
 import { CONFIG } from "./config";
+import { CyclicExpiryQueue } from "./cyclic-expiry-queue";
+
+const signup_key_queue = new CyclicExpiryQueue<string>(24 * 60 * 60 * 1000); // 1 day
+const friend_request_queue = new CyclicExpiryQueue<FriendRequest>(24 * 60 * 60 * 1000); // 1 day
 
 export function createAccount(signup_key: string, pub_sign_key: JsonWebKey): { user_id: string; is_admin: boolean } {
-	if (!db.consumeSignupKey(signup_key)) {
+	if (!signup_key_queue.consume(signup_key)) {
 		throw new Error("Invalid signup key");
 	}
 	// temporary smaller id for testing
@@ -25,16 +29,12 @@ export function generateSignupKey(): { signup_key: string } {
 	// temporary smaller id for testing
 	const signup_key = Math.random().toString(36).slice(2, 8);
 	// const signup_key = randomUUIDv7();
-	db.insertSignupKey(signup_key);
-
-	// After a delay, delete the signup key if it has not been used.
-	setInterval(() => {
-		db.consumeSignupKey(signup_key);
-	}, 24 * 60 * 60 * 1000); // 1 day
+	signup_key_queue.add(signup_key);
 
 	return { signup_key };
 }
 
+// TODO: when do we delete friend requests if they are unused?
 export function createFriendRequest(friend_request: FriendRequest) {
 	const { sender_id, accepter_id } = friend_request;
 
@@ -46,18 +46,13 @@ export function createFriendRequest(friend_request: FriendRequest) {
 		throw new Error("You are already friends");
 	}
 
-	db.createFriendRequest(sender_id, accepter_id);
-
-	// After a delay, delete the friend request if it has not been used.
-	setInterval(() => {
-		db.consumeFriendRequest(sender_id, accepter_id);
-	}, 60 * 1000); // 60 seconds
+	friend_request_queue.add(friend_request);
 }
 
 export function acceptFriendRequest(friend_request: FriendRequest) {
 	const { sender_id, accepter_id } = friend_request;
 
-	if (!db.consumeFriendRequest(sender_id, accepter_id)) {
+	if (!friend_request_queue.consume(friend_request)) {
 		throw new Error("No friend request found"); // todo this should not throw an error?
 	}
 	db.createLink(sender_id, accepter_id);

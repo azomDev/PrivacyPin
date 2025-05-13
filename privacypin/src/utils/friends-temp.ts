@@ -6,7 +6,6 @@ async function waitForFriendRequestAcceptance(friend_request: GlobalFriendReques
 	for (let attempt = 0; attempt < 15; attempt++) {
 		const { accepted } = await apiRequest("/is-friend-request-accepted", friend_request);
 		if (accepted) return true;
-
 		await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before retrying
 	}
 
@@ -27,7 +26,6 @@ export async function sendFriendRequest(friend_name: string, friend_id: string) 
 	console.log("Friend request accepted:", accepted);
 	if (!accepted) {
 		alert("Friend request not accepted in time. Please try again later.");
-		// todo we need the server to delete the friend request after a certain amount of time or when creating a new one we first check if a link already exists
 		return;
 	}
 

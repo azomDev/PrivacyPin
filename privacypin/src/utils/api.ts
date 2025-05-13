@@ -53,5 +53,5 @@ async function getChallengeHeader(data: string): Promise<HeadersInit> {
 		timestamp: timestamp,
 	};
 
-	return { "sign-data": JSON.stringify(sign_data) }; // todo x-sign-data
+	return { "sign-data": JSON.stringify(sign_data) }; // todo x-sign-data?
 }

@@ -3,22 +3,10 @@
 import * as db from "./database";
 import type { GlobalSignData as SignData } from "@privacypin/shared";
 import { getBufferForSignature } from "@privacypin/shared";
+import { CyclicExpiryQueue } from "./cyclic-expiry-queue";
 
-const challenges = new Map<string, number>();
-
-let next_cleanup_index = 0;
-const max_cleanup_index = 4;
 const CHALLENGE_LIFETIME = 30 * 1000; // 30 seconds
-
-setInterval(() => {
-	for (const [challenge, cleanup_id] of challenges) {
-		if (cleanup_id === next_cleanup_index) {
-			challenges.delete(challenge);
-		}
-	}
-	next_cleanup_index = (next_cleanup_index + 1) % (max_cleanup_index + 1);
-	console.log(`Cleaned up challenges with cleanup_id = ${next_cleanup_index}`);
-}, 60 * 1000); // 60 seconds
+const challenges_queue = new CyclicExpiryQueue<string>(2 * CHALLENGE_LIFETIME);
 
 export async function isSignatureValid(content_as_string: string, sign_data: SignData): Promise<boolean> {
 	validateChallenge(sign_data);
@@ -28,8 +16,7 @@ export async function isSignatureValid(content_as_string: string, sign_data: Sig
 	const is_valid = await verifySignature(sign_data, buffer_to_verify);
 	if (!is_valid) return false;
 
-	const cleanup_id = (next_cleanup_index + 3) % (max_cleanup_index + 1);
-	challenges.set(sign_data.nonce, cleanup_id);
+	challenges_queue.add(sign_data.nonce);
 
 	return true;
 }
@@ -40,7 +27,7 @@ function validateChallenge(sign_data: SignData): void {
 		throw new Error("Challenge expired");
 	}
 
-	if (challenges.has(sign_data.nonce)) {
+	if (challenges_queue.has(sign_data.nonce)) {
 		throw new Error("Challenge already used");
 	}
 }

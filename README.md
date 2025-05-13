@@ -39,6 +39,7 @@ Make sure you have the following installed:
 git clone https://github.com/azomDev/PrivacyPin.git
 cd PrivacyPin
 bun i
+bun init
 ```
 
 ### Running the Environment
@@ -50,13 +51,13 @@ Open **3–4 terminals** and run the following in each:
 bun run vite
 
 # Terminal 2
-bun run dev
+bun run app
 
 # Terminal 3
 bun run server
 
 # (Optional) Terminal 4 — to run another app instance
-bun run dev
+bun run app
 ```
 
 ## Contact

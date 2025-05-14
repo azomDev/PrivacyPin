@@ -1,24 +1,24 @@
 type BucketIndex = 0 | 1 | 2;
 
 export class CyclicExpiryQueue<T> {
-    /**
-     * We keep three rotating buckets. Each bucket holds the items that will expire
-     * when its index becomes `next_cleanup_index` (NCI) during `tick()`.
-     *
-     *       ┌──────────┐       ┌──────────┐       ┌──────────┐
-     *       │  bucket0 │       │  bucket1 │       │  bucket2 │
-     *       └──────────┘       └──────────┘       └──────────┘
-     *            ▲                   ▲                  ▲
-     *            │                   │                  │
-     *           NCI            (NCI + 1) % 3      (NCI + 2) % 3
-     */
-    private readonly buckets: [Set<T>, Set<T>, Set<T>] = [new Set(), new Set(), new Set()];
+	/**
+	* We keep three rotating buckets. Each bucket holds the items that will expire
+	* when its index becomes `next_cleanup_index` (NCI) during `tick()`.
+	*
+	*       ┌──────────┐       ┌──────────┐       ┌──────────┐
+	*       │  bucket0 │       │  bucket1 │       │  bucket2 │
+	*       └──────────┘       └──────────┘       └──────────┘
+	*            ▲                   ▲                  ▲
+	*            │                   │                  │
+	*           NCI            (NCI + 1) % 3      (NCI + 2) % 3
+	*/
+	private readonly buckets: [Set<T>, Set<T>, Set<T>] = [new Set(), new Set(), new Set()];
 
-    private next_cleanup_index: BucketIndex = 0;
-    private readonly interval_ms: number;
-    private readonly timer: NodeJS.Timeout;
-    private last_timer_start_time: number;
-    private readonly tolerance_ms: number;
+	private next_cleanup_index: BucketIndex = 0;
+	private readonly interval_ms: number;
+	private readonly timer: NodeJS.Timeout;
+	private last_timer_start_time: number;
+	private readonly tolerance_ms: number;
 
 	/**
 	* @param minimal_life_time_ms  The minimum time (ms) an item will remain in

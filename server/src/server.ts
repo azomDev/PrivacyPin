@@ -3,7 +3,6 @@ import { HTTPServer } from "@privacypin/shared";
 import { CONFIG } from "./config.ts";
 import * as RH from "./request-handler";
 import { randomUUIDv7 } from "bun";
-import * as db from "./database";
 import { initServer } from "./request-handler";
 
 await initServer();

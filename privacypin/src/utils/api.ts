@@ -3,7 +3,7 @@ import { APIRoutesRuntime, type APIRoutes } from "@privacypin/shared";
 import type { Base64String, GlobalSignData as SignData } from "@privacypin/shared";
 import { getBufferForSignature } from "@privacypin/shared";
 
-import { fetch } from "@tauri-apps/plugin-http"; // todo is this needed?
+import { fetch } from "@tauri-apps/plugin-http"; // todo is this needed for mobile?
 
 export async function apiRequest<K extends keyof APIRoutes>(endpoint: K, body: APIRoutes[K]["input"]): Promise<APIRoutes[K]["output"]> {
 	try {

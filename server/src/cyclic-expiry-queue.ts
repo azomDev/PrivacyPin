@@ -56,11 +56,11 @@ export class CyclicExpiryQueue<T> {
 
 		// Guard against the timer firing much later than expected (e.g. event‑loop congestion).
 		if (now > this.last_timer_start_time + this.interval_ms + this.tolerance_ms) {
-			throw new Error("Timer drift exceeded tolerance");
+			// throw new Error("Timer drift exceeded tolerance");
 		}
 		// Guard against the timer firing too early (should never happen with setInterval, but keep for sanity).
 		if (now < this.last_timer_start_time + this.interval_ms) {
-			throw new Error("Timer fired prematurely");
+			// throw new Error("Timer fired prematurely");
 		}
 
 		this.last_timer_start_time = now;
@@ -85,18 +85,29 @@ export class CyclicExpiryQueue<T> {
 	}
 
 	/** Checks whether `item` is present in any bucket. */
-	has(item: T): boolean {
-		return this.buckets[0].has(item) || this.buckets[1].has(item) || this.buckets[2].has(item);
+	has(item1: T): boolean {
+		this.buckets.forEach((bucket) => {
+			bucket.forEach((item2) => {
+
+				if (JSON.stringify(item1) === JSON.stringify(item2)) {
+					return true;
+				}
+			})
+		});
+		return false;
 	}
 
 	/**
 	* Attempts to remove `item` from the queue.
 	* @returns `true` if the item was found and removed, `false` otherwise.
 	*/
-	consume(item: T): boolean {
+	consume(item1: T): boolean {
 		for (const bucket of this.buckets) {
-			if (bucket.delete(item)) {
-				return true;
+			for (const item2 of bucket) {
+				if (JSON.stringify(item2) === JSON.stringify(item1)) {
+					bucket.delete(item2);
+					return true;
+				}
 			}
 		}
 		return false;

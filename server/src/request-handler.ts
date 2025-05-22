@@ -43,7 +43,6 @@ export function generateSignupKey(): { signup_key: string } {
 	return { signup_key };
 }
 
-// TODO: when do we delete friend requests if they are unused?
 export function createFriendRequest(friend_request: FriendRequest) {
 	const { sender_id, accepter_id } = friend_request;
 
@@ -60,15 +59,18 @@ export function createFriendRequest(friend_request: FriendRequest) {
 
 export function acceptFriendRequest(friend_request: FriendRequest) {
 	const { sender_id, accepter_id } = friend_request;
+	console.log("=========================================================================================")
 
 	if (!friend_request_queue.consume(friend_request)) {
-		throw new Error("No friend request found"); // todo this should not throw an error?
+		throw new Error("No friend request found");
 	}
+	console.log("===============================AAAAAAAAAAAAA=============================================")
+
 	db.createLink(sender_id, accepter_id);
 }
 
 export function sendPings(pings: ServerPing[]) {
-	// todo check that a link exists between the users
+	// TODO: check that a link exists between the users
 	db.addPings(pings);
 }
 

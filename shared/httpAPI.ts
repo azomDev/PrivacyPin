@@ -109,7 +109,9 @@ export function HTTPServer({port, handlers, signatureVerification}: HTTPServerOp
 				if (!is_signature_valid) throw new Err("Invalid signature", true);
 
 				if (handler.check !== undefined) {
-					handler.check(sign_data.user_id, req_json);
+					if (!handler.check(sign_data.user_id, req_json)) {
+						throw new Err("Handler check failed", true);
+					}
 				}
 			}
 

@@ -22,8 +22,6 @@ PrivacyPin is still in early development, and the usage instructions will be pro
 
 Contributions to PrivacyPin are welcome! If you'd like to contribute, you can work on an issue, open an issue yourself or message me. Currently, I'm working on an MVP, but if you would want to help this project in literally any way, send me a message :D
 
-Here's a concise section you can add to your GitHub README:
-
 ## Getting Started (Development)
 
 ### Prerequisites

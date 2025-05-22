@@ -4,7 +4,7 @@ import { CONFIG } from "./config";
 import { mkdir } from "node:fs/promises";
 
 let db: Database;
-await mkdir("./output");
+await mkdir("./output", {recursive: true});
 initializeDatabase();
 
 function initializeDatabase() {

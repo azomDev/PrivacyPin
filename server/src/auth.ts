@@ -2,7 +2,7 @@
 
 import * as db from "./database";
 import type { GlobalSignData as SignData } from "@privacypin/shared";
-import { getBufferForSignature } from "@privacypin/shared";
+import { Err, getBufferForSignature } from "@privacypin/shared";
 import { CyclicExpiryQueue } from "./cyclic-expiry-queue";
 
 const CHALLENGE_LIFETIME = 30 * 1000; // 30 seconds
@@ -24,17 +24,17 @@ export async function isSignatureValid(content_as_string: string, sign_data: Sig
 function validateChallenge(sign_data: SignData): void {
 	// Casting to Number is safe because if an attacker changes timestamp, the signature will be invalid anyways
 	if (Date.now() - Number(sign_data.timestamp) > CHALLENGE_LIFETIME) {
-		throw new Error("Challenge expired");
+		throw new Err("Challenge expired", true);
 	}
 
 	if (challenges_queue.has(sign_data.nonce)) {
-		throw new Error("Challenge already used");
+		throw new Err("Challenge already used", true);
 	}
 }
 
 async function verifySignature(sign_data: SignData, buffer_to_verify: BufferSource): Promise<boolean> {
 	const raw_public_key = db.getPubKey(sign_data.user_id);
-	if (raw_public_key === null) throw new Error("Public key not found");
+	if (raw_public_key === null) throw new Err("Public key not found", true);
 
 	const parsed_public_key = JSON.parse(raw_public_key) as JsonWebKey;
 	const public_key = await crypto.subtle.importKey("jwk", parsed_public_key, "Ed25519", false, ["verify"]);

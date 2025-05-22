@@ -1,3 +1,5 @@
+import { Err } from "@privacypin/shared";
+
 type BucketIndex = 0 | 1 | 2;
 
 export class CyclicExpiryQueue<T> {
@@ -51,16 +53,24 @@ export class CyclicExpiryQueue<T> {
 	private tick(): void {
 		const now = Date.now();
 
-		// TODO: Having "throw" here will just be catched by bun's HTTP, but in this case it should crash the server.
-		// Better yet, we can find a way to recuperate from these two problematic state while preserving security.
+		const expected_time = this.last_timer_start_time + this.interval_ms;
+		const max_allowed_time = expected_time + this.tolerance_ms;
 
 		// Guard against the timer firing much later than expected (e.g. event‑loop congestion).
-		if (now > this.last_timer_start_time + this.interval_ms + this.tolerance_ms) {
-			// throw new Error("Timer drift exceeded tolerance");
+		if (now > max_allowed_time) {
+			console.error("Drift detected:");
+			console.error("now:", now);
+			console.error("expected max:", max_allowed_time);
+			throw new Err("Timer drift exceeded tolerance", true);
 		}
+
 		// Guard against the timer firing too early (should never happen with setInterval, but keep for sanity).
-		if (now < this.last_timer_start_time + this.interval_ms) {
-			// throw new Error("Timer fired prematurely");
+		const early_tolerance_ms = 1; // Clock drift or setInterval may fire slightly early (e.g. 1ms) due to timer resolution or runtime scheduling
+		if (now < expected_time - early_tolerance_ms) {
+			console.error("Premature firing:");
+			console.error("now:", now);
+			console.error("expected:", expected_time);
+			throw new Err("Timer fired prematurely", true);
 		}
 
 		this.last_timer_start_time = now;

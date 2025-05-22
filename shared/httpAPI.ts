@@ -96,17 +96,17 @@ export function HTTPServer({port, handlers, signatureVerification}: HTTPServerOp
 
 			const endpoint = url.pathname as keyof APIRoutes;
 			const handler = handlers[endpoint];
-			if (handler === undefined) throw new Error("Not found");
+			if (handler === undefined) throw new Err("Not found", true);
 			const req_content = await req.text();
 
 			const req_json = JSON.parse(req_content);
 
 			if (APIRoutesRuntime[endpoint].auth) {
 				const sign_data_header = req.headers.get("sign-data");
-				if (sign_data_header === null) throw new Error("No signature data provided");
+				if (sign_data_header === null) throw new Err("No signature data provided", true);
 				const sign_data = JSON.parse(sign_data_header) as GlobalSignData;
 				const is_signature_valid = await signatureVerification(req_content, sign_data);
-				if (!is_signature_valid) throw new Error("Invalid signature");
+				if (!is_signature_valid) throw new Err("Invalid signature", true);
 
 				if (handler.check !== undefined) {
 					handler.check(sign_data.user_id, req_json);
@@ -123,12 +123,27 @@ export function HTTPServer({port, handlers, signatureVerification}: HTTPServerOp
 
 			return Response.json(response_data);
 		},
-		error(err: Error) {
-			console.error(err);
-			console.error(err.message);
-			return new Response(err.message, {
-				status: 599,
-			});
+		error(e: Error) {
+			if (e instanceof Err) {
+				if (e.log_server) {
+					console.error(e);
+				}
+				return new Response(JSON.stringify({ message: e.message, code: e.error_code }), { status: 599 });
+			} else {
+				throw new Error(e.message); // if this throws, there's an unhandled error
+			}
 		},
 	});
+}
+
+export class Err extends Error {
+	public log_server: boolean;
+	public error_code: number;
+
+	constructor(message: string, log_server: boolean = false, error_code: number = 599) {
+		super(message);
+		this.name = "Err";
+		this.log_server = log_server;
+		this.error_code = error_code;
+	}
 }

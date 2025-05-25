@@ -13,5 +13,8 @@
 		"app": "bun run --cwd ./privacypin tauri dev",
 		"nvidia": "WEBKIT_DISABLE_DMABUF_RENDERER=1 bun run --cwd ./privacypin tauri dev",
 		"server": "bun run --cwd ./server ./src/server.ts"
+	},
+	"dependencies": {
+		"m3-svelte": "^4.0.0"
 	}
 }

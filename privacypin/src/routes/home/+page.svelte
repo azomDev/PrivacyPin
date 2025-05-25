@@ -21,15 +21,15 @@
 		{#each data.friends as friend}
 			<div>
 				<span>Friend: {friend.name}</span>
-				<button onclick={() => showLatestFriendPing(friend.id)}>Get Ping</button>
+				<button on:click={() => showLatestFriendPing(friend.id)}>Get Ping</button>
 			</div>
 		{/each}
 	{:else}
 		<p>You have no friends yet</p>
 	{/if}
 
-	<button onclick={sendPings}>Send Pings</button>
-	<button onclick={appReset}>RESET STORE TEMPORARY</button>
+	<button on:click={sendPings}>Send Pings</button>
+	<button on:click={appReset}>RESET STORE TEMPORARY</button>
 
 	<div>
 		<h3>Add Friend</h3>
@@ -46,14 +46,14 @@
 				<!-- probably need id="friend-id" -->
 			</div>
 			<div>
-				<button type="button" onclick={() => sendFriendRequest(friend_name, friend_id)}>Send Friend Request</button>
-				<button type="button" onclick={() => acceptFriendRequest(friend_name, friend_id)}>Accept Friend Request</button>
+				<button type="button" on:click={() => sendFriendRequest(friend_name, friend_id)}>Send Friend Request</button>
+				<button type="button" on:click={() => acceptFriendRequest(friend_name, friend_id)}>Accept Friend Request</button>
 			</div>
 		</form>
 	</div>
 
 	{#if data.is_admin}
-		<button onclick={generateSignupKey}>Generate Signup Key</button>
+		<button on:click={generateSignupKey}>Generate Signup Key</button>
 		<p>{signup_key}</p>
 	{/if}
 </div>

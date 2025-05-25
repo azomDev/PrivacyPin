@@ -28,7 +28,7 @@
 
 <div id="account-creation-page">
 	<h1>Create an Account</h1>
-	<form onsubmit={createAccount}>
+	<form on:submit={createAccount}>
 		<div>
 			<label for="server-url">Server URL:</label>
 			<input type="text" name="server-url" placeholder="Enter the server URL" bind:value={server_url} required />

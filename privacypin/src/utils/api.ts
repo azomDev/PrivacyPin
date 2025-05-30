@@ -5,6 +5,18 @@ import { getBufferForSignature } from "@privacypin/shared";
 
 import { fetch } from "@tauri-apps/plugin-http"; // todo is this needed for mobile?
 
+// Temporary fill until https://issues.chromium.org/issues/42204568 is done
+Uint8Array.prototype.toBase64 = function () {
+	let binary = '';
+	for (let i = 0; i < this.length; i++) {
+		const byte = this[i];
+		if (byte !== undefined) {
+			binary += String.fromCharCode(byte);
+		}
+	}
+	return btoa(binary);
+};
+
 export async function apiRequest<K extends keyof APIRoutes>(endpoint: K, body: APIRoutes[K]["input"]): Promise<APIRoutes[K]["output"]> {
 	try {
 		const data_string = JSON.stringify(body);

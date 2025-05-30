@@ -2,11 +2,20 @@
     import { goto } from "$app/navigation";
 	import { apiRequest } from "../../utils/api.ts";
 	import { Store } from "../../utils/store.ts";
+	import "../../app.css";
+	import { TextField, Button } from "m3-svelte";
 
 	let server_url = $state("");
 	let signup_key = $state("");
 
+	function formatServerURL() {
+		//Adding  this AFTER I commit ~Kit
+	}
+
 	async function createAccount(event: SubmitEvent) {
+
+		formatServerURL();
+
 		event.preventDefault(); // is this needed?
 
 		const key_pair = await crypto.subtle.generateKey("Ed25519", true, ["sign", "verify"]);
@@ -22,25 +31,19 @@
 		Store.set("friends", []);
 		Store.set("private_key", priv_sign_key);
 
-		goto("/home");
+		await goto("/home");
 	}
 </script>
 
-<div id="account-creation-page">
+<!-- <div id="account-creation-page"> -->
 	<h1>Create an Account</h1>
-	<form on:submit={createAccount}>
-		<div>
-			<label for="server-url">Server URL:</label>
-			<input type="text" name="server-url" placeholder="Enter the server URL" bind:value={server_url} required />
-			<!-- probably need id="server-url" -->
-		</div>
 
-		<div>
-			<label for="signup-key">Signup Key:</label>
-			<input type="text" name="signup-key" placeholder="Enter your signup key" bind:value={signup_key} required />
-			<!-- probably need id="signup-key" -->
-		</div>
-
-		<button type="submit">Create Account</button>
-	</form>
-</div>
+<form onsubmit={createAccount}>
+	<p>Server URL:</p>
+	<TextField name="Enter the server URL" bind:value={server_url} required />
+	<p>Signup Key:</p>
+	<TextField name="Enter the signup key" bind:value={signup_key} required />
+	<br>
+	<Button variant="filled" click={() => "" } type="submit" >Create Account</Button>
+</form>
+<!-- </div> -->

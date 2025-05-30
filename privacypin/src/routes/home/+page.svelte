@@ -3,6 +3,7 @@
 	import { apiRequest } from "../../utils/api.ts";
 	import { showLatestFriendPing,  sendPings, appReset} from '../../utils/temp.ts';
 	import { acceptFriendRequest, sendFriendRequest } from '../../utils/friends-temp.ts';
+	import { Button } from "m3-svelte";
 
 	let friend_name = $state("");
 	let friend_id = $state("");
@@ -21,15 +22,15 @@
 		{#each data.friends as friend}
 			<div>
 				<span>Friend: {friend.name}</span>
-				<button on:click={() => showLatestFriendPing(friend.id)}>Get Ping</button>
+				<Button variant="filled" click={() => showLatestFriendPing(friend.id)}>Get Ping</Button>
 			</div>
 		{/each}
 	{:else}
 		<p>You have no friends yet</p>
 	{/if}
 
-	<button on:click={sendPings}>Send Pings</button>
-	<button on:click={appReset}>RESET STORE TEMPORARY</button>
+	<Button click={sendPings}>Send Pings</Button>
+	<Button click={appReset}>Reset Store Temporary</Button>
 
 	<div>
 		<h3>Add Friend</h3>
@@ -46,14 +47,19 @@
 				<!-- probably need id="friend-id" -->
 			</div>
 			<div>
-				<button type="button" on:click={() => sendFriendRequest(friend_name, friend_id)}>Send Friend Request</button>
-				<button type="button" on:click={() => acceptFriendRequest(friend_name, friend_id)}>Accept Friend Request</button>
+				<Button variant="filled" click={() => sendFriendRequest(friend_name, friend_id)}>Send Friend Request</Button>
+				<Button variant="filled" click={() => acceptFriendRequest(friend_name, friend_id)}>Accept Friend Request</Button>
 			</div>
 		</form>
 	</div>
 
+	<h3>Add Friend</h3>
+	<p>Your User ID: {data.user_id}</p>
+
+
+
 	{#if data.is_admin}
-		<button on:click={generateSignupKey}>Generate Signup Key</button>
+		<br><Button variant="filled" click={() => generateSignupKey()}>Generate Signup Key</Button>
 		<p>{signup_key}</p>
 	{/if}
 </div>

@@ -17,7 +17,14 @@
 	let { data }: PageProps = $props();
 </script>
 
-<div id="home-page">
+<style>
+	.center {
+		margin: auto;
+		text-align: center;
+	}
+</style>
+
+<div id="home-page" class="center">
 	{#if data.friends.length > 0}
 		{#each data.friends as friend}
 			<div>

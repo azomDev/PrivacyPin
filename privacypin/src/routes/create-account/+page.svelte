@@ -9,7 +9,16 @@
 	let signup_key = $state("");
 
 	function formatServerURL() {
-		//Adding  this AFTER I commit ~Kit
+		if (server_url.indexOf('://') !> -1) {
+			let isHTTPS = server_url.toLowerCase().startsWith("https://");
+			let isHTTP = server_url.toLowerCase().startsWith("http://");
+
+			if(isHTTP) {} else if(isHTTPS) {
+				server_url = server_url.split("https://").join("http://");
+			} else {
+				server_url = "http://" + server_url
+			}
+		}
 	}
 
 	async function createAccount(event: SubmitEvent) {
@@ -35,15 +44,22 @@
 	}
 </script>
 
-<!-- <div id="account-creation-page"> -->
+<style>
+	.center {
+		margin: auto;
+		text-align: center;
+	}
+</style>
+
+<div id="account-creation-page" class="center" >
 	<h1>Create an Account</h1>
 
-<form onsubmit={createAccount}>
-	<p>Server URL:</p>
-	<TextField name="Enter the server URL" bind:value={server_url} required />
-	<p>Signup Key:</p>
-	<TextField name="Enter the signup key" bind:value={signup_key} required />
-	<br>
-	<Button variant="filled" click={() => "" } type="submit" >Create Account</Button>
-</form>
-<!-- </div> -->
+	<form onsubmit={createAccount}>
+		<p>Server URL: {server_url.toLowerCase()}</p>
+		<TextField name="Enter the server URL" bind:value={server_url} required/>
+		<p>Signup Key:</p>
+		<TextField name="Enter the signup key" bind:value={signup_key} required/>
+		<br>
+		<Button variant="filled" click={() => "" } type="submit">Create Account</Button>
+	</form>
+</div>

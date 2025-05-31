@@ -3,7 +3,7 @@
 	import { apiRequest } from "../../utils/api.ts";
 	import { showLatestFriendPing,  sendPings, appReset} from '../../utils/temp.ts';
 	import { acceptFriendRequest, sendFriendRequest } from '../../utils/friends-temp.ts';
-	import { Button } from "m3-svelte";
+	import { Button, TextField } from "m3-svelte";
 
 	let friend_name = $state("");
 	let friend_id = $state("");
@@ -40,18 +40,20 @@
 	<Button click={appReset}>Reset Store Temporary</Button>
 
 	<div>
-		<h3>Add Friend</h3>
+		<br><h3>Add Friend</h3>
 		<p>Your User ID: {data.user_id}</p>
 		<form>
 			<div>
-				<label for="friend-name">Name:</label>
-				<input type="text" name="friend-name" bind:value={friend_name} required/>
+				<p>Name:</p>
+				<TextField name="Name:" bind:value={friend_name} required />
 				<!-- probably need id="friend-name" -->
 			</div>
 			<div>
-				<label for="friend-id">User ID:</label>
-				<input type="text" name="friend-id"  bind:value={friend_id} required/>
+				<p>User ID:</p>
+				<TextField name="User ID:" bind:value={friend_id} required />
 				<!-- probably need id="friend-id" -->
+
+
 			</div>
 			<div>
 				<Button variant="filled" click={() => sendFriendRequest(friend_name, friend_id)}>Send Friend Request</Button>

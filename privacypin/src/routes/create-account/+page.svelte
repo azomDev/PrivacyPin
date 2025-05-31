@@ -55,11 +55,11 @@
 	<h1>Create an Account</h1>
 
 	<form onsubmit={createAccount}>
-		<p>Server URL: {server_url.toLowerCase()}</p>
-		<TextField name="Enter the server URL" bind:value={server_url} required/>
+		<p>Server URL:</p>
+		<TextField name="Enter the server URL" bind:value={server_url} required />
 		<p>Signup Key:</p>
-		<TextField name="Enter the signup key" bind:value={signup_key} required/>
+		<TextField name="Enter the signup key" bind:value={signup_key} required />
 		<br>
-		<Button variant="filled" click={() => "" } type="submit">Create Account</Button>
+		<Button variant="filled" click={() => "" } type="submit" >Create Account</Button>
 	</form>
 </div>

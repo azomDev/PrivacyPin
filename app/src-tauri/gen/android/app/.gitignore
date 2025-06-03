@@ -1,4 +1,4 @@
-/src/main/java/ca/azom/privacypin/generated
+/src/main/java/dev/azom/privacypin/generated
 /src/main/jniLibs/**/*.so
 /src/main/assets/tauri.conf.json
 /tauri.build.gradle.kts

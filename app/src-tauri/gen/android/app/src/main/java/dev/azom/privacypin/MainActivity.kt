@@ -1,3 +1,3 @@
-package ca.azom.privacypin
+package dev.azom.privacypin
 
 class MainActivity : TauriActivity()

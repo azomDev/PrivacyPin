@@ -6,12 +6,13 @@
 	"workspaces": [
 		"server",
 		"shared",
-		"privacypin"
+		"app"
 	],
 	"scripts": {
-		"vite": "bun run --cwd ./privacypin vite",
-		"app": "bun run --cwd ./privacypin tauri dev",
-		"nvidia": "WEBKIT_DISABLE_DMABUF_RENDERER=1 bun run --cwd ./privacypin tauri dev",
+		"vite": "bun run --cwd ./app vite",
+		"app": "bun run --cwd ./app tauri dev",
+		"tauri": "bun run --cwd ./app tauri",
+		"nvidia": "WEBKIT_DISABLE_DMABUF_RENDERER=1 bun run --cwd ./app tauri dev",
 		"server": "bun run --cwd ./server ./src/server.ts"
 	}
 }

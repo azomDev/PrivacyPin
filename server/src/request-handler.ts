@@ -11,7 +11,9 @@ const friend_request_queue = new CyclicExpiryQueue<FriendRequest>(24 * 60 * 60 *
 export async function initServer() {
 	const admin_file = Bun.file(CONFIG.ADMIN_ID_PATH);
 	if (await admin_file.exists()) return; // No need to init the server
-	const new_signup_key = randomUUIDv7();
+	// temporary smaller id for testing
+	const new_signup_key = Math.random().toString(36).slice(2, 8);
+	// const new_signup_key = randomUUIDv7();
 	signup_key_queue.add(new_signup_key);
 	console.log(`Admin signup key: ${new_signup_key}`);
 }

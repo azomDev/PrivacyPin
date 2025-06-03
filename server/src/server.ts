@@ -4,9 +4,21 @@ import { CONFIG } from "./config.ts";
 import * as RH from "./request-handler";
 import { randomUUIDv7 } from "bun";
 import { initServer } from "./request-handler";
+import os from "os";
 
 await initServer();
-console.log(`http://127.0.0.1:${CONFIG.PORT}`);
+function getLocalIp() {
+	const interfaces = os.networkInterfaces();
+	for (const name in interfaces) {
+		for (const iface of interfaces[name] || []) {
+			if (iface.family === "IPv4" && !iface.internal) {
+				return iface.address;
+			}
+		}
+	}
+	return "localhost";
+}
+console.log(`Server running at http://${getLocalIp()}:${CONFIG.PORT}`);
 
 // todo do we need runtime input request validation?
 // todo sign data header typesafety and runtime validation?

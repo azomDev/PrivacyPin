@@ -10,9 +10,8 @@
 	],
 	"scripts": {
 		"vite": "bun run --cwd ./app vite",
-		"app": "bun run --cwd ./app tauri dev",
-		"tauri": "bun run --cwd ./app tauri",
-		"nvidia": "WEBKIT_DISABLE_DMABUF_RENDERER=1 bun run --cwd ./app tauri dev",
+		"app": "WEBKIT_DISABLE_DMABUF_RENDERER=1 bun run --cwd ./app tauri dev",
+		"mobile": "bun run --cwd ./app tauri android dev",
 		"server": "bun run --cwd ./server ./src/server.ts"
 	}
 }

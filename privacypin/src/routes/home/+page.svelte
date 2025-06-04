@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import { apiRequest } from "../../utils/api.ts";
+	import { apiRequest } from '../../utils/api.ts';
 	import { showLatestFriendPing,  sendPings, appReset} from '../../utils/temp.ts';
-	import { acceptFriendRequest, sendFriendRequest } from '../../utils/friends-temp.ts';
-	import { Button, TextField } from "m3-svelte";
+	import { acceptFriendRequest, sendFriendRequest, canSendNew } from '../../utils/friends-temp.ts';
+	import { Button, TextField, Snackbar } from 'm3-svelte';
 
 	let friend_name = $state("");
 	let friend_id = $state("");
@@ -14,17 +14,18 @@
 		signup_key = response.signup_key
 	}
 
+	function sendFriendRequestPre(name: string, id: string) {
+		if ( friend_name != "" && friend_id != "" && canSendNew() === true ) {
+			sendFriendRequest(name, id);
+		}
+	}
+
 	let { data }: PageProps = $props();
+
+	let snackbar: ReturnType<typeof Snackbar>
 </script>
 
-<style>
-	.center {
-		margin: auto;
-		text-align: center;
-	}
-</style>
-
-<div id="home-page" class="center">
+<div id="home-page" >
 	{#if data.friends.length > 0}
 		{#each data.friends as friend}
 			<div>
@@ -33,6 +34,7 @@
 			</div>
 		{/each}
 	{:else}
+		<h1>Friends</h1>
 		<p>You have no friends yet</p>
 	{/if}
 
@@ -40,35 +42,30 @@
 	<Button click={appReset}>Reset Store Temporary</Button>
 
 	<div>
-		<br><h3>Add Friend</h3>
+		<br><h3>Send Requests</h3>
 		<p>Your User ID: {data.user_id}</p>
 		<form>
 			<div>
 				<p>Name:</p>
 				<TextField name="Name:" bind:value={friend_name} required />
 				<!-- probably need id="friend-name" -->
-			</div>
-			<div>
+
 				<p>User ID:</p>
 				<TextField name="User ID:" bind:value={friend_id} required />
 				<!-- probably need id="friend-id" -->
 
-
-			</div>
-			<div>
-				<Button variant="filled" click={() => sendFriendRequest(friend_name, friend_id)}>Send Friend Request</Button>
-				<Button variant="filled" click={() => acceptFriendRequest(friend_name, friend_id)}>Accept Friend Request</Button>
+				<br><Button variant="filled" click={() => sendFriendRequestPre(friend_name, friend_id)}>Send Friend Request</Button>
 			</div>
 		</form>
 	</div>
 
-	<h3>Add Friend</h3>
+	<h3>Receive Requests</h3>
 	<p>Your User ID: {data.user_id}</p>
-
+	<Button variant="filled" click={() => acceptFriendRequest(friend_name, friend_id)}>Accept Friend Request</Button>
 
 
 	{#if data.is_admin}
-		<br><Button variant="filled" click={() => generateSignupKey()}>Generate Signup Key</Button>
+		<Button variant="filled" click={() => generateSignupKey()}>Generate Signup Key</Button>
 		<p>{signup_key}</p>
 	{/if}
 </div>

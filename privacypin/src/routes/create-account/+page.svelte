@@ -44,14 +44,7 @@
 	}
 </script>
 
-<style>
-	.center {
-		margin: auto;
-		text-align: center;
-	}
-</style>
-
-<div id="account-creation-page" class="center" >
+<div id="account-creation-page" >
 	<h1>Create an Account</h1>
 
 	<form onsubmit={createAccount}>

@@ -23,11 +23,11 @@ export async function apiRequest<K extends keyof APIRoutes>(endpoint: K, body: A
 		});
 
 		if (!response.ok) {
-			throw new Error(`${await response.text()}`);
+			new Error((await response.json()).message);
 		}
 		return await response.json();
-	} catch (err) {
-		alert(`${err}`);
+	} catch (err: Error) {
+		alert(err?.message);
 		throw err;
 	}
 }

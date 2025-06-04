@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Store } from "../utils/store";
+	import { Store } from '../utils/store';
 	import { goto } from '$app/navigation';
-	import "../app.css";
-	//import { Switch } from "m3-svelte";
+	import  '../app.reversed.css'
+
 
 	(async () => {
 		const is_logged_in = await Store.isLoggedIn();
@@ -13,6 +13,4 @@
 		}
 	})();
 
-	//let darkTheme = $state(true);
 </script>
-<!-- <Switch bind:checked={darkTheme}/> -->

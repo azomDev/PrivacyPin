@@ -2,7 +2,10 @@ import { type GlobalFriendRequest } from "@privacypin/shared";
 import { apiRequest } from "./api.ts";
 import { Store } from "./store.ts";
 
+let canSendFriendRequest: boolean = true;
+
 async function waitForFriendRequestAcceptance(friend_request: GlobalFriendRequest): Promise<boolean> {
+	canSendFriendRequest = false;
 	for (let attempt = 0; attempt < 15; attempt++) {
 		const { accepted } = await apiRequest("/is-friend-request-accepted", friend_request);
 		if (accepted) return true;
@@ -26,6 +29,7 @@ export async function sendFriendRequest(friend_name: string, friend_id: string) 
 	console.log("Friend request accepted:", accepted);
 	if (!accepted) {
 		alert("Friend request not accepted in time. Please try again later.");
+		canSendFriendRequest = true;
 		return;
 	}
 
@@ -35,6 +39,7 @@ export async function sendFriendRequest(friend_name: string, friend_id: string) 
 		id: friend_id,
 	});
 	Store.set("friends", friends);
+	canSendFriendRequest = true;
 }
 
 export async function acceptFriendRequest(friend_name: string, friend_id: string) {
@@ -51,4 +56,9 @@ export async function acceptFriendRequest(friend_name: string, friend_id: string
 		id: friend_id,
 	});
 	Store.set("friends", friends);
+	canSendFriendRequest = true;
+}
+
+export function canSendNew() {
+	return canSendFriendRequest;
 }

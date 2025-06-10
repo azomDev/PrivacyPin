@@ -2,18 +2,10 @@
 	let {children} = $props();
 	import "../app.css";
 	import { Dialog, Button, Tabs } from "m3-svelte";
+	import { toastOpen, toastTitle, toastMessage } from "../utils/toast";
+
 
 	let tab: string = $state("home");
-
-	let open: boolean = $state(false);
-	let toastTitle: string = $state("");
-	let toastMessage: string = $state("");
-
-	export function showToast(title: string, message: string) {
-		toastTitle = title;
-		toastMessage = message;
-		open = true;
-	}
 
 </script>
 
@@ -29,11 +21,12 @@
 
 <a href="{tab}" >Load page</a>
 
-<Dialog headline={toastTitle} bind:open>
-	{toastMessage}
+<Dialog headline={$toastTitle} bind:open={$toastOpen}>
+	{$toastMessage}
 	{#snippet buttons()}
-		<Button variant="tonal" click={() => (open = false)}>OK</Button>
+		<Button variant="tonal" click={() => $toastOpen = false}>OK</Button>
 	{/snippet}
 </Dialog>
+
 
 {@render children()}

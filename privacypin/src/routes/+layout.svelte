@@ -1,11 +1,39 @@
 <script lang="ts">
 	let {children} = $props();
 	import "../app.css";
+	import { Dialog, Button, Tabs } from "m3-svelte";
+
+	let tab: string = $state("home");
+
+	let open: boolean = $state(false);
+	let toastTitle: string = $state("");
+	let toastMessage: string = $state("");
+
+	export function showToast(title: string, message: string) {
+		toastTitle = title;
+		toastMessage = message;
+		open = true;
+	}
+
 </script>
 
 <nav>
-	<a href="home">Home</a> <!-- Leaving these here for now so I can test the UI changes :) ~Kit -->
-	<a href="create-account">Create Account</a>
+	<Tabs
+		items={[
+    { name: "Home", value: "/home" },
+    { name: "Create Account", value: "/create-account" },
+  ]}
+		bind:tab
+	/>
 </nav>
+
+<a href="{tab}" >Load page</a>
+
+<Dialog headline={toastTitle} bind:open>
+	{toastMessage}
+	{#snippet buttons()}
+		<Button variant="tonal" click={() => (open = false)}>OK</Button>
+	{/snippet}
+</Dialog>
 
 {@render children()}

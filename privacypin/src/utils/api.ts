@@ -2,9 +2,11 @@ import { Store } from "./store";
 import { APIRoutesRuntime, type APIRoutes } from "@privacypin/shared";
 import type { Base64String, GlobalSignData as SignData } from "@privacypin/shared";
 import { getBufferForSignature } from "@privacypin/shared";
+import { showToast } from "../routes/+layout.svelte";
 
 import { fetch } from "@tauri-apps/plugin-http"; // todo is this needed for mobile?
 
+let errorCaught: string = "";
 export async function apiRequest<K extends keyof APIRoutes>(endpoint: K, body: APIRoutes[K]["input"]): Promise<APIRoutes[K]["output"]> {
 	try {
 		const data_string = JSON.stringify(body);
@@ -23,12 +25,13 @@ export async function apiRequest<K extends keyof APIRoutes>(endpoint: K, body: A
 		});
 
 		if (!response.ok) {
-			new Error((await response.json()).message);
+			errorCaught = (await response.json()).message;
+			new Error(errorCaught);
 		}
 		return await response.json();
-	} catch (err: Error) {
-		alert(err?.message);
-		throw err;
+	} catch (Error) {
+		showToast('Error', errorCaught);
+		throw Error;
 	}
 }
 

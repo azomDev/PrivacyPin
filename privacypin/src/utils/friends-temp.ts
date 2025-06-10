@@ -1,6 +1,7 @@
 import { type GlobalFriendRequest } from "@privacypin/shared";
 import { apiRequest } from "./api.ts";
 import { Store } from "./store.ts";
+import showToast from "../routes/+layout.svelte";
 
 let canSendFriendRequest: boolean = true;
 
@@ -28,7 +29,7 @@ export async function sendFriendRequest(friend_name: string, friend_id: string) 
 	const accepted = await waitForFriendRequestAcceptance(friend_request);
 	console.log("Friend request accepted:", accepted);
 	if (!accepted) {
-		alert("Friend request not accepted in time. Please try again later.");
+		showToast("Friend Requests", "Friend request not accepted in time. Please try again later.");
 		canSendFriendRequest = true;
 		return;
 	}

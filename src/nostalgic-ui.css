@@ -1,0 +1,101 @@
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    src: url("/fonts/Inter-4.1/Inter.ttc");
+}
+body {
+    background-color: #f9fafb;
+    text-align: center;
+    vertical-align: center;
+    align: center;
+    margin: 0 auto;
+    font-family: "Inter";
+}
+card {
+    background-color: #ffffff;
+    border: 1px solid #cecfd0;
+    border-radius: 8px;
+    color: black;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    text-align: center;
+}
+.inner-card {
+    padding: 30px 30px;
+}
+p {
+    color: #5e5e5e;
+    color-2: #cecfd0; /* This doesn't do anything, but it is here for reference. It's for the text that's there, but faded. ~Kit */
+    padding: 16px 28px;
+    margin: auto;
+}
+hr {
+    border: none;
+    height: 1px;
+    background-color: #cecfd0;
+}
+.dot {
+    height: 100px;
+    width: 100px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+}
+.button-primary {
+    background-color: #000000;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12x;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+.h2-padding {
+    padding-top: 6.5px;
+}
+.button-secondary {
+    background-color: #ffffff;
+    border: 1px solid #cecfd0;
+    border-radius: 8px;
+    color: black;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+input {
+    background-color: #ffffff;
+    border: 1px solid #cecfd0;
+    border-radius: 8px;
+    color: black;
+    padding: 16px 32px;
+    text-align: left;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+#modal {
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+}

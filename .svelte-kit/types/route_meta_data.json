@@ -1,0 +1,12 @@
+{
+	"/": [
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/create-account": [
+		"src/routes/+layout.ts"
+	],
+	"/home": [
+		"src/routes/+layout.ts"
+	]
+}

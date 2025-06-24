@@ -1,7 +1,19 @@
-# Tauri + SvelteKit + TypeScript
+# Nostalgic UI
+> This is the new UI I(@KitCatLove) have made for Privacy Pin.
+> This UI is sleek and modern, while bringing back that good old memories.
+> I love it, Azom(@AzomDev) seems to like it, and yeah! Enjoy!
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
+## Running this thing(for newbs)
+_**YOU NEED THE PREREQUISITES**_
+(bun, tauri,vite, git, etc.)
 
-## Recommended IDE Setup
+> git clone https://github.com/AzomDev/PrivacyPin.git
+> cd PrivacyPin
+> git config --global user.email "your.email@email-provid.er"
+> git config --global user.name "yourName"
+> git switch ui-new
+> bun i |  bun install
+> bun run tauri dev
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+## Note
+> I honestly shouldn't be in charge of this, and I won't give you my email or Signal ID, so if you want to do something; ask Azom(@AzomDev)(His email and Signal are in the README.md of the main branch), and he will tell me what I'm doing wrong or need to add or whatever you might need.

@@ -22,57 +22,42 @@
     }
 </script>
 
-<div>
-    <card style="width: 425px;">
-        <div class="inner-card" style="vertical-align: center; line-height: 0;">
-            <a
-                class="dot"
-                style="background-color: #dbeafe; height: 50px; width: 50px; float: left;"
-                onclick={() => {
-                    goto("/create-account");
-                }}
-            >
-                <MapPin
-                    color="#235fe1"
-                    size={25}
-                    style="margin-top: 12.5; margin-bottom: 12.5;"
-                />
-            </a>
-            <h2 class="h2-padding" style="float: left; padding-left: 32px;">
-                Privacy Pin
-            </h2>
-            <Plus
-                size={25}
-                style="float: right; margin-top: 12.5; margin-bottom: 12.5;"
-            />
-            <Settings
-                size={25}
-                style="float: right; margin-top: 12.5; margin-bottom: 12.5; padding-right: 32px;"
-                onclick={() => {
-                    showModal("Beta Notification", "This would open settings");
-                }}
-            />
-        </div>
-        <br /><br />
-        <hr />
-        <div class="inner-card" style="padding-top: 0px;">
-            <p style="float: left; padding-top: 10px; padding-left: 0;">
-                Last ping sent:
-            </p>
-            <p style="font-style: bold;">ago</p>
-        </div>
-    </card>
-</div>
-<div id="modal" class="ui-style" hidden={show_modal != true}>
-    <card style="width: 75%;">
-        <h2>{modal_title}</h2>
-        <p>{modal_text}</p>
-        <button
-            class="button-primary"
+<div class="inner-card" style="line-height: 0;">
+    <div style="vertical-align: center;"> <!-- Put this on the left -->
+        <a
+            class="dot"
+            style="background-color: #dbeafe; height: 50px; width: 50px; vertical-align: center; float: left; position: relative;"
             onclick={() => {
-                show_modal = false;
-                modal_button_function();
-            }}>Okay!</button
+                goto("/create-account");
+            }}
         >
-    </card>
+            <MapPin
+                color="#235fe1"
+                size={25}
+                style="margin-top: 12.5; margin-bottom: 12.5;"
+            />
+        </a> <!-- Pin Icon -->
+        <h2 class="h2-padding" style="padding-left: 32px; float: left; position: relative;">
+            Privacy Pin
+        </h2>
+        <Plus
+            size={25}
+            style="margin-right: 0; padding-top: 12.5;"
+        />
+        <Settings
+            size={25}
+            style="padding-right: 16px; padding-top: 12.5; float: right; position: relative;"
+            onclick={() => {
+                showModal("Beta Notification", "This would open settings");
+            }}
+        />
+    </div>
+</div>
+<br /><br />
+<hr />
+<div class="inner-card wrapper flex-row" style="padding-top: 0px;">
+    <p style="float: left; padding-top: 10px; padding-left: 0;">
+        Last ping sent:
+    </p>
+    <p style="font-style: bold;">ago</p>
 </div>

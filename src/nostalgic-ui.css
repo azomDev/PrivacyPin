@@ -1,15 +1,25 @@
+
+/*
+
+If there's an issue with fonts, add the lino below to the class:
+
+font-family: Inter, emoji;
+
+*/
+
 @font-face {
     font-family: "Inter";
     font-style: normal;
-    src: url("/fonts/Inter-4.1/Inter.ttc");
+    src: url("../static/fonts/Inter-4.1/extras/ttf/Inter-Regular.ttf") format("truetype");
+}
+html * {
+    font-family: Inter, emoji;
 }
 body {
     background-color: #f9fafb;
     text-align: center;
     vertical-align: center;
-    align: center;
     margin: 0 auto;
-    font-family: "Inter";
 }
 card {
     background-color: #ffffff;
@@ -22,14 +32,13 @@ card {
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
-    text-align: center;
 }
 .inner-card {
     padding: 30px 30px;
 }
 p {
     color: #5e5e5e;
-    color-2: #cecfd0; /* This doesn't do anything, but it is here for reference. It's for the text that's there, but faded. ~Kit */
+    /* color-2: #cecfd0; /* This doesn't do anything, but it is here for reference. It's for the text that's there, but faded. ~Kit */
     padding: 16px 28px;
     margin: auto;
 }
@@ -54,7 +63,7 @@ hr {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12x;
+    font-size: 12px;
     margin: 4px 2px;
     cursor: pointer;
 }

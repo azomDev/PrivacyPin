@@ -1,8 +1,9 @@
 import { randomUUIDv7 } from "bun";
 import * as db from "./database";
-import { Err, type GlobalFriendRequest as FriendRequest, type ServerPing, type ServerUser } from "@privacypin/shared";
+import type { GlobalFriendRequest as FriendRequest, ServerPing, ServerUser } from "@privacypin/shared";
 import { CONFIG } from "./config";
 import { CyclicExpiryQueue } from "./cyclic-expiry-queue";
+import { Err, genID } from "./utils";
 
 const signup_key_queue = new CyclicExpiryQueue<string>(24 * 60 * 60 * 1000); // 1 day
 const friend_request_queue = new CyclicExpiryQueue<FriendRequest>(24 * 60 * 60 * 1000); // 1 day
@@ -11,35 +12,29 @@ const friend_request_queue = new CyclicExpiryQueue<FriendRequest>(24 * 60 * 60 *
 export async function initServer() {
 	const admin_file = Bun.file(CONFIG.ADMIN_ID_PATH);
 	if (await admin_file.exists()) return; // No need to init the server
-	// temporary smaller id for testing
-	const new_signup_key = Math.random().toString(36).slice(2, 8);
-	// const new_signup_key = randomUUIDv7();
+	const new_signup_key = genID();
 	signup_key_queue.add(new_signup_key);
 	console.log(`Admin signup key: ${new_signup_key}`);
 }
 
-export function createAccount(signup_key: string, pub_sign_key: JsonWebKey): { user_id: string; is_admin: boolean } {
+export function createAccount(signup_key: string): { user_id: string; is_admin: boolean } {
 	if (!signup_key_queue.consume(signup_key)) {
 		throw new Err("Invalid signup key", true);
 	}
-	// temporary smaller id for testing
-	const user_id = Math.random().toString(36).slice(2, 8);
-	// const user_id = randomUUIDv7();
+	const user_id = genID();
 	let is_admin = false;
 	if (db.noUsers()) {
 		// Admin creating an account
 		Bun.file(CONFIG.ADMIN_ID_PATH).write(user_id);
 		is_admin = true;
 	}
-	const user: ServerUser = { user_id, pub_sign_key: JSON.stringify(pub_sign_key) };
+	const user: ServerUser = { user_id };
 	db.createUser(user);
 	return { user_id, is_admin };
 }
 
 export function generateSignupKey(): { signup_key: string } {
-	// temporary smaller id for testing
-	const signup_key = Math.random().toString(36).slice(2, 8);
-	// const signup_key = randomUUIDv7();
+	const signup_key = genID();
 	signup_key_queue.add(signup_key);
 
 	return { signup_key };

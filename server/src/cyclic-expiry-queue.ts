@@ -1,4 +1,4 @@
-import { Err } from "@privacypin/shared";
+import { Err } from "./utils.ts";
 
 type BucketIndex = 0 | 1 | 2;
 

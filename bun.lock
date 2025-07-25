@@ -3,12 +3,15 @@
   "workspaces": {
     "": {
       "name": "privacypin",
+      "dependencies": {
+        "zod": "^4.0.10",
+      },
     },
     "app": {
       "name": "privacypin",
-      "version": "0.1.0",
+      "version": "0.0.1",
       "dependencies": {
-        "@privacypin/shared": "1.0.0",
+        "@privacypin/shared": "0.0.1",
         "@tauri-apps/api": "^2",
         "@tauri-apps/plugin-http": "^2.4.3",
         "@tauri-apps/plugin-opener": "^2",
@@ -27,9 +30,9 @@
     },
     "server": {
       "name": "@privacypin/server",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "dependencies": {
-        "@privacypin/shared": "1.0.0",
+        "@privacypin/shared": "0.0.1",
       },
       "devDependencies": {
         "@types/bun": "^1.2.8",
@@ -40,7 +43,7 @@
     },
     "shared": {
       "name": "@privacypin/shared",
-      "version": "1.0.0",
+      "version": "0.0.1",
     },
   },
   "packages": {
@@ -285,5 +288,7 @@
     "vitefu": ["vitefu@1.0.6", "", { "peerDependencies": { "vite": "^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0" }, "optionalPeers": ["vite"] }, "sha512-+Rex1GlappUyNN6UfwbVZne/9cYC4+R2XDk9xkNXBKMw6HQagdX9PgZ8V2v1WUSK1wfBLp7qbI1+XSNIlB1xmA=="],
 
     "zimmerframe": ["zimmerframe@1.1.2", "", {}, "sha512-rAbqEGa8ovJy4pyBxZM70hg4pE6gDgaQ0Sl9M3enG3I0d6H4XSAM3GeNGLKnsBpuijUow064sf7ww1nutC5/3w=="],
+
+    "zod": ["zod@4.0.10", "", {}, "sha512-3vB+UU3/VmLL2lvwcY/4RV2i9z/YU0DTV/tDuYjrwmx5WeJ7hwy+rGEEx8glHp6Yxw7ibRbKSaIFBgReRPe5KA=="],
   }
 }

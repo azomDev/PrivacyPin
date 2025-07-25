@@ -1,6 +1,6 @@
 export type ServerUser = {
 	user_id: string;
-	pub_sign_key: Base64String; // todo when db will be typesafe, change this to JsonWebKey
+	// at some point add pub key
 };
 
 export type ServerPing = {

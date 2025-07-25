@@ -1,7 +1,8 @@
 {
 	"name": "privacypin",
-	"version": "0.1.0",
-	"description": "",
+	"license": "AGPL-3.0-only",
+	"version": "0.0.1",
+	"private": true,
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -11,13 +12,12 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"tauri": "tauri"
 	},
-	"license": "AGPL-3.0-only",
 	"dependencies": {
 		"@tauri-apps/api": "^2",
 		"@tauri-apps/plugin-opener": "^2",
 		"@tauri-apps/plugin-store": "^2.2.0",
 		"@tauri-apps/plugin-http": "^2.4.3",
-		"@privacypin/shared": "1.0.0"
+		"@privacypin/shared": "0.0.1"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^3.0.6",

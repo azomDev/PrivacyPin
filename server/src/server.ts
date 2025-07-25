@@ -1,88 +1,96 @@
-import { isSignatureValid } from "./auth.ts";
-import { HTTPServer } from "@privacypin/shared";
 import { CONFIG } from "./config.ts";
 import * as RH from "./request-handler";
-import { randomUUIDv7 } from "bun";
 import { initServer } from "./request-handler";
-import os from "os";
+import { getLocalIp } from "./dev.ts";
+import { Err } from "./utils.ts";
+import z from "zod";
 
 await initServer();
-function getLocalIp() {
-	const interfaces = os.networkInterfaces();
-	for (const name in interfaces) {
-		for (const iface of interfaces[name] || []) {
-			if (iface.family === "IPv4" && !iface.internal) {
-				return iface.address;
-			}
-		}
-	}
-	return "localhost";
-}
 console.log(`Server running at http://${getLocalIp()}:${CONFIG.PORT}`);
 
-// todo do we need runtime input request validation?
-// todo sign data header typesafety and runtime validation?
-
-// todo use this function, mabye add in the http api types an option to tell if the api is restricted to the admin
 export async function isAdmin(user_id: string): Promise<boolean> {
 	const admin_file = Bun.file(CONFIG.ADMIN_ID_PATH);
 	const admin_id = await admin_file.text();
 	return user_id === admin_id;
 }
 
-HTTPServer({
+Bun.serve({
 	port: CONFIG.PORT,
-	signatureVerification: isSignatureValid,
-	handlers: {
-		"/create-account": {
-			process: ({signup_key, pub_sign_key}) => {
-				return RH.createAccount(signup_key, pub_sign_key);
-			},
-		},
-		"/generate-signup-key": {
-			process: () => {
-				return RH.generateSignupKey();
-			},
-		},
-		"/create-friend-request": {
-			check: (user_id, { sender_id, accepter_id }) => {
-				return user_id === sender_id;
-			},
-			process: (friend_request) => {
-				RH.createFriendRequest(friend_request);
-			},
-		},
-		"/accept-friend-request": {
-			check: (user_id, { sender_id, accepter_id }) => {
-				return user_id === accepter_id;
-			},
-			process: (friend_request) => {
-				RH.acceptFriendRequest(friend_request);
-			},
-		},
-		"/is-friend-request-accepted": {
-			check: (user_id, { sender_id, accepter_id }) => {
-				return user_id === sender_id;
-			},
-			process: (friend_request) => {
-				return RH.isFriendRequestAccepted(friend_request);
-			},
-		},
-		"/send-pings": {
-			check: (user_id, { pings }) => {
-				return pings.every((ping) => ping.sender_id === user_id);
-			},
-			process: ({ pings }) => {
-				RH.sendPings(pings);
-			},
-		},
-		"/get-pings": {
-			check: (user_id, { receiver_id }) => {
-				return user_id === receiver_id;
-			},
-			process: ({ sender_id, receiver_id }) => {
-				return RH.getPings(sender_id, receiver_id);
-			},
-		},
+	async fetch(req) {
+		return await idkyet(req);
+	},
+	error(e: Error) {
+		if (e instanceof Err) {
+			if (e.log_server) {
+				console.error(e);
+			}
+			return new Response(JSON.stringify({ message: e.message, code: e.error_code }), { status: 599 });
+		} else {
+			throw new Error(e.message); // if this throws, there's an unhandled error
+		}
 	},
 });
+
+async function idkyet(req: Request) {
+	console.log(req);
+	const url = new URL(req.url);
+
+	const req_body = await req.text();
+	const req_json = JSON.parse(req_body);
+
+	let res = undefined;
+
+	const FriendRequestZod = z.object({
+		sender_id: z.string(),
+		accepter_id: z.string(),
+	});
+
+	const ServerPingZod = z.object({
+		sender_id: z.string(),
+		receiver_id: z.string(),
+		encrypted_ping: z.string(),
+	});
+
+	const CreateAccountZod = z.object({
+		signup_key: z.string(),
+	});
+
+	const IDKZod = z.object({
+		sender_id: z.string(),
+		receiver_id: z.string(),
+	});
+
+	try {
+		if (url.pathname === "/create-account") {
+			const { signup_key } = CreateAccountZod.parse(req_json);
+			res = RH.createAccount(signup_key);
+		} else if (url.pathname === "/generate-signup-key") {
+			res = RH.generateSignupKey();
+		} else if (url.pathname === "/create-friend-request") {
+			const friend_request = FriendRequestZod.parse(req_json);
+			RH.createFriendRequest(friend_request);
+		} else if (url.pathname === "/accept-friend-request") {
+			const friend_request = FriendRequestZod.parse(req_json);
+			RH.acceptFriendRequest(friend_request);
+		} else if (url.pathname === "/is-friend-request-accepted") {
+			const friend_request = FriendRequestZod.parse(req_json);
+			res =  RH.isFriendRequestAccepted(friend_request);
+		} else if (url.pathname === "/send-pings") {
+			const pings = z.array(ServerPingZod).parse(req_json);
+			RH.sendPings(pings);
+		} else if (url.pathname === "/get-pings") {
+			const { sender_id, receiver_id } = IDKZod.parse(req_json);
+			res = RH.getPings(sender_id, receiver_id);
+		} else {
+			throw new Err("Not found", true);
+		}
+	} catch (e: unknown) {
+		// todo
+	}
+
+	console.log(res);
+	if (res === undefined) {
+		return Response.json({});
+	}
+	return Response.json(res);
+}

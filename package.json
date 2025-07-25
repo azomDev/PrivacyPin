@@ -1,6 +1,6 @@
 {
 	"name": "privacypin",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"type": "module",
 	"private": true,
 	"workspaces": [
@@ -13,5 +13,8 @@
 		"app": "WEBKIT_DISABLE_DMABUF_RENDERER=1 bun run --cwd ./app tauri dev",
 		"mobile": "bun run --cwd ./app tauri android dev",
 		"server": "bun run --cwd ./server ./src/server.ts"
+	},
+	"dependencies": {
+		"zod": "^4.0.10"
 	}
 }

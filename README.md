@@ -90,6 +90,6 @@ bun run app
 
 ## Contact
 
-Email : dev@azom.ca\
+Email : azomDev@pm.me\
 Signal : @azom.01\
 Discord : _azom

@@ -7,6 +7,7 @@
 _**YOU NEED THE PREREQUISITES**_
 (bun, tauri,vite, git, etc.)
 
+> ```
 > git clone https://github.com/AzomDev/PrivacyPin.git
 > cd PrivacyPin
 > git config --global user.email "your.email@email-provid.er"
@@ -14,8 +15,11 @@ _**YOU NEED THE PREREQUISITES**_
 > git switch ui-new
 > bun i |  bun install
 > bun run tauri dev
+> ```
 
 ## Notes
 > > _**DO NOT MERGE THIS WITH ANY OTHER BRANCH; A LOT WILL BREAK**_
 > 
-> > I honestly shouldn't be in charge of this, and I won't give you my email or Signal ID, so if you want to do something; ask Azom(@AzomDev)(His email and Signal are in the README.md of the main branch), and he will tell me what I'm doing wrong or need to add or whatever you might need.
+> > I honestly shouldn't be in charge of this, and I won't give you my email or Signal, so if you want to do something, ask Azom(@AzomDev)(His email and Signal are in the README.md on the main branch), and he will tell me what I'm doing wrong or need to add or whatever you might need.
+> 
+> > Feel free to contribute! Message Azom(@AzomDev)(His email and Signal are in the README.MD on the main branch) for more information!!!

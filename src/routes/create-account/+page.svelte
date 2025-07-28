@@ -93,7 +93,7 @@
         onclick={() => {
             showModal(
                 "Beta Notification",
-                "This would have prompted to scan a QR code. The data {'http://your-server.com', 'signup-key-12345'}",
+                "This would have prompted to scan a QR code. The data {'http://your-server.com', 'signup-key-12345'} will be used as input.",
 
                 () => {
                     server_address = "http://your-server.com";

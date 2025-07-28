@@ -47,6 +47,11 @@ hr {
     height: 1px;
     background-color: #cecfd0;
 }
+.split-lr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 .dot {
     height: 100px;
     width: 100px;

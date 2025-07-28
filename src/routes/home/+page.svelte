@@ -22,42 +22,49 @@
     }
 </script>
 
-<div class="inner-card" style="line-height: 0;">
-    <div style="vertical-align: center;"> <!-- Put this on the left -->
-        <a
-            class="dot"
-            style="background-color: #dbeafe; height: 50px; width: 50px; vertical-align: center; float: left; position: relative;"
-            onclick={() => {
-                goto("/create-account");
-            }}
-        >
-            <MapPin
-                color="#235fe1"
+<div class="inner-card" style="line-height: 0; height: 15px;">
+    <div class="split-lr" style="margin-bottom: 0; height: 20px;"> <!-- left -->
+        <div style="display: flex">
+            <a
+                class="dot"
+                style="background-color: #dbeafe; height: 50px; width: 50px;"
+                onclick={() => {
+                    goto("/create-account");
+                }}
+            >
+                <MapPin
+                    color="#235fe1"
+                    size={25}
+                    style="margin-top: 12.5; margin-bottom: 12.5;"
+                />
+            </a> <!-- Pin Icon -->
+            <h2 class="h2-padding" style="padding-left: 16px;">
+                Privacy Pin
+            </h2>
+        </div>
+
+        <div style="margin-bottom: 0; height: 20px;"> <!-- right -->
+            <Plus
                 size={25}
-                style="margin-top: 12.5; margin-bottom: 12.5;"
+                style="margin-right: 0;"
             />
-        </a> <!-- Pin Icon -->
-        <h2 class="h2-padding" style="padding-left: 32px; float: left; position: relative;">
-            Privacy Pin
-        </h2>
-        <Plus
-            size={25}
-            style="margin-right: 0; padding-top: 12.5;"
-        />
-        <Settings
-            size={25}
-            style="padding-right: 16px; padding-top: 12.5; float: right; position: relative;"
-            onclick={() => {
-                showModal("Beta Notification", "This would open settings");
-            }}
-        />
+            <Settings
+                size={25}
+                onclick={() => {
+                    showModal("Beta Notification", "This would open settings");
+                }}
+            />
+        </div>
     </div>
 </div>
-<br /><br />
 <hr />
-<div class="inner-card wrapper flex-row" style="padding-top: 0px;">
-    <p style="float: left; padding-top: 10px; padding-left: 0;">
+
+<div class="split-lr" style="">
+    <p style="float: left; padding-top: 5px; padding-left: 0;">
         Last ping sent:
     </p>
-    <p style="font-style: bold;">ago</p>
+    <p style="font-style: bold; float: right; padding-top: 5px; padding-right: 0;">ago</p>
+</div>
+<div class="inner-card wrapper flex-row" style="padding-top: 0px;">
+
 </div>

@@ -68,3 +68,21 @@
 <div class="inner-card wrapper flex-row" style="padding-top: 0px;">
 
 </div>
+
+
+<!-- This is the popup modal's HTML -->
+<div id="modal" class="ui-style" hidden={show_modal !== true}>
+    <card style="width: 75%;">
+        <div class="inner-card">
+            <h2>{modal_title}</h2>
+            <p>{modal_text}</p>
+            <button
+                    class="button-primary"
+                    onclick={() => {
+                    show_modal = false;
+                    modal_button_function();
+                }}>Okay!</button
+            >
+        </div>
+    </card>
+</div>

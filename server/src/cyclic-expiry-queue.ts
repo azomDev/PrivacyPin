@@ -122,4 +122,8 @@ export class CyclicExpiryQueue<T> {
 		}
 		return false;
 	}
+
+	clear(): void {
+		this.buckets.forEach(bucket => bucket.clear());
+	}
 }

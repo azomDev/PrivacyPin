@@ -4,14 +4,14 @@ import { CONFIG } from "./config";
 import { mkdir } from "node:fs/promises";
 
 let db: Database;
-await mkdir("./output", {recursive: true});
+await mkdir("./output", { recursive: true });
 initializeDatabase();
 
-const PING_BUFFER_SIZE = 20;
+const PING_BUFFER_SIZE = 10;
 
 function initializeDatabase() {
 	db = new Database(CONFIG.DATABASE_PATH, { create: true, strict: true });
-	// todo later do the rotating recency indexes for better privacy
+
 	db.run(`
 		CREATE TABLE IF NOT EXISTS positions (
 			sender_id TEXT,
@@ -26,8 +26,8 @@ function initializeDatabase() {
 		CREATE TABLE IF NOT EXISTS links (
 			user_id_1 TEXT,
 			user_id_2 TEXT,
-			user_1_ping_index INTEGER, -- todo add default when created
-			user_2_ping_index INTEGER, -- todo add default when created
+			user_1_ping_index INTEGER DEFAULT 0,
+			user_2_ping_index INTEGER DEFAULT 0,
 			CHECK(user_id_1 < user_id_2),
 			UNIQUE(user_id_1, user_id_2)
 		)
@@ -86,7 +86,6 @@ export function createUser(user: ServerUser) {
 }
 
 export function addPings(pings: ServerPing[]) {
-
 	const get_recency_index_query = db.prepare(`
 		SELECT
 			CASE
@@ -119,11 +118,14 @@ export function addPings(pings: ServerPing[]) {
 	db.transaction(() => {
 		for (const ping of pings) {
 			const { recency_index } = get_recency_index_query.get({sender_id: ping.sender_id, receiver_id: ping.receiver_id}) as { recency_index: number };
-			const new_recency_index = recency_index + 1 % PING_BUFFER_SIZE;
-			update_recency_index_query.run({ sender_id: ping.sender_id, receiver_id: ping.receiver_id, new_recency_index });
+			const new_index = recency_index + 1 % PING_BUFFER_SIZE;
+			update_recency_index_query.run({ sender_id: ping.sender_id, receiver_id: ping.receiver_id, new_index });
 			ping_insert_query.run(ping.sender_id, ping.receiver_id, ping.encrypted_ping, recency_index);
 		}
 	})();
+
+	console.log("ASAAAAAAAAAAAAAAAA")
+	console.log(db.prepare("SELECT * FROM positions").all())
 }
 
 export function getPings(sender_id: string, receiver_id: string): string[] | null {

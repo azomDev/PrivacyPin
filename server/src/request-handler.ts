@@ -3,22 +3,10 @@ import * as db from "./database";
 import type { GlobalFriendRequest as FriendRequest, ServerPing, ServerUser } from "@privacypin/shared";
 import { CONFIG } from "./config";
 import { CyclicExpiryQueue } from "./cyclic-expiry-queue";
-import { Err, genID } from "./utils";
+import { Err, friend_request_queue, genID, signup_key_queue } from "./utils";
 
-const signup_key_queue = new CyclicExpiryQueue<string>(24 * 60 * 60 * 1000); // 1 day
-const friend_request_queue = new CyclicExpiryQueue<FriendRequest>(24 * 60 * 60 * 1000); // 1 day
-
-
-export async function initServer() {
-	const admin_file = Bun.file(CONFIG.ADMIN_ID_PATH);
-	if (await admin_file.exists()) return; // No need to init the server
-	const new_signup_key = genID();
-	signup_key_queue.add(new_signup_key);
-	console.log(`Admin signup key: ${new_signup_key}`);
-}
-
-export function createAccount(signup_key: string): { user_id: string; is_admin: boolean } {
-	if (!signup_key_queue.consume(signup_key)) {
+export function createAccount(body: { signup_key: string }): { user_id: string; is_admin: boolean } {
+	if (!signup_key_queue.consume(body.signup_key)) {
 		throw new Err("Invalid signup key", true);
 	}
 	const user_id = genID();
@@ -33,6 +21,7 @@ export function createAccount(signup_key: string): { user_id: string; is_admin: 
 	return { user_id, is_admin };
 }
 
+//
 export function generateSignupKey(): { signup_key: string } {
 	const signup_key = genID();
 	signup_key_queue.add(signup_key);
@@ -69,7 +58,8 @@ export function sendPings(pings: ServerPing[]) {
 	db.addPings(pings);
 }
 
-export function getPings(sender_id: string, receiver_id: string): { pings: string[] } {
+export function getPings(data: { sender_id: string, receiver_id: string }): { pings: string[] } {
+	let { sender_id, receiver_id } = data;
 	if (!db.linkExists(sender_id, receiver_id)) {
 		throw new Err("No link found", true);
 	}
@@ -82,6 +72,7 @@ export function getPings(sender_id: string, receiver_id: string): { pings: strin
 }
 
 export function isFriendRequestAccepted(friend_request: FriendRequest): { accepted: boolean } {
+	console.log(friend_request)
 	const accepted = db.linkExists(friend_request.sender_id, friend_request.accepter_id);
 	return { accepted };
 }

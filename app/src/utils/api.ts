@@ -1,7 +1,5 @@
 import { Store } from "./store";
-import { APIRoutesRuntime, type APIRoutes } from "@privacypin/shared";
 import type { Base64String, GlobalSignData as SignData } from "@privacypin/shared";
-import { getBufferForSignature } from "@privacypin/shared";
 
 import { fetch } from "@tauri-apps/plugin-http"; // todo is this needed for mobile?
 

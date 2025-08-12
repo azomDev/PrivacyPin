@@ -26,8 +26,8 @@ Bun.serve({
 });
 
 type RouteDef<I extends z.ZodTypeAny, O extends z.ZodTypeAny> = {
-	input_schema: I;
-	output_schema: O;
+	request_schema: I;
+	response_schema: O;
 	handler: (body: z.infer<I>, verified_user_id?: string) => z.infer<O>;
 } & (
 	| {
@@ -50,23 +50,23 @@ export const _routes = defineRoutes({
 	"/create-account": {
 		auth_required: false,
 		admin_only: false,
-		input_schema: T.CreateAccountInputZod,
-		output_schema: T.CreateAccountOutputZod,
+		request_schema: T.CreateAccountRequestZod,
+		response_schema: T.CreateAccountResponseZod,
 		handler: RH.createAccount,
 	},
 	"/generate-signup-key": {
 		auth_required: true,
 		admin_only: true,
-		input_schema: T.GenerateSignupKeyInputZod,
-		output_schema: T.GenerateSignupKeyOutputZod,
+		request_schema: T.GenerateSignupKeyRequestZod,
+		response_schema: T.GenerateSignupKeyResponseZod,
 		handler: RH.generateSignupKey,
 	},
 	"/create-friend-request": {
 		auth_required: true,
 		admin_only: true,
-		input_schema: T.CreateFriendRequestInputZod,
-		output_schema: T.CreateFriendRequestOutputZod,
-		check: (verified_user_id: string, data: T.CreateFriendRequestInput) => {
+		request_schema: T.CreateFriendRequestRequestZod,
+		response_schema: T.CreateFriendRequestResponseZod,
+		check: (verified_user_id: string, data: T.CreateFriendRequestRequest) => {
 			return data.sender_id === verified_user_id;
 		},
 		handler: RH.createFriendRequest,
@@ -74,9 +74,9 @@ export const _routes = defineRoutes({
 	"/accept-friend-request": {
 		auth_required: true,
 		admin_only: false,
-		input_schema: T.AcceptFriendRequestInputZod,
-		output_schema: T.AcceptFriendRequestOutputZod,
-		check: (verified_user_id: string, data: T.AcceptFriendRequestInput) => {
+		request_schema: T.AcceptFriendRequestRequestZod,
+		response_schema: T.AcceptFriendRequestResponseZod,
+		check: (verified_user_id: string, data: T.AcceptFriendRequestRequest) => {
 			return data.accepter_id === verified_user_id;
 		},
 		handler: RH.acceptFriendRequest,
@@ -84,9 +84,9 @@ export const _routes = defineRoutes({
 	"/is-friend-request-accepted": {
 		auth_required: true,
 		admin_only: false,
-		input_schema: T.IsFriendRequestAcceptedInputZod,
-		output_schema: T.IsFriendRequestAcceptedOutputZod,
-		check: (verified_user_id: string, data: T.IsFriendRequestAcceptedInput) => {
+		request_schema: T.IsFriendRequestAcceptedRequestZod,
+		response_schema: T.IsFriendRequestAcceptedResponseZod,
+		check: (verified_user_id: string, data: T.IsFriendRequestAcceptedRequest) => {
 			return data.accepter_id === verified_user_id || data.sender_id === verified_user_id;
 		},
 		handler: RH.isFriendRequestAccepted,
@@ -94,9 +94,9 @@ export const _routes = defineRoutes({
 	"/send-pings": {
 		auth_required: true,
 		admin_only: false,
-		input_schema: T.SendPingsInputZod,
-		output_schema: T.SendPingsOutputZod,
-		check: (verified_user_id: string, data: T.SendPingsInput) => {
+		request_schema: T.SendPingsRequestZod,
+		response_schema: T.SendPingsResponseZod,
+		check: (verified_user_id: string, data: T.SendPingsRequest) => {
 			return data.every(p => p.sender_id === verified_user_id);
 		},
 		handler: RH.sendPings,
@@ -104,9 +104,9 @@ export const _routes = defineRoutes({
 	"/get-pings": {
 		auth_required: true,
 		admin_only: false,
-		input_schema: T.GetPingsInputZod,
-		output_schema: T.GetPingsOutputZod,
-		check: (verified_user_id: string, data: T.GetPingsInput) => {
+		request_schema: T.GetPingsRequestZod,
+		response_schema: T.GetPingsResponseZod,
+		check: (verified_user_id: string, data: T.GetPingsRequest) => {
 			return data.receiver_id === verified_user_id;
 		},
 		handler: RH.getPings,
@@ -115,8 +115,8 @@ export const _routes = defineRoutes({
 
 export const routes = _routes as {
 	[K in keyof typeof _routes]: RouteDef<
-		typeof _routes[K]["input_schema"],
-		typeof _routes[K]["output_schema"]
+		typeof _routes[K]["request_schema"],
+		typeof _routes[K]["response_schema"]
 	>;
 };
 
@@ -134,7 +134,7 @@ async function verifyAuth<I extends z.ZodTypeAny, O extends z.ZodTypeAny>(body: 
 	// parse/extract the auth and data
 	const parsed = asdf.parse(body);
 	const auth = parsed.auth;
-	const data = route.input_schema.parse(parsed.data);
+	const data = route.request_schema.parse(parsed.data);
 
 	// AUTH
 

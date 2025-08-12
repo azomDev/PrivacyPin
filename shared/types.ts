@@ -41,25 +41,25 @@ export type ClientEncryptedPing = string;
 export type Base64String = string;
 
 // ---------- createAccount ----------
-export const CreateAccountInputZod = z.object({
+export const CreateAccountRequestZod = z.object({
 	signup_key: z.string(),
 });
-export type CreateAccountInput = z.infer<typeof CreateAccountInputZod>;
+export type CreateAccountRequest = z.infer<typeof CreateAccountRequestZod>;
 
-export const CreateAccountOutputZod = z.object({
+export const CreateAccountResponseZod = z.object({
 	user_id: z.string(),
 	is_admin: z.boolean(),
 });
-export type CreateAccountOutput = z.infer<typeof CreateAccountOutputZod>;
+export type CreateAccountResponse = z.infer<typeof CreateAccountResponseZod>;
 
 // ---------- generateSignupKey ----------
-export const GenerateSignupKeyInputZod = z.undefined();
-export type GenerateSignupKeyInput = z.infer<typeof GenerateSignupKeyInputZod>;
+export const GenerateSignupKeyRequestZod = z.undefined();
+export type GenerateSignupKeyRequest = z.infer<typeof GenerateSignupKeyRequestZod>;
 
-export const GenerateSignupKeyOutputZod = z.object({
+export const GenerateSignupKeyResponseZod = z.object({
 	signup_key: z.string(),
 });
-export type GenerateSignupKeyOutput = z.infer<typeof GenerateSignupKeyOutputZod>;
+export type GenerateSignupKeyResponse = z.infer<typeof GenerateSignupKeyResponseZod>;
 
 // ---------- createFriendRequest ----------
 export const FriendRequestZod = z.object({
@@ -68,27 +68,27 @@ export const FriendRequestZod = z.object({
 });
 export type FriendRequest = z.infer<typeof FriendRequestZod>;
 
-export const CreateFriendRequestInputZod = FriendRequestZod;
-export type CreateFriendRequestInput = z.infer<typeof CreateFriendRequestInputZod>;
+export const CreateFriendRequestRequestZod = FriendRequestZod;
+export type CreateFriendRequestRequest = z.infer<typeof CreateFriendRequestRequestZod>;
 
-export const CreateFriendRequestOutputZod = z.void();
-export type CreateFriendRequestOutput = z.infer<typeof CreateFriendRequestOutputZod>;
+export const CreateFriendRequestResponseZod = z.void();
+export type CreateFriendRequestResponse = z.infer<typeof CreateFriendRequestResponseZod>;
 
 // ---------- acceptFriendRequest ----------
-export const AcceptFriendRequestInputZod = FriendRequestZod;
-export type AcceptFriendRequestInput = z.infer<typeof AcceptFriendRequestInputZod>;
+export const AcceptFriendRequestRequestZod = FriendRequestZod;
+export type AcceptFriendRequestRequest = z.infer<typeof AcceptFriendRequestRequestZod>;
 
-export const AcceptFriendRequestOutputZod = z.void();
-export type AcceptFriendRequestOutput = z.infer<typeof AcceptFriendRequestOutputZod>;
+export const AcceptFriendRequestResponseZod = z.void();
+export type AcceptFriendRequestResponse = z.infer<typeof AcceptFriendRequestResponseZod>;
 
 // ---------- isFriendRequestAccepted ----------
-export const IsFriendRequestAcceptedInputZod = FriendRequestZod;
-export type IsFriendRequestAcceptedInput = z.infer<typeof IsFriendRequestAcceptedInputZod>;
+export const IsFriendRequestAcceptedRequestZod = FriendRequestZod;
+export type IsFriendRequestAcceptedRequest = z.infer<typeof IsFriendRequestAcceptedRequestZod>;
 
-export const IsFriendRequestAcceptedOutputZod = z.object({
+export const IsFriendRequestAcceptedResponseZod = z.object({
 	accepted: z.boolean(),
 });
-export type IsFriendRequestAcceptedOutput = z.infer<typeof IsFriendRequestAcceptedOutputZod>;
+export type IsFriendRequestAcceptedResponse = z.infer<typeof IsFriendRequestAcceptedResponseZod>;
 
 // ---------- sendPings ----------
 export const ServerPingZod = z.object({
@@ -98,20 +98,20 @@ export const ServerPingZod = z.object({
 });
 export type ServerPing = z.infer<typeof ServerPingZod>;
 
-export const SendPingsInputZod = z.array(ServerPingZod);
-export type SendPingsInput = z.infer<typeof SendPingsInputZod>;
+export const SendPingsRequestZod = z.array(ServerPingZod);
+export type SendPingsRequest = z.infer<typeof SendPingsRequestZod>;
 
-export const SendPingsOutputZod = z.void();
-export type SendPingsOutput = z.infer<typeof SendPingsOutputZod>;
+export const SendPingsResponseZod = z.void();
+export type SendPingsResponse = z.infer<typeof SendPingsResponseZod>;
 
 // ---------- getPings ----------
-export const GetPingsInputZod = z.object({
+export const GetPingsRequestZod = z.object({
 	sender_id: z.string(),
 	receiver_id: z.string(),
 });
-export type GetPingsInput = z.infer<typeof GetPingsInputZod>;
+export type GetPingsRequest = z.infer<typeof GetPingsRequestZod>;
 
-export const GetPingsOutputZod = z.object({
+export const GetPingsResponseZod = z.object({
 	pings: z.array(z.string()),
 });
-export type GetPingsOutput = z.infer<typeof GetPingsOutputZod>;
+export type GetPingsResponse = z.infer<typeof GetPingsResponseZod>;

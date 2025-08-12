@@ -40,23 +40,6 @@ function initializeDatabase() {
 	`);
 }
 
-export function RESET_DATABASE_FOR_TESTING() {
-	try {
-		db.run("PRAGMA foreign_keys = OFF;"); // Disable foreign key constraints temporarily
-
-		const tables = db.query("SELECT name FROM sqlite_master WHERE type='table';").all() as { name: string }[];
-		for (const table of tables) {
-			if (table.name !== "sqlite_sequence") {
-				db.run(`DELETE FROM ${table.name};`);
-			}
-		}
-
-		db.run("PRAGMA foreign_keys = ON;"); // Re-enable foreign key constraints
-	} catch (error) {
-		console.error("Error resetting database:", error);
-	}
-}
-
 export function noUsers(): boolean {
 	// prettier-ignore
 	const result = db.prepare(`
@@ -123,9 +106,6 @@ export function addPings(pings: ServerPing[]) {
 			ping_insert_query.run(ping.sender_id, ping.receiver_id, ping.encrypted_ping, recency_index);
 		}
 	})();
-
-	console.log("ASAAAAAAAAAAAAAAAA")
-	console.log(db.prepare("SELECT * FROM positions").all())
 }
 
 export function getPings(sender_id: string, receiver_id: string): string[] | null {

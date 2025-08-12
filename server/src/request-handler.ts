@@ -21,7 +21,6 @@ export function createAccount(body: { signup_key: string }): { user_id: string; 
 	return { user_id, is_admin };
 }
 
-//
 export function generateSignupKey(): { signup_key: string } {
 	const signup_key = genID();
 	signup_key_queue.add(signup_key);
@@ -72,7 +71,6 @@ export function getPings(data: { sender_id: string, receiver_id: string }): { pi
 }
 
 export function isFriendRequestAccepted(friend_request: FriendRequest): { accepted: boolean } {
-	console.log(friend_request)
 	const accepted = db.linkExists(friend_request.sender_id, friend_request.accepter_id);
 	return { accepted };
 }

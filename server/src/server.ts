@@ -32,12 +32,12 @@ type RouteDef<I extends z.ZodTypeAny, O extends z.ZodTypeAny> = {
 } & (
 	| {
 		auth_required: true;
-		admin_only: boolean; // can be true or false if auth_required true
+		admin_only: boolean;
 		check?: (verified_user_id: string, data: z.infer<I>) => boolean;
 	}
 	| {
 		auth_required: false;
-		admin_only: false; // must be false if auth_required false
+		admin_only: false;
 		check?: never;
 	}
 );

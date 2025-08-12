@@ -2,7 +2,7 @@ import { CONFIG } from "./config.ts";
 import * as RH from "./request-handler";
 import { getLocalIp } from "./dev.ts";
 import { Err, initServer, isAdmin } from "./utils.ts";
-import z, { ZodType } from "zod";
+import z from "zod";
 import * as T from "@privacypin/shared";
 
 await initServer();
@@ -25,20 +25,28 @@ Bun.serve({
 	},
 });
 
-
 type RouteDef<I extends z.ZodTypeAny, O extends z.ZodTypeAny> = {
-	auth_required: boolean;
-	admin_only: boolean;
-	check?: (verified_user_id: string, data: z.infer<I>) => boolean;
 	input_schema: I;
 	output_schema: O;
 	handler: (body: z.infer<I>, verified_user_id?: string) => z.infer<O>;
-};
-// TODO: make check definable only if auth_required is true
-// TODO: make admin_only be able to be true only if auth_required is true
+} & (
+	| {
+		auth_required: true;
+		admin_only: boolean; // can be true or false if auth_required true
+		check?: (verified_user_id: string, data: z.infer<I>) => boolean;
+	}
+	| {
+		auth_required: false;
+		admin_only: false; // must be false if auth_required false
+		check?: never;
+	}
+);
 
+function defineRoutes<T extends Record<string, RouteDef<any, any>>>(routes: T): T {
+	return routes;
+}
 
-export const _routes = {
+export const _routes = defineRoutes({
 	"/create-account": {
 		auth_required: false,
 		admin_only: false,
@@ -55,7 +63,7 @@ export const _routes = {
 	},
 	"/create-friend-request": {
 		auth_required: true,
-		admin_only: false,
+		admin_only: true,
 		input_schema: T.CreateFriendRequestInputZod,
 		output_schema: T.CreateFriendRequestOutputZod,
 		check: (verified_user_id: string, data: T.CreateFriendRequestInput) => {
@@ -68,6 +76,9 @@ export const _routes = {
 		admin_only: false,
 		input_schema: T.AcceptFriendRequestInputZod,
 		output_schema: T.AcceptFriendRequestOutputZod,
+		check: (verified_user_id: string, data: T.AcceptFriendRequestInput) => {
+			return data.accepter_id === verified_user_id;
+		},
 		handler: RH.acceptFriendRequest,
 	},
 	"/is-friend-request-accepted": {
@@ -75,6 +86,9 @@ export const _routes = {
 		admin_only: false,
 		input_schema: T.IsFriendRequestAcceptedInputZod,
 		output_schema: T.IsFriendRequestAcceptedOutputZod,
+		check: (verified_user_id: string, data: T.IsFriendRequestAcceptedInput) => {
+			return data.accepter_id === verified_user_id || data.sender_id === verified_user_id;
+		},
 		handler: RH.isFriendRequestAccepted,
 	},
 	"/send-pings": {
@@ -82,6 +96,9 @@ export const _routes = {
 		admin_only: false,
 		input_schema: T.SendPingsInputZod,
 		output_schema: T.SendPingsOutputZod,
+		check: (verified_user_id: string, data: T.SendPingsInput) => {
+			return data.every(p => p.sender_id === verified_user_id);
+		},
 		handler: RH.sendPings,
 	},
 	"/get-pings": {
@@ -89,9 +106,12 @@ export const _routes = {
 		admin_only: false,
 		input_schema: T.GetPingsInputZod,
 		output_schema: T.GetPingsOutputZod,
+		check: (verified_user_id: string, data: T.GetPingsInput) => {
+			return data.receiver_id === verified_user_id;
+		},
 		handler: RH.getPings,
 	},
-};
+});
 
 export const routes = _routes as {
 	[K in keyof typeof _routes]: RouteDef<

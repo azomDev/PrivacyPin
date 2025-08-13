@@ -115,3 +115,13 @@ export const GetPingsResponseZod = z.object({
 	pings: z.array(z.string()),
 });
 export type GetPingsResponse = z.infer<typeof GetPingsResponseZod>;
+
+
+// auth data
+
+export const ASDF = z.object({
+	auth: z.optional(z.object({
+		user_id: z.string(),
+	})),
+	data: z.unknown()
+});

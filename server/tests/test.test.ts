@@ -76,7 +76,7 @@ describe("API tests", () => {
 
 		const res6 = await fetch(`${URL}/get-pings`, {
 			method: "POST",
-			body: JSON.stringify({ data: { sender_id: admin_id, receiver_id: user_id }, auth: { user_id: admin_id } }),
+			body: JSON.stringify({ data: { sender_id: admin_id, receiver_id: user_id }, auth: { user_id } }),
 		});
 		expect(res6.status).toBe(200);
 		expect((await res6.json()).pings).toEqual(["this is definitely encrypted trust #2", "this is definitely encrypted trust #1"]);

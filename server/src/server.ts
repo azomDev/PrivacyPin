@@ -25,7 +25,7 @@ Bun.serve({
 	},
 });
 
-type RouteDef<I extends z.ZodTypeAny, O extends z.ZodTypeAny> = {
+export type RouteDef<I extends z.ZodType, O extends z.ZodType> = {
 	request_schema: I;
 	response_schema: O;
 	handler: (body: z.infer<I>, verified_user_id?: string) => z.infer<O>;
@@ -113,26 +113,17 @@ export const _routes = defineRoutes({
 	},
 });
 
-export const routes = _routes as {
+export const routes = _routes satisfies {
 	[K in keyof typeof _routes]: RouteDef<
 		typeof _routes[K]["request_schema"],
 		typeof _routes[K]["response_schema"]
 	>;
 };
 
-export type RoutesMap = typeof routes;
 
-
-async function verifyAuth<I extends z.ZodTypeAny, O extends z.ZodTypeAny>(body: unknown, route: RouteDef<I, O>) {
-	const asdf = z.object({
-		auth: z.optional(z.object({
-			user_id: z.string(),
-		})),
-		data: z.unknown()
-	});
-
+async function verifyAuth<I extends z.ZodType, O extends z.ZodType>(body: unknown, route: RouteDef<I, O>) {
 	// parse/extract the auth and data
-	const parsed = asdf.parse(body);
+	const parsed = T.ASDF.parse(body);
 	const auth = parsed.auth;
 	const data = route.request_schema.parse(parsed.data);
 

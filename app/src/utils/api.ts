@@ -1,7 +1,8 @@
 import { Store } from "./store";
 import type { Base64String, GlobalSignData as SignData } from "@privacypin/shared";
-
+import { routes, RouteDef } from "../../../server/src/server"; // TODO: We should not import things from the server files
 import { fetch } from "@tauri-apps/plugin-http"; // todo is this needed for mobile?
+import z from "zod";
 
 Uint8Array.prototype.toBase64 = function () {
 	let binary = '';
@@ -14,21 +15,32 @@ Uint8Array.prototype.toBase64 = function () {
 	return btoa(binary);
 };
 
-export async function apiRequest<K extends keyof APIRoutes>(endpoint: K, body: APIRoutes[K]["input"]): Promise<APIRoutes[K]["output"]> {
+export async function apiRequest<E extends keyof typeof routes>(
+	endpoint: E,
+	body: z.infer<(typeof routes)[E]["request_schema"]>
+): Promise<z.infer<(typeof routes)[E]["response_schema"]>> {
 	try {
-		const data_string = JSON.stringify(body);
+		const data = JSON.stringify(body);
 
-		let headers: HeadersInit | undefined;
-		if (APIRoutesRuntime[endpoint].auth) {
-			headers = await getChallengeHeader(data_string);
+		let auth: string | undefined;
+
+		if (routes[endpoint].auth_required) {
+			const user_id = await Store.get("user_id");
+			auth = JSON.stringify({ user_id });
 		}
 
 		const server_url = await Store.get("server_url");
 
+		let body2;
+		if (auth === undefined) {
+			body2 = { data };
+		} else {
+			body2 = { auth, data };
+		}
+
 		const response = await fetch(server_url + endpoint, {
 			method: "POST",
-			body: data_string,
-			headers,
+			body: JSON.stringify(body2),
 		});
 
 		if (!response.ok) {
@@ -39,28 +51,4 @@ export async function apiRequest<K extends keyof APIRoutes>(endpoint: K, body: A
 		alert(`${err}`);
 		throw err;
 	}
-}
-
-async function getChallengeHeader(data: string): Promise<HeadersInit> {
-	const user_id = await Store.get("user_id");
-	const timestamp = Date.now().toString();
-
-	const nonce = new Uint8Array(32);
-	crypto.getRandomValues(nonce);
-	const nonce_string: Base64String = nonce.toBase64();
-	const private_key = await Store.get("private_key");
-	const imported_private_key = await crypto.subtle.importKey("jwk", private_key!, "Ed25519", false, ["sign"]);
-
-	const buffer_to_sign = getBufferForSignature(data, nonce_string, timestamp, user_id!);
-	const signature = await crypto.subtle.sign("Ed25519", imported_private_key, buffer_to_sign);
-	const signature_string: Base64String = new Uint8Array(signature).toBase64();
-
-	const sign_data: SignData = {
-		user_id: user_id!,
-		nonce: nonce_string,
-		signature: signature_string,
-		timestamp: timestamp,
-	};
-
-	return { "sign-data": JSON.stringify(sign_data) }; // todo x-sign-data?
 }

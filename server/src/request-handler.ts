@@ -1,12 +1,12 @@
 import { randomUUIDv7 } from "bun";
 import * as db from "./database";
-import type { GlobalFriendRequest as FriendRequest, ServerPing, ServerUser } from "@privacypin/shared";
+import type { CreateAccountRequest, GlobalFriendRequest as FriendRequest, ServerPing, ServerUser } from "@privacypin/shared";
 import { CONFIG } from "./config";
 import { CyclicExpiryQueue } from "./cyclic-expiry-queue";
 import { Err, friend_request_queue, genID, signup_key_queue } from "./utils";
 
-export function createAccount(body: { signup_key: string }): { user_id: string; is_admin: boolean } {
-	if (!signup_key_queue.consume(body.signup_key)) {
+export function createAccount(req: CreateAccountRequest): { user_id: string; is_admin: boolean } {
+	if (!signup_key_queue.consume(req.signup_key)) {
 		throw new Err("Invalid signup key", true);
 	}
 	const user_id = genID();
@@ -16,7 +16,7 @@ export function createAccount(body: { signup_key: string }): { user_id: string; 
 		Bun.file(CONFIG.ADMIN_ID_PATH).write(user_id);
 		is_admin = true;
 	}
-	const user: ServerUser = { user_id };
+	const user: ServerUser = { user_id, pkey: req.pkey };
 	db.createUser(user);
 	return { user_id, is_admin };
 }

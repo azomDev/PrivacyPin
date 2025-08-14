@@ -4,6 +4,7 @@ import { getLocalIp } from "./dev.ts";
 import { Err, initServer, isAdmin } from "./utils.ts";
 import z from "zod";
 import * as T from "@privacypin/shared";
+import * as db from "./database.ts";
 
 await initServer();
 console.log(`Server running at http://${getLocalIp()}:${CONFIG.PORT}`);
@@ -121,16 +122,30 @@ export const routes = _routes satisfies {
 };
 
 
-async function verifyAuth<I extends z.ZodType, O extends z.ZodType>(body: unknown, route: RouteDef<I, O>) {
+async function verifyAuth<I extends z.ZodType, O extends z.ZodType>(body: unknown, route: RouteDef<I, O>): Promise<z.infer<I>> {
 	// parse/extract the auth and data
 	const parsed = T.ASDF.parse(body);
 	const auth = parsed.auth;
-	const data = route.request_schema.parse(parsed.data);
+	const aaa = parsed.data === undefined ? undefined : JSON.parse(parsed.data);
+	const data = route.request_schema.parse(aaa);
 
 	// AUTH
 
-	if (!route.auth_required) return;
+
+	if (!route.auth_required) return data;
 	if (auth === undefined) throw new Err("Unauthorized", true);
+
+	const pkey = db.getPubKey(auth.user_id);
+	if (pkey === null) throw new Err("No public key found");
+
+	const buffer_to_sign = (parsed.data === undefined ? "" : parsed.data) + auth.user_id;
+
+	const encoder = new TextEncoder();
+
+	const bbb = await crypto.subtle.importKey("jwk", pkey, "Ed25519", false, [ "verify" ]);
+	const auth_accepted = await crypto.subtle.verify({ "name": "Ed25519" }, bbb, Buffer.from(auth.signature, "base64"), Buffer.from(buffer_to_sign));
+	if (!auth_accepted) throw new Err("Bad auth");
+	db.updatePubKey(auth.user_id, auth.next_pkey);
 
 	if (route.admin_only) {
 		const is_admin = await isAdmin(auth.user_id);
@@ -141,6 +156,7 @@ async function verifyAuth<I extends z.ZodType, O extends z.ZodType>(body: unknow
 		const check_suceeded = route.check(auth.user_id, data);
 		if (!check_suceeded) throw new Err("Failed check", true);
 	}
+	return data;
 }
 
 
@@ -157,21 +173,23 @@ async function idkyet(req: Request) {
 	console.log("\n" + megaBorder);
 	console.log(`${emoji}  Request: ${url.pathname}`);
 	console.log("─".repeat(boxWidth));
+	console.log("📥 Input:");
+
 
 	// @ts-expect-error
 	const route = routes[url.pathname];
 	if (route === undefined) throw new Err("Not found", true);
 
 	const body = await req.json();
-	const verified_user_id = await verifyAuth(body, route);
 
-	const res = await route.handler(body.data);
-
-
-
-	console.log("─".repeat(boxWidth));
-	console.log("📥 Input:");
 	console.log(JSON.stringify(body, null, 2));
+	console.log("─".repeat(boxWidth));
+	console.log("⚙️ Processing:");
+
+	const data = await verifyAuth(body, route);
+
+	const res = await route.handler(data);
+
 	console.log("─".repeat(boxWidth));
 	console.log("📤 Output:");
 	console.log(JSON.stringify(res, null, 2));

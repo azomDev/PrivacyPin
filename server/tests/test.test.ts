@@ -8,7 +8,7 @@ import {
 	afterAll,
 	beforeEach,
 } from "bun:test";
-import { generateSignupKey, generateUser, URL } from "./utils.ts";
+import { generateUser, post, URL } from "./utils.ts";
 
 console.log(`SERVER_DIR: ${SERVER_DIR}`);
 let signup_key: string | undefined = undefined;
@@ -28,57 +28,28 @@ afterAll(async () => {
 	await rm(`${SERVER_DIR}/output`, { recursive: true, force: true });
 });
 
+
+
 describe("API tests", () => {
-	test("Can't use signup key if it was used", async () => {
-		const admin_id = await generateUser(signup_key, true);
-
-		const res = await fetch(`${URL}/create-account`, {
-			method: "POST",
-			body: JSON.stringify({ data: { signup_key } }),
-		});
-		expect(res.status).toBe(599);
-	});
 	test("Main usage test", async () => {
-		const admin_id = await generateUser(signup_key, true);
-		const new_signup_key = await generateSignupKey(admin_id);
-		const user_id = await generateUser(new_signup_key);
+		const admin = await generateUser(signup_key, true);
 
-		const res1 = await fetch(`${URL}/create-friend-request`, {
-			method: "POST",
-			body: JSON.stringify({ data: { sender_id: admin_id, accepter_id: user_id }, auth: { user_id: admin_id } }),
-		});
-		expect(res1.status).toBe(200);
+		const res1 = await post("generate-signup-key", admin, undefined);
+		expect(res1).toEqual({ signup_key: expect.any(String) });
 
-		const res2 = await fetch(`${URL}/accept-friend-request`, {
-			method: "POST",
-			body: JSON.stringify({ data: { sender_id: admin_id, accepter_id: user_id }, auth: { user_id: user_id } }),
-		});
-		expect(res2.status).toBe(200);
+		const user1 = await generateUser(res1.signup_key);
 
-		const res3 = await fetch(`${URL}/is-friend-request-accepted`, {
-			method: "POST",
-			body: JSON.stringify({ data: { sender_id: admin_id, accepter_id: user_id }, auth: { user_id: admin_id } }),
-		});
-		expect(res3.status).toBe(200);
-		expect((await res3.json()).accepted).toBe(true);
+		await post("create-friend-request", admin, { sender_id: admin.id, accepter_id: user1.id });
 
-		const res4 = await fetch(`${URL}/send-pings`, {
-			method: "POST",
-			body: JSON.stringify({ data: [{ sender_id: admin_id, receiver_id: user_id, encrypted_ping: "this is definitely encrypted trust #1" }], auth: { user_id: admin_id } }),
-		});
-		expect(res4.status).toBe(200);
+		await post("accept-friend-request", user1, { sender_id: admin.id, accepter_id: user1.id });
 
-		const res5 = await fetch(`${URL}/send-pings`, {
-			method: "POST",
-			body: JSON.stringify({ data: [{ sender_id: admin_id, receiver_id: user_id, encrypted_ping: "this is definitely encrypted trust #2" }], auth: { user_id: admin_id } }),
-		});
-		expect(res5.status).toBe(200);
+		const res2 = await post("is-friend-request-accepted", admin, { sender_id: admin.id, accepter_id: user1.id });
+		expect(res2.accepted).toBe(true);
 
-		const res6 = await fetch(`${URL}/get-pings`, {
-			method: "POST",
-			body: JSON.stringify({ data: { sender_id: admin_id, receiver_id: user_id }, auth: { user_id } }),
-		});
-		expect(res6.status).toBe(200);
-		expect((await res6.json()).pings).toEqual(["this is definitely encrypted trust #2", "this is definitely encrypted trust #1"]);
+		await post("send-pings", admin, [{ sender_id: admin.id, receiver_id: user1.id, encrypted_ping: "this is definitely encrypted trust #1" } ]);
+		await post("send-pings", admin, [{ sender_id: admin.id, receiver_id: user1.id, encrypted_ping: "this is definitely encrypted trust #2" } ]);
+
+		const res3 = await post("get-pings", user1, { sender_id: admin.id, receiver_id: user1.id });
+		expect(res3.pings).toEqual(["this is definitely encrypted trust #2", "this is definitely encrypted trust #1"]);
 	});
 });

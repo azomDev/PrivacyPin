@@ -35,7 +35,8 @@ function initializeDatabase() {
 
 	db.run(`
 		CREATE TABLE IF NOT EXISTS users (
-			user_id TEXT UNIQUE
+			user_id TEXT UNIQUE,
+			pkey TEXT
 		)
 	`);
 }
@@ -64,8 +65,24 @@ export function linkExists(user_id_1: string, user_id_2: string): boolean {
 export function createUser(user: ServerUser) {
 	// prettier-ignore
 	db.prepare(`
-		INSERT INTO users (user_id) VALUES (?)
-	`).run(user.user_id);
+		INSERT INTO users (user_id, pkey) VALUES (?, ?)
+	`).run(user.user_id, JSON.stringify(user.pkey));
+}
+
+export function getPubKey(user_id: string): JsonWebKey | null {
+	const res = db.prepare(`
+		SELECT pkey FROM users WHERE user_id = ?
+	`).get(user_id) as { pkey: string } | null;
+
+	if (res === null) return null;
+	return JSON.parse(res.pkey);
+}
+
+// Update a user's public key
+export function updatePubKey(user_id: string, pkey: JsonWebKey) {
+	db.prepare(`
+		UPDATE users SET pkey = ? WHERE user_id = ?
+	`).run(JSON.stringify(pkey), user_id);
 }
 
 export function addPings(pings: ServerPing[]) {

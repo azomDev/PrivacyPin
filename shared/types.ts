@@ -8,9 +8,17 @@ export type IDKYET<T> = {
 	data: string, // JSON stringified
 }
 
+const JsonWebKeyZod = z.object({
+	crv: z.literal("Ed25519"),
+	ext: z.boolean(),
+	key_ops: z.array(z.literal("verify")),
+	kty: z.literal("OKP"),
+	x: z.string(),
+})
+
 export type ServerUser = {
 	user_id: string;
-	// at some point add pub key
+	pkey: JsonWebKey;
 };
 
 // export type ServerPing = {
@@ -43,6 +51,7 @@ export type Base64String = string;
 // ---------- createAccount ----------
 export const CreateAccountRequestZod = z.object({
 	signup_key: z.string(),
+	pkey: JsonWebKeyZod,
 });
 export type CreateAccountRequest = z.infer<typeof CreateAccountRequestZod>;
 
@@ -122,6 +131,8 @@ export type GetPingsResponse = z.infer<typeof GetPingsResponseZod>;
 export const ASDF = z.object({
 	auth: z.optional(z.object({
 		user_id: z.string(),
+		signature: z.base64(),
+		next_pkey: JsonWebKeyZod
 	})),
-	data: z.unknown()
+	data: z.optional(z.string())
 });

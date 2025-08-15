@@ -19,7 +19,9 @@ Bun.serve({
 			if (e.log_server) {
 				console.error(e);
 			}
-			return new Response(JSON.stringify({ message: e.message, code: e.error_code }), { status: 599 });
+			return new Response(JSON.stringify({ message: e.message, code: e.error_code }), {
+				status: 599,
+			});
 		} else {
 			throw e; // if this throws, there's an unhandled error
 		}
@@ -32,15 +34,15 @@ export type RouteDef<I extends z.ZodType, O extends z.ZodType> = {
 	handler: (body: z.infer<I>, verified_user_id?: string) => z.infer<O>;
 } & (
 	| {
-		auth_required: true;
-		admin_only: boolean;
-		check?: (verified_user_id: string, data: z.infer<I>) => boolean;
-	}
+			auth_required: true;
+			admin_only: boolean;
+			check?: (verified_user_id: string, data: z.infer<I>) => boolean;
+	  }
 	| {
-		auth_required: false;
-		admin_only: false;
-		check?: never;
-	}
+			auth_required: false;
+			admin_only: false;
+			check?: never;
+	  }
 );
 
 function defineRoutes<T extends Record<string, RouteDef<any, any>>>(routes: T): T {
@@ -98,7 +100,7 @@ export const _routes = defineRoutes({
 		request_schema: T.SendPingsRequestZod,
 		response_schema: T.SendPingsResponseZod,
 		check: (verified_user_id: string, data: T.SendPingsRequest) => {
-			return data.every(p => p.sender_id === verified_user_id);
+			return data.every((p) => p.sender_id === verified_user_id);
 		},
 		handler: RH.sendPings,
 	},
@@ -116,13 +118,15 @@ export const _routes = defineRoutes({
 
 export const routes = _routes satisfies {
 	[K in keyof typeof _routes]: RouteDef<
-		typeof _routes[K]["request_schema"],
-		typeof _routes[K]["response_schema"]
+		(typeof _routes)[K]["request_schema"],
+		(typeof _routes)[K]["response_schema"]
 	>;
 };
 
-
-async function verifyAuth<I extends z.ZodType, O extends z.ZodType>(body: unknown, route: RouteDef<I, O>): Promise<z.infer<I>> {
+async function verifyAuth<I extends z.ZodType, O extends z.ZodType>(
+	body: unknown,
+	route: RouteDef<I, O>,
+): Promise<z.infer<I>> {
 	// parse/extract the auth and data
 	const parsed = T.ASDF.parse(body);
 	const auth = parsed.auth;
@@ -130,7 +134,6 @@ async function verifyAuth<I extends z.ZodType, O extends z.ZodType>(body: unknow
 	const data = route.request_schema.parse(aaa);
 
 	// AUTH
-
 
 	if (!route.auth_required) return data;
 	if (auth === undefined) throw new Err("Unauthorized", true);
@@ -142,8 +145,13 @@ async function verifyAuth<I extends z.ZodType, O extends z.ZodType>(body: unknow
 
 	const encoder = new TextEncoder();
 
-	const bbb = await crypto.subtle.importKey("jwk", pkey, "Ed25519", false, [ "verify" ]);
-	const auth_accepted = await crypto.subtle.verify({ "name": "Ed25519" }, bbb, Buffer.from(auth.signature, "base64"), Buffer.from(buffer_to_sign));
+	const bbb = await crypto.subtle.importKey("jwk", pkey, "Ed25519", false, ["verify"]);
+	const auth_accepted = await crypto.subtle.verify(
+		{ name: "Ed25519" },
+		bbb,
+		Buffer.from(auth.signature, "base64"),
+		Buffer.from(buffer_to_sign),
+	);
 	if (!auth_accepted) throw new Err("Bad auth");
 	db.updatePubKey(auth.user_id, auth.next_pkey);
 
@@ -159,7 +167,6 @@ async function verifyAuth<I extends z.ZodType, O extends z.ZodType>(body: unknow
 	return data;
 }
 
-
 async function idkyet(req: Request) {
 	// Pretty one-box log
 	const emoji = "📦";
@@ -174,7 +181,6 @@ async function idkyet(req: Request) {
 	console.log(`${emoji}  Request: ${url.pathname}`);
 	console.log("─".repeat(boxWidth));
 	console.log("📥 Input:");
-
 
 	// @ts-expect-error
 	const route = routes[url.pathname];

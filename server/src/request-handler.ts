@@ -1,6 +1,11 @@
 import { randomUUIDv7 } from "bun";
 import * as db from "./database";
-import type { CreateAccountRequest, GlobalFriendRequest as FriendRequest, ServerPing, ServerUser } from "@privacypin/shared";
+import type {
+	CreateAccountRequest,
+	GlobalFriendRequest as FriendRequest,
+	ServerPing,
+	ServerUser,
+} from "@privacypin/shared";
 import { CONFIG } from "./config";
 import { CyclicExpiryQueue } from "./cyclic-expiry-queue";
 import { Err, friend_request_queue, genID, signup_key_queue } from "./utils";
@@ -32,7 +37,7 @@ export function createFriendRequest(friend_request: FriendRequest) {
 	const { sender_id, accepter_id } = friend_request;
 
 	if (sender_id === accepter_id) {
-		throw new Err("You can't send a friend request to yourself")
+		throw new Err("You can't send a friend request to yourself");
 	}
 
 	if (db.linkExists(sender_id, accepter_id)) {
@@ -57,7 +62,7 @@ export function sendPings(pings: ServerPing[]) {
 	db.addPings(pings);
 }
 
-export function getPings(data: { sender_id: string, receiver_id: string }): { pings: string[] } {
+export function getPings(data: { sender_id: string; receiver_id: string }): { pings: string[] } {
 	let { sender_id, receiver_id } = data;
 	if (!db.linkExists(sender_id, receiver_id)) {
 		throw new Err("No link found", true);

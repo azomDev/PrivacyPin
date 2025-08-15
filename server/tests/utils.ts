@@ -3,11 +3,14 @@ import { expect } from "bun:test";
 export const URL = "http://localhost:8080";
 
 export type User = {
-	id: string,
-	skey: CryptoKey
-}
+	id: string;
+	skey: CryptoKey;
+};
 
-export async function generateUser(signup_key: string | undefined, should_be_admin: boolean = false): Promise<User> {
+export async function generateUser(
+	signup_key: string | undefined,
+	should_be_admin: boolean = false,
+): Promise<User> {
 	if (signup_key === undefined) {
 		throw new Error("signup_key was not provided or captured from server output");
 	}
@@ -16,7 +19,10 @@ export async function generateUser(signup_key: string | undefined, should_be_adm
 	const bbb = aaa.publicKey;
 	const ccc = await crypto.subtle.exportKey("jwk", bbb);
 
-	const res = await fetch(`${URL}/create-account`, { method: "POST", body: JSON.stringify({ data: JSON.stringify({ signup_key, pkey: ccc }) }) });
+	const res = await fetch(`${URL}/create-account`, {
+		method: "POST",
+		body: JSON.stringify({ data: JSON.stringify({ signup_key, pkey: ccc }) }),
+	});
 	const json = await res.json();
 	expect(res.status).toBe(200);
 	expect(json).toEqual({
@@ -24,7 +30,7 @@ export async function generateUser(signup_key: string | undefined, should_be_adm
 		is_admin: should_be_admin,
 	});
 
-	return {id: json.user_id, skey: aaa.privateKey};
+	return { id: json.user_id, skey: aaa.privateKey };
 }
 
 export async function post(endpoint: string, user: User, data: Object | undefined): Promise<any> {
@@ -38,7 +44,11 @@ export async function post(endpoint: string, user: User, data: Object | undefine
 
 	const ddd = await crypto.subtle.sign("Ed25519", user.skey, Buffer.from(buffer_to_sign));
 
-	const auth = { user_id: user.id, signature: Buffer.from(ddd).toString("base64"), next_pkey: ccc }
+	const auth = {
+		user_id: user.id,
+		signature: Buffer.from(ddd).toString("base64"),
+		next_pkey: ccc,
+	};
 
 	const raw_body = data === undefined ? { auth } : { data: JSON.stringify(data), auth };
 

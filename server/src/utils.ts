@@ -29,7 +29,6 @@ export function genID(): string {
 export const signup_key_queue = new CyclicExpiryQueue<string>(24 * 60 * 60 * 1000); // 1 day
 export const friend_request_queue = new CyclicExpiryQueue<FriendRequest>(24 * 60 * 60 * 1000); // 1 day
 
-
 export async function initServer() {
 	const admin_file = Bun.file(CONFIG.ADMIN_ID_PATH);
 	if (await admin_file.exists()) return; // No need to init the server

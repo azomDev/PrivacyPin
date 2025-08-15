@@ -1,4 +1,4 @@
-const OUTPUT_DIR = `${import.meta.dir}/../output`
+const OUTPUT_DIR = `${import.meta.dir}/../output`;
 export const CONFIG = {
 	PORT: 8080,
 	DATABASE_PATH: `${OUTPUT_DIR}/database.sqlite`,

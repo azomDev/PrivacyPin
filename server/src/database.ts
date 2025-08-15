@@ -42,7 +42,6 @@ function initializeDatabase() {
 }
 
 export function noUsers(): boolean {
-	// prettier-ignore
 	const result = db.prepare(`
 		SELECT EXISTS (SELECT 1 FROM users) AS user_exists
 	`).get() as { user_exists: number };
@@ -51,7 +50,6 @@ export function noUsers(): boolean {
 }
 
 export function linkExists(user_id_1: string, user_id_2: string): boolean {
-	// prettier-ignore
 	const result = db.prepare(`
 		SELECT * FROM links
 		WHERE
@@ -63,7 +61,6 @@ export function linkExists(user_id_1: string, user_id_2: string): boolean {
 }
 
 export function createUser(user: ServerUser) {
-	// prettier-ignore
 	db.prepare(`
 		INSERT INTO users (user_id, pkey) VALUES (?, ?)
 	`).run(user.user_id, JSON.stringify(user.pkey));
@@ -117,10 +114,22 @@ export function addPings(pings: ServerPing[]) {
 
 	db.transaction(() => {
 		for (const ping of pings) {
-			const { recency_index } = get_recency_index_query.get({sender_id: ping.sender_id, receiver_id: ping.receiver_id}) as { recency_index: number };
-			const new_index = recency_index + 1 % PING_BUFFER_SIZE;
-			update_recency_index_query.run({ sender_id: ping.sender_id, receiver_id: ping.receiver_id, new_index });
-			ping_insert_query.run(ping.sender_id, ping.receiver_id, ping.encrypted_ping, recency_index);
+			const { recency_index } = get_recency_index_query.get({
+				sender_id: ping.sender_id,
+				receiver_id: ping.receiver_id,
+			}) as { recency_index: number };
+			const new_index = recency_index + (1 % PING_BUFFER_SIZE);
+			update_recency_index_query.run({
+				sender_id: ping.sender_id,
+				receiver_id: ping.receiver_id,
+				new_index,
+			});
+			ping_insert_query.run(
+				ping.sender_id,
+				ping.receiver_id,
+				ping.encrypted_ping,
+				recency_index,
+			);
 		}
 	})();
 }
@@ -138,7 +147,10 @@ export function getPings(sender_id: string, receiver_id: string): string[] | nul
 			OR (user_id_1 = $receiver_id AND user_id_2 = $sender_id)
 	`);
 
-	const { recency_index } = get_recency_index_query.get({ sender_id, receiver_id }) as { recency_index: number };
+	const { recency_index } = get_recency_index_query.get({
+		sender_id,
+		receiver_id,
+	}) as { recency_index: number };
 
 	const pings_res = db.prepare(`
 		SELECT encrypted_ping, recency_index
@@ -169,7 +181,6 @@ export function getPings(sender_id: string, receiver_id: string): string[] | nul
 }
 
 export function createLink(user_id_1: string, user_id_2: string) {
-	// prettier-ignore
 	db.prepare(`
 		INSERT INTO links (user_id_1, user_id_2)
 		VALUES (

@@ -37,7 +37,7 @@ export async function startOrRestartServer(): Promise<string | undefined> {
 	}
 
 	// Background logger. This runs until the server is stopped.
-	;(async () => {
+	(async () => {
 		while (true) {
 			const { value, done } = await log_reader.read();
 			if (done) break;
@@ -47,7 +47,6 @@ export async function startOrRestartServer(): Promise<string | undefined> {
 
 	return signupKey;
 }
-
 
 export function stopServer() {
 	if (server !== null) {

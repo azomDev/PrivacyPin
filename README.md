@@ -4,7 +4,7 @@ PrivacyPin is (going to be) a secure self-hosted location sharing app designed t
 
 
 > [!IMPORTANT]
-> I’m in the process of rapidly iterating to establish a base on which testing can begin. The current stack is NOT the final one.
+> I’m in the process of rapidly iterating to establish a base on which testing can begin. The current tech stack is NOT the final one.
 >
 > If you’re interested in contributing to this exciting project, I’d love to hear from you! My primary challenge lies in native mobile development, but any assistance is greatly appreciated!
 

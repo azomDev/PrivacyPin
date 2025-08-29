@@ -15,7 +15,7 @@ PrivacyPin is (going to be) a secure self-hosted location sharing app designed t
 -   **Self-Hostable Server**: The server is self-hostable, ensuring that users do not rely on big tech companies to access their location data.
 -   **Federated Architecture**: Servers can interoperate, allowing people on different servers to share locations with each other.
 -   **Robust Security**: Implements strong encryption and security measures to ensure data integrity and protection against potential threats, making security a core focus of the project.
-TODO FEDERATED
+
 ## Usage
 
 PrivacyPin is still in early development, and the usage instructions will be provided once the app reaches a stable version. Stay tuned for updates!

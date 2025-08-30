@@ -16,7 +16,7 @@ function initializeDatabase() {
 		CREATE TABLE IF NOT EXISTS positions (
 			sender_id TEXT,
 			receiver_id TEXT,
-			encrypted_ping TEXT,
+			encrypted_ping TEXT, --not encrypted yet
 			recency_index INTEGER,
 			UNIQUE(sender_id, receiver_id, recency_index)
 		)
@@ -35,8 +35,7 @@ function initializeDatabase() {
 
 	db.run(`
 		CREATE TABLE IF NOT EXISTS users (
-			user_id TEXT UNIQUE,
-			pkey TEXT
+			user_id TEXT UNIQUE
 		)
 	`);
 }
@@ -60,26 +59,10 @@ export function linkExists(user_id_1: string, user_id_2: string): boolean {
 	return result !== null;
 }
 
-export function createUser(user: ServerUser) {
+export function createUser(user_id: string) {
 	db.prepare(`
-		INSERT INTO users (user_id, pkey) VALUES (?, ?)
-	`).run(user.user_id, JSON.stringify(user.pkey));
-}
-
-export function getPubKey(user_id: string): JsonWebKey | null {
-	const res = db.prepare(`
-		SELECT pkey FROM users WHERE user_id = ?
-	`).get(user_id) as { pkey: string } | null;
-
-	if (res === null) return null;
-	return JSON.parse(res.pkey);
-}
-
-// Update a user's public key
-export function updatePubKey(user_id: string, pkey: JsonWebKey) {
-	db.prepare(`
-		UPDATE users SET pkey = ? WHERE user_id = ?
-	`).run(JSON.stringify(pkey), user_id);
+		INSERT INTO users (user_id) VALUES (?)
+	`).run(user_id);
 }
 
 export function addPings(pings: ServerPing[]) {

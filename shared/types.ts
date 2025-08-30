@@ -2,11 +2,11 @@ import z, { ZodType } from "zod";
 
 export type IDKYET<T> = {
 	auth: {
-		user_id: string,
+		user_id: string;
 		// more will be added later with actual signature auth
-	},
-	data: string, // JSON stringified
-}
+	};
+	data: string; // JSON stringified
+};
 
 const JsonWebKeyZod = z.object({
 	crv: z.literal("Ed25519"),
@@ -14,7 +14,7 @@ const JsonWebKeyZod = z.object({
 	key_ops: z.array(z.literal("verify")),
 	kty: z.literal("OKP"),
 	x: z.string(),
-})
+});
 
 export type ServerUser = {
 	user_id: string;
@@ -125,14 +125,15 @@ export const GetPingsResponseZod = z.object({
 });
 export type GetPingsResponse = z.infer<typeof GetPingsResponseZod>;
 
-
 // auth data
 
 export const ASDF = z.object({
-	auth: z.optional(z.object({
-		user_id: z.string(),
-		signature: z.base64(),
-		next_pkey: JsonWebKeyZod
-	})),
-	data: z.optional(z.string())
+	auth: z.optional(
+		z.object({
+			user_id: z.string(),
+			signature: z.base64(),
+			next_pkey: JsonWebKeyZod,
+		}),
+	),
+	data: z.optional(z.string()),
 });

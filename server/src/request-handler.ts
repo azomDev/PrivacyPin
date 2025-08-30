@@ -56,6 +56,14 @@ export function acceptFriendRequest(friend_request: { sender_id: string; accepte
 	db.createLink(sender_id, accepter_id);
 }
 
+export function isFriendRequestAccepted(friend_request: {
+	sender_id: string;
+	accepter_id: string;
+}): { accepted: boolean } {
+	const accepted = db.linkExists(friend_request.sender_id, friend_request.accepter_id);
+	return { accepted };
+}
+
 export function sendPings(
 	pings: {
 		sender_id: string;
@@ -78,12 +86,4 @@ export function getPings(data: { sender_id: string; receiver_id: string }): { pi
 		throw new Err("No pings found");
 	}
 	return { pings };
-}
-
-export function isFriendRequestAccepted(friend_request: {
-	sender_id: string;
-	accepter_id: string;
-}): { accepted: boolean } {
-	const accepted = db.linkExists(friend_request.sender_id, friend_request.accepter_id);
-	return { accepted };
 }

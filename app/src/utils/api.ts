@@ -1,11 +1,10 @@
 import { Store } from "./store";
 import type { Base64String, GlobalSignData as SignData } from "@privacypin/shared";
-import { routes, RouteDef } from "../../../server/src/server"; // TODO: We should not import things from the server files
 import { fetch } from "@tauri-apps/plugin-http"; // todo is this needed for mobile?
 import z from "zod";
 
 Uint8Array.prototype.toBase64 = function () {
-	let binary = '';
+	let binary = "";
 	for (let i = 0; i < this.length; i++) {
 		const byte = this[i];
 		if (byte !== undefined) {
@@ -15,32 +14,179 @@ Uint8Array.prototype.toBase64 = function () {
 	return btoa(binary);
 };
 
-export async function apiRequest<E extends keyof typeof routes>(
-	endpoint: E,
-	body: z.infer<(typeof routes)[E]["request_schema"]>
-): Promise<z.infer<(typeof routes)[E]["response_schema"]>> {
+export async function createAccount(data: {
+	signup_key: string;
+}): Promise<{ user_id: string; is_admin: boolean }> {
 	try {
-		const data = JSON.stringify(body);
-
-		let auth: string | undefined;
-
-		if (routes[endpoint].auth_required) {
-			const user_id = await Store.get("user_id");
-			auth = JSON.stringify({ user_id });
-		}
-
 		const server_url = await Store.get("server_url");
+		let body = {
+			data: JSON.stringify(data),
+		};
 
-		let body2;
-		if (auth === undefined) {
-			body2 = { data };
-		} else {
-			body2 = { auth, data };
-		}
-
-		const response = await fetch(server_url + endpoint, {
+		const response = await fetch(server_url + "/create-account", {
 			method: "POST",
-			body: JSON.stringify(body2),
+			body: JSON.stringify(body),
+		});
+
+		if (!response.ok) {
+			throw new Error(`${await response.text()}`);
+		}
+		return await response.json();
+	} catch (err) {
+		alert(`${err}`);
+		throw err;
+	}
+}
+
+export async function generateSignupKey(): Promise<{ signup_key: string }> {
+	try {
+		const server_url = await Store.get("server_url");
+		const user_id = await Store.get("user_id");
+		let body = {
+			auth: { user_id },
+		};
+
+		const response = await fetch(server_url + "/generate-signup-key", {
+			method: "POST",
+			body: JSON.stringify(body),
+		});
+
+		if (!response.ok) {
+			throw new Error(`${await response.text()}`);
+		}
+		return await response.json();
+	} catch (err) {
+		alert(`${err}`);
+		throw err;
+	}
+}
+
+export async function createFriendRequest(data: {
+	sender_id: string;
+	accepter_id: string;
+}): Promise<any> {
+	try {
+		const server_url = await Store.get("server_url");
+		const user_id = await Store.get("user_id");
+		let body = {
+			data: JSON.stringify(data),
+			auth: { user_id },
+		};
+
+		const response = await fetch(server_url + "/create-friend-request", {
+			method: "POST",
+			body: JSON.stringify(body),
+		});
+
+		if (!response.ok) {
+			throw new Error(`${await response.text()}`);
+		}
+		return await response.json();
+	} catch (err) {
+		alert(`${err}`);
+		throw err;
+	}
+}
+
+export async function acceptFriendRequest(data: {
+	sender_id: string;
+	accepter_id: string;
+}): Promise<any> {
+	try {
+		const server_url = await Store.get("server_url");
+		const user_id = await Store.get("user_id");
+		let body = {
+			data: JSON.stringify(data),
+			auth: { user_id },
+		};
+
+		const response = await fetch(server_url + "/accept-friend-request", {
+			method: "POST",
+			body: JSON.stringify(body),
+		});
+
+		if (!response.ok) {
+			throw new Error(`${await response.text()}`);
+		}
+		return await response.json();
+	} catch (err) {
+		alert(`${err}`);
+		throw err;
+	}
+}
+
+export async function isFriendRequestAccepted(data: {
+	sender_id: string;
+	accepter_id: string;
+}): Promise<{ accepted: boolean }> {
+	try {
+		const server_url = await Store.get("server_url");
+		const user_id = await Store.get("user_id");
+		let body = {
+			data: JSON.stringify(data),
+			auth: { user_id },
+		};
+
+		const response = await fetch(server_url + "/is-friend-request-accepted", {
+			method: "POST",
+			body: JSON.stringify(body),
+		});
+
+		if (!response.ok) {
+			throw new Error(`${await response.text()}`);
+		}
+		return await response.json();
+	} catch (err) {
+		alert(`${err}`);
+		throw err;
+	}
+}
+
+export async function sendPings(
+	data: {
+		sender_id: string;
+		receiver_id: string;
+		encrypted_ping: string;
+	}[],
+): Promise<any> {
+	try {
+		const server_url = await Store.get("server_url");
+		const user_id = await Store.get("user_id");
+		let body = {
+			data: JSON.stringify(data),
+			auth: { user_id },
+		};
+
+		const response = await fetch(server_url + "/send-pings", {
+			method: "POST",
+			body: JSON.stringify(body),
+		});
+
+		if (!response.ok) {
+			throw new Error(`${await response.text()}`);
+		}
+		return await response.json();
+	} catch (err) {
+		alert(`${err}`);
+		throw err;
+	}
+}
+
+export async function getPings(data: {
+	sender_id: string;
+	receiver_id: string;
+}): Promise<{ pings: string[] }> {
+	try {
+		const server_url = await Store.get("server_url");
+		const user_id = await Store.get("user_id");
+		let body = {
+			data: JSON.stringify(data),
+			auth: { user_id },
+		};
+
+		const response = await fetch(server_url + "/get-pings", {
+			method: "POST",
+			body: JSON.stringify(body),
 		});
 
 		if (!response.ok) {

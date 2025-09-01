@@ -479,6 +479,7 @@ dependencies = [
  "axum",
  "nanoid",
  "serde",
+ "serde_json",
  "tokio",
 ]
 

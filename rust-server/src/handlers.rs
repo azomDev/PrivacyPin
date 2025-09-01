@@ -16,7 +16,7 @@ pub struct MyErr(pub &'static str);
 impl IntoResponse for MyErr {
 	fn into_response(self) -> Response {
 		let body = format!(r#"{{"error":"{}"}}"#, self.0);
-		(StatusCode::INTERNAL_SERVER_ERROR, body).into_response()
+		return (StatusCode::INTERNAL_SERVER_ERROR, body).into_response();
 	}
 }
 
@@ -30,13 +30,7 @@ pub async fn create_user(
 	State(state): State<AppState>,
 	Json(payload): Json<CreateAccountRequest>,
 ) -> Result<Json<CreateAccountResponse>, MyErr> {
-	let key_used = {
-		state
-			.signup_keys
-			.lock()
-			.map_err(|_| MyErr("mutex poisoned"))?
-			.remove(&payload.signup_key)
-	};
+	let key_used = { state.signup_keys.lock().await.remove(&payload.signup_key) };
 
 	if !key_used {
 		return my_err!("Signup key was not there");
@@ -44,10 +38,10 @@ pub async fn create_user(
 
 	let user_id = nanoid!(5);
 	let mut is_admin = false;
-	let mut users = state.users.lock().map_err(|_| MyErr("mutex poisoned"))?;
+	let mut users = state.users.lock().await;
 	if users.is_empty() {
 		is_admin = true;
-		let mut admin_id_guard = state.admin_id.lock().map_err(|_| MyErr("mutex poisoned"))?;
+		let mut admin_id_guard = state.admin_id.lock().await;
 		admin_id_guard.replace(user_id.clone());
 	}
 
@@ -62,19 +56,8 @@ pub async fn generate_signup_key(
 	State(state): State<AppState>,
 	Json(payload): Json<GenerateSignupKeyRequest>,
 ) -> Result<Json<GenerateSignupKeyResponse>, MyErr> {
-	// TODO: uncomment when we will have user_id for all endpoints
-	// {
-	// let admin_guard = state.admin_id.lock().map_err(|_| MyErr("mutex poisoned"))?;
-	// if Some(&payload.user_id) != admin_guard.as_ref() {
-	// return Err(MyErr("Only admin can generate signup keys"));
-	// }
-	// }
-
 	let new_signup_key = nanoid!(5);
-	let mut signup_keys = state
-		.signup_keys
-		.lock()
-		.map_err(|_| MyErr("mutex poisoned"))?;
+	let mut signup_keys = state.signup_keys.lock().await;
 
 	// Assume new_signup_key will not collide
 	signup_keys.insert(new_signup_key.clone());
@@ -94,10 +77,7 @@ pub async fn create_friend_request(
 		return my_err!("Cannot friend yourself");
 	}
 
-	let mut friend_requests = state
-		.friend_requests
-		.lock()
-		.map_err(|_| MyErr("mutex poisoned"))?;
+	let mut friend_requests = state.friend_requests.lock().await;
 	let link = Link::new(accepter_id, sender_id);
 	if friend_requests.contains(&link) {
 		return my_err!("Friend request already exists");
@@ -112,28 +92,19 @@ pub async fn accept_friend_request(
 ) -> Result<(), MyErr> {
 	let link = Link::new(payload.accepter_id, payload.sender_id);
 
-	let friend_request_accepted = {
-		state
-			.friend_requests
-			.lock()
-			.map_err(|_| MyErr("mutex poisoned"))?
-			.remove(&link)
-	};
+	let friend_request_accepted = { state.friend_requests.lock().await.remove(&link) };
 
 	if !friend_request_accepted {
 		return my_err!("Friend request not found");
 	}
 
 	{
-		let mut pings_state = state
-			.positions
-			.lock()
-			.map_err(|_| MyErr("mutex poisoned"))?;
+		let mut pings_state = state.positions.lock().await;
 
 		pings_state.insert(link.clone(), RingBuffer::new(state.ring_buffer_cap));
 	} // TODO: in places where I ahve an extra scope, should I use drop() instead?
 
-	let mut links = state.links.lock().map_err(|_| MyErr("mutex poisoned"))?;
+	let mut links = state.links.lock().await;
 	links.insert(link);
 
 	return Ok(());
@@ -144,7 +115,7 @@ pub async fn is_friend_request_accepted(
 	Json(payload): Json<IsFriendRequestAcceptedRequest>,
 ) -> Result<Json<IsFriendRequestAcceptedResponse>, MyErr> {
 	let link = Link::new(payload.accepter_id, payload.sender_id);
-	let links = state.links.lock().map_err(|_| MyErr("mutex poisoned"))?;
+	let links = state.links.lock().await;
 	let accepted = links.contains(&link);
 	return Ok(Json(IsFriendRequestAcceptedResponse { accepted }));
 }
@@ -161,7 +132,7 @@ pub async fn send_pings(
 	};
 
 	{
-		let links = state.links.lock().map_err(|_| MyErr("mutex poisoned"))?;
+		let links = state.links.lock().await;
 		for ping in &pings {
 			let link = Link::new(user_id.clone(), ping.receiver_id.clone());
 			if !links.contains(&link) {
@@ -170,10 +141,7 @@ pub async fn send_pings(
 		}
 	}
 
-	let mut pings_state = state
-		.positions
-		.lock()
-		.map_err(|_| MyErr("mutex poisoned"))?;
+	let mut pings_state = state.positions.lock().await;
 
 	for ping in pings {
 		let link = Link::new(user_id.clone(), ping.receiver_id.clone());
@@ -189,17 +157,14 @@ pub async fn get_pings(
 ) -> Result<Json<GetPingsResponse>, MyErr> {
 	let link = Link::new(payload.accepter_id, payload.sender_id);
 	{
-		let links = state.links.lock().map_err(|_| MyErr("mutex poisoned"))?;
+		let links = state.links.lock().await;
 
 		if !links.contains(&link) {
 			return my_err!("No link exists between these users");
 		}
 	}
 
-	let pings = state
-		.positions
-		.lock()
-		.map_err(|_| MyErr("mutex poisoned"))?;
+	let pings = state.positions.lock().await;
 
 	return Ok(Json(GetPingsResponse {
 		pings: pings.get(&link).unwrap().flatten(), // We assured that a ringbuffer exists because it was created when the link was created

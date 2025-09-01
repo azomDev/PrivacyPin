@@ -1,0 +1,1 @@
+for<'a> std::ops::Range<Router<_>>: tower_service::Service<IncomingStream<'a, tokio::net::TcpListener>>

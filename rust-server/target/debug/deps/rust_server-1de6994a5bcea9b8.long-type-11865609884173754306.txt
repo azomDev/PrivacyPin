@@ -1,0 +1,1 @@
+axum::middleware::FromFn<fn(axum::extract::State<types::AppState>, axum::http::Request<Body>, Next) -> impl Future<Output = ()> {auth_test}, (), Route, _>: tower_service::Service<axum::http::Request<Body>>

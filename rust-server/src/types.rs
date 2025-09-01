@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::{
 	collections::{HashMap, HashSet},
-	sync::{Arc, Mutex},
+	sync::Arc,
 };
+use tokio::sync::Mutex;
 
 // doing everything in memory for now
 #[derive(Clone)]
@@ -65,7 +66,7 @@ impl RingBuffer {
 	}
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct User {
 	pub user_id: String,
 }

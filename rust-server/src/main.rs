@@ -1,9 +1,16 @@
-use std::{
-	collections::HashMap,
-	sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Arc};
 
-use axum::{Router, handler::Handler, routing::post};
+use axum::{
+	Router,
+	body::Body,
+	extract::{Request, State},
+	handler::Handler,
+	middleware::Next,
+	response::IntoResponse,
+	routing::post,
+};
+use serde::Deserialize;
+use tokio::sync::Mutex;
 
 use std::collections::HashSet;
 
@@ -18,6 +25,7 @@ async fn main() {
 	// initialize tracing
 	// tracing_subscriber::fmt::init();
 
+	// TODO: should this be inside an Arc?
 	let state = AppState {
 		users: Arc::new(Mutex::new(Vec::new())),
 		signup_keys: Arc::new(Mutex::new(HashSet::new())),
@@ -33,10 +41,6 @@ async fn main() {
 		.route("/", post(plain_text))
 		.route("/create-account", post(create_user))
 		.route("/generate-signup-key", post(generate_signup_key))
-		// .route(
-		// "/generate-signup-key",
-		// post(generate_signup_key.layer(axum::middleware::from_fn_with_state(state, f))), we can add admin middleware :D
-		// )
 		.route("/create-friend-request", post(create_friend_request))
 		.route("/accept-friend-request", post(accept_friend_request))
 		.route(
@@ -45,17 +49,57 @@ async fn main() {
 		)
 		.route("/send-pings", post(send_pings))
 		.route("/get-pings", post(get_pings))
-		.with_state(state);
+		.with_state(state.clone())
+		.layer(axum::middleware::from_fn_with_state(state, auth_test));
 
 	// run our app with hyper, listening globally on port 3000
 	let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 	axum::serve(listener, app).await.unwrap();
 }
 
-// TODO: for auth, I'll have to finalize the custom protocol (pain but fun)
-// only then can I implement middleware
-
 // temp to test
 async fn plain_text() -> &'static str {
 	"foo"
+}
+
+async fn auth_test(State(state): State<AppState>, req: Request, next: Next) -> impl IntoResponse {
+	let endpoint = req.uri().path();
+	if endpoint != "/create-account" {
+		let auth_header = match req.headers().get("x-auth").and_then(|v| v.to_str().ok()) {
+			Some(h) => h,
+			None => todo!("header issues"),
+		};
+
+		let auth_data: Auth = match serde_json::from_str(&auth_header) {
+			Ok(v) => v,
+			Err(_) => todo!("parsing json issues"),
+		};
+
+		let users = state.users.lock().await;
+		let user_id = auth_data.user_id;
+		if !users.contains(&User {
+			user_id: user_id.clone(),
+		}) {
+			todo!("not allowed")
+		}
+		drop(users);
+
+		// TODO: Maybe make the endpoints an enum
+		if endpoint == "/generate-signup-key" {
+			let admin_id = state.admin_id.lock().await;
+			if admin_id.as_ref() != Some(&user_id) {
+				todo!("not allowed")
+			}
+		}
+
+		// req.extensions_mut().insert(user_id); TODO: is this really needed now?
+	}
+
+	next.run(req).await
+}
+
+// For now, only user_id for identification
+#[derive(Debug, Deserialize, Clone)]
+struct Auth {
+	user_id: String,
 }

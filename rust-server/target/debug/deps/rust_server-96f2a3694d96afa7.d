@@ -1,0 +1,5 @@
+/home/azom/Projects/PP/rust-server/target/debug/deps/librust_server-96f2a3694d96afa7.rmeta: src/main.rs
+
+/home/azom/Projects/PP/rust-server/target/debug/deps/rust_server-96f2a3694d96afa7.d: src/main.rs
+
+src/main.rs:

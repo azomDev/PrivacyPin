@@ -1,0 +1,2 @@
+fn(State<types::AppState>, Json<types::CreateAccount>) -> impl Future<Output = (StatusCode, Json<types::ResponseCreateAccount>)> {create_user}
+fn(State<types::AppState>, Json<types::CreateAccount>) -> impl Future<Output = (StatusCode, Json<types::ResponseCreateAccount>)> {create_user}: Handler<_, _>

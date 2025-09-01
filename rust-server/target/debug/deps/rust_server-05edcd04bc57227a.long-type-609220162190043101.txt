@@ -1,0 +1,2 @@
+fn(State<types::AppState>, Json<types::GetPingsRequest>) -> impl Future<Output = Result<types::GetPingsResponse, MyErr>> {handlers::get_pings}
+fn(State<types::AppState>, Json<types::GetPingsRequest>) -> impl Future<Output = Result<types::GetPingsResponse, MyErr>> {handlers::get_pings}: Handler<_, _>

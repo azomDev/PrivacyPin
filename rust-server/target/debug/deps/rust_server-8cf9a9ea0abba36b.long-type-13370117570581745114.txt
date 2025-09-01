@@ -1,0 +1,2 @@
+fn({type error}, axum::Json<CreateAccount>) -> impl Future<Output = (StatusCode, axum::Json<ResponseCreateAccount>)> {create_user}
+fn({type error}, axum::Json<CreateAccount>) -> impl Future<Output = (StatusCode, axum::Json<ResponseCreateAccount>)> {create_user}: Handler<_, _>

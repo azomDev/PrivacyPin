@@ -44,9 +44,9 @@
 
 <!-- Main page StyleSheet -->
 <div class="inner-card">
-    <div class="dot" style="background-color: #dbeafe;">
+    <div class="dot" style="background-color: #d298eb;">
         <MapPin
-            color="#235fe1"
+            color="#a538d1"
             size={50}
             style="margin-top: 25; margin-bottom: 25;"
         />

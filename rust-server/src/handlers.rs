@@ -13,12 +13,9 @@ pub async fn create_user(
 	State(state): State<AppState>,
 	signup_key: String,
 ) -> Result<Json<CreateAccountResponse>, MyErr> {
-	println!("AAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	let key_used = { state.signup_keys.lock().await.remove(&signup_key) };
 
 	if !key_used {
-		let temp = state.signup_keys.lock().await;
-		println!("{:?}", temp);
 		return my_err!("Signup key was not there");
 	}
 
@@ -43,7 +40,6 @@ pub async fn generate_signup_key(State(state): State<AppState>) -> Result<String
 	// Assume new_signup_key will not collide
 	signup_keys.insert(new_signup_key.clone());
 
-	println!("Sending generated signup key: {new_signup_key}");
 	return Ok(new_signup_key);
 }
 

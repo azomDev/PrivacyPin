@@ -3,6 +3,7 @@ import type { Base64String, GlobalSignData as SignData } from "@privacypin/share
 import { fetch } from "@tauri-apps/plugin-http"; // todo is this needed for mobile?
 import z from "zod";
 
+// Don't mind this piece of code, it's a polyfill until chromium decides to merge it (it's been so long)
 Uint8Array.prototype.toBase64 = function () {
 	let binary = "";
 	for (let i = 0; i < this.length; i++) {
@@ -14,18 +15,15 @@ Uint8Array.prototype.toBase64 = function () {
 	return btoa(binary);
 };
 
-export async function createAccount(data: {
-	signup_key: string;
-}): Promise<{ user_id: string; is_admin: boolean }> {
+export async function createAccount(
+	signup_key: string,
+): Promise<{ user_id: string; is_admin: boolean }> {
 	try {
 		const server_url = await Store.get("server_url");
-		let body = {
-			data: JSON.stringify(data),
-		};
 
 		const response = await fetch(server_url + "/create-account", {
 			method: "POST",
-			body: JSON.stringify(body),
+			body: signup_key,
 		});
 
 		if (!response.ok) {
@@ -38,161 +36,35 @@ export async function createAccount(data: {
 	}
 }
 
-export async function generateSignupKey(): Promise<{ signup_key: string }> {
+export async function post(endpoint: string, data: Object | string | undefined): Promise<any> {
 	try {
-		const server_url = await Store.get("server_url");
 		const user_id = await Store.get("user_id");
-		let body = {
-			auth: { user_id },
+		const server_url = await Store.get("server_url");
+
+		const headers: Record<string, string> = {
+			"x-auth": JSON.stringify({ user_id }),
 		};
 
-		const response = await fetch(server_url + "/generate-signup-key", {
+		let stringified_data: string | undefined;
+
+		if (typeof data === "object") {
+			stringified_data = JSON.stringify(data);
+			headers["Content-Type"] = "application/json";
+		} else {
+			stringified_data = data;
+		}
+
+		const res = await fetch(`${server_url}/${endpoint}`, {
 			method: "POST",
-			body: JSON.stringify(body),
+			headers,
+			body: stringified_data,
 		});
 
-		if (!response.ok) {
-			throw new Error(`${await response.text()}`);
+		if (!res.ok) {
+			throw new Error(`${await res.text()}`);
 		}
-		return await response.json();
-	} catch (err) {
-		alert(`${err}`);
-		throw err;
-	}
-}
 
-export async function createFriendRequest(data: {
-	sender_id: string;
-	accepter_id: string;
-}): Promise<any> {
-	try {
-		const server_url = await Store.get("server_url");
-		const user_id = await Store.get("user_id");
-		let body = {
-			data: JSON.stringify(data),
-			auth: { user_id },
-		};
-
-		const response = await fetch(server_url + "/create-friend-request", {
-			method: "POST",
-			body: JSON.stringify(body),
-		});
-
-		if (!response.ok) {
-			throw new Error(`${await response.text()}`);
-		}
-		return await response.json();
-	} catch (err) {
-		alert(`${err}`);
-		throw err;
-	}
-}
-
-export async function acceptFriendRequest(data: {
-	sender_id: string;
-	accepter_id: string;
-}): Promise<any> {
-	try {
-		const server_url = await Store.get("server_url");
-		const user_id = await Store.get("user_id");
-		let body = {
-			data: JSON.stringify(data),
-			auth: { user_id },
-		};
-
-		const response = await fetch(server_url + "/accept-friend-request", {
-			method: "POST",
-			body: JSON.stringify(body),
-		});
-
-		if (!response.ok) {
-			throw new Error(`${await response.text()}`);
-		}
-		return await response.json();
-	} catch (err) {
-		alert(`${err}`);
-		throw err;
-	}
-}
-
-export async function isFriendRequestAccepted(data: {
-	sender_id: string;
-	accepter_id: string;
-}): Promise<{ accepted: boolean }> {
-	try {
-		const server_url = await Store.get("server_url");
-		const user_id = await Store.get("user_id");
-		let body = {
-			data: JSON.stringify(data),
-			auth: { user_id },
-		};
-
-		const response = await fetch(server_url + "/is-friend-request-accepted", {
-			method: "POST",
-			body: JSON.stringify(body),
-		});
-
-		if (!response.ok) {
-			throw new Error(`${await response.text()}`);
-		}
-		return await response.json();
-	} catch (err) {
-		alert(`${err}`);
-		throw err;
-	}
-}
-
-export async function sendPings(
-	data: {
-		sender_id: string;
-		receiver_id: string;
-		encrypted_ping: string;
-	}[],
-): Promise<any> {
-	try {
-		const server_url = await Store.get("server_url");
-		const user_id = await Store.get("user_id");
-		let body = {
-			data: JSON.stringify(data),
-			auth: { user_id },
-		};
-
-		const response = await fetch(server_url + "/send-pings", {
-			method: "POST",
-			body: JSON.stringify(body),
-		});
-
-		if (!response.ok) {
-			throw new Error(`${await response.text()}`);
-		}
-		return await response.json();
-	} catch (err) {
-		alert(`${err}`);
-		throw err;
-	}
-}
-
-export async function getPings(data: {
-	sender_id: string;
-	receiver_id: string;
-}): Promise<{ pings: string[] }> {
-	try {
-		const server_url = await Store.get("server_url");
-		const user_id = await Store.get("user_id");
-		let body = {
-			data: JSON.stringify(data),
-			auth: { user_id },
-		};
-
-		const response = await fetch(server_url + "/get-pings", {
-			method: "POST",
-			body: JSON.stringify(body),
-		});
-
-		if (!response.ok) {
-			throw new Error(`${await response.text()}`);
-		}
-		return await response.json();
+		return await res.text();
 	} catch (err) {
 		alert(`${err}`);
 		throw err;

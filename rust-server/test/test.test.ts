@@ -20,7 +20,6 @@ describe("API tests", () => {
 		const admin_id = await generateUser(signup_key, true);
 
 		const res1 = await post("generate-signup-key", admin_id, undefined);
-		console.log(`Signup key received generated: ${res1}`);
 		expect(res1).toEqual(expect.any(String));
 
 		const user_id = await generateUser(res1);
@@ -32,29 +31,19 @@ describe("API tests", () => {
 		const res2 = await post("is-friend-request-accepted", admin_id, user_id);
 		expect(JSON.parse(res2)).toBe(true);
 
-		await post(
-			"send-pings",
-			admin_id,
-			JSON.stringify([
-				{
-					receiver_id: user_id,
-					encrypted_ping: "this is definitely encrypted trust #1",
-				},
-			]),
-			true,
-		);
+		await post("send-pings", admin_id, [
+			{
+				receiver_id: user_id,
+				encrypted_ping: "this is definitely encrypted trust #1",
+			},
+		]);
 
-		await post(
-			"send-pings",
-			admin_id,
-			JSON.stringify([
-				{
-					receiver_id: user_id,
-					encrypted_ping: "this is definitely encrypted trust #2",
-				},
-			]),
-			true,
-		);
+		await post("send-pings", admin_id, [
+			{
+				receiver_id: user_id,
+				encrypted_ping: "this is definitely encrypted trust #2",
+			},
+		]);
 
 		const res3 = await post("get-pings", user_id, admin_id);
 

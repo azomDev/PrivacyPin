@@ -26,7 +26,7 @@ pub struct RingBuffer {
 	pub idx: usize,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct EncryptedPing(pub String);
 
 // represents a ring buffer for a directed friend connection (ex.: user1 sending to user2, which in that case it's only user1's positions)
@@ -56,7 +56,7 @@ impl RingBuffer {
 		let mut result = Vec::with_capacity(len);
 
 		for i in 0..len {
-			let temp = (self.idx - i + len) % len;
+			let temp = (self.idx + len - i) % len;
 			let position = &self.ring[temp];
 			match position {
 				Some(p) => result.push(p.clone()),
@@ -92,11 +92,6 @@ pub struct PingPayload {
 	pub encrypted_ping: String,
 }
 
-#[derive(Deserialize)]
-pub struct SendPingsRequest {
-	pub pings: Vec<PingPayload>,
-}
-
 pub struct PlainBool(pub bool);
 
 impl IntoResponse for PlainBool {
@@ -105,18 +100,12 @@ impl IntoResponse for PlainBool {
 	}
 }
 
+#[derive(Serialize)]
 pub struct EncryptedPingVec(pub Vec<EncryptedPing>);
 
 impl IntoResponse for EncryptedPingVec {
 	fn into_response(self) -> Response {
-		// TODO check this function
-		let body = self
-			.0
-			.into_iter()
-			.map(|ep| ep.0) // extract the inner String
-			.collect::<Vec<_>>()
-			.join(","); // TODO: could cause problem if commas are injected in the strings. In that case, the frontend will wrongly parse the data
-		body.into_response()
+		axum::Json(self.0).into_response() // TODO: check fi this is correct
 	}
 }
 

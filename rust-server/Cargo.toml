@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 axum = "0.8.4"
+ed25519-dalek = "2.2.0"
 nanoid = "0.4.0"
 serde = { version = "*", features = ["derive"] }
 serde_json = "*"

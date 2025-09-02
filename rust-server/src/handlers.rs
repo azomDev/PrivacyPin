@@ -13,9 +13,12 @@ pub async fn create_user(
 	State(state): State<AppState>,
 	signup_key: String,
 ) -> Result<Json<CreateAccountResponse>, MyErr> {
+	println!("AAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	let key_used = { state.signup_keys.lock().await.remove(&signup_key) };
 
 	if !key_used {
+		let temp = state.signup_keys.lock().await;
+		println!("{:?}", temp);
 		return my_err!("Signup key was not there");
 	}
 
@@ -30,7 +33,7 @@ pub async fn create_user(
 
 	users.push(User(user_id.clone()));
 
-	Ok(Json(CreateAccountResponse { user_id, is_admin }))
+	return Ok(Json(CreateAccountResponse { user_id, is_admin }));
 }
 
 pub async fn generate_signup_key(State(state): State<AppState>) -> Result<String, MyErr> {
@@ -40,6 +43,7 @@ pub async fn generate_signup_key(State(state): State<AppState>) -> Result<String
 	// Assume new_signup_key will not collide
 	signup_keys.insert(new_signup_key.clone());
 
+	println!("Sending generated signup key: {new_signup_key}");
 	return Ok(new_signup_key);
 }
 
@@ -98,9 +102,8 @@ pub async fn is_friend_request_accepted(
 pub async fn send_pings(
 	State(state): State<AppState>,
 	Extension(user_id): Extension<String>,
-	Json(payload): Json<SendPingsRequest>,
+	Json(pings): Json<Vec<PingPayload>>,
 ) -> Result<(), MyErr> {
-	let pings = payload.pings;
 	let links = state.links.lock().await;
 	for ping in &pings {
 		let link = Link::new(user_id.clone(), ping.receiver_id.clone());
@@ -126,9 +129,9 @@ pub async fn send_pings(
 pub async fn get_pings(
 	State(state): State<AppState>,
 	Extension(user_id): Extension<String>,
-	receiver_id: String,
+	sender_id: String,
 ) -> Result<EncryptedPingVec, MyErr> {
-	let link = Link::new(user_id, receiver_id);
+	let link = Link::new(user_id, sender_id);
 	let links = state.links.lock().await;
 
 	if !links.contains(&link) {

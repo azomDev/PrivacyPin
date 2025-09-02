@@ -7,6 +7,7 @@ use axum::{
 	response::IntoResponse,
 	routing::post,
 };
+use nanoid::nanoid;
 use serde::Deserialize;
 use tokio::sync::Mutex;
 
@@ -33,6 +34,11 @@ async fn main() {
 		admin_id: Arc::new(Mutex::new(None)),
 		ring_buffer_cap: 5,
 	};
+
+	// Until we have disk saves, always generate a admin signup key since there will be no admin set at launch
+	let admin_signup_key = nanoid!(5);
+	println!("Admin signup key: {admin_signup_key}");
+	state.signup_keys.lock().await.insert(admin_signup_key);
 
 	// build our application with a route
 	let app = Router::new()

@@ -1,3 +1,4 @@
 node_modules/
 output/
 .idea/
+rust-server/target

@@ -1,2 +1,0 @@
-fn(axum::extract::State<types::AppState>, std::string::String) -> impl Future<Output = Result<Json<types::CreateAccountResponse>, types::MyErr>> {handlers::create_user}
-fn(axum::extract::State<types::AppState>, std::string::String) -> impl Future<Output = Result<Json<types::CreateAccountResponse>, types::MyErr>> {handlers::create_user}: Handler<_, _>

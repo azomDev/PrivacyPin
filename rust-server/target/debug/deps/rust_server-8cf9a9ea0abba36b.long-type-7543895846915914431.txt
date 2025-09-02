@@ -1,1 +1,0 @@
-fn(State<types::AppState>, axum::Json<types::SendPingsRequest>) -> impl Future<Output = Result<(), MyErr>> {handlers::send_pings}

@@ -1,2 +1,0 @@
-fn(axum::extract::State<types::AppState>, Extension<std::string::String>, std::string::String) -> impl Future<Output = Result<Vec<std::string::String>, MyErr>> {handlers::get_pings}
-fn(axum::extract::State<types::AppState>, Extension<std::string::String>, std::string::String) -> impl Future<Output = Result<Vec<std::string::String>, MyErr>> {handlers::get_pings}: Handler<_, _>

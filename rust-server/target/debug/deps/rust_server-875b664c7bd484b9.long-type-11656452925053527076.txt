@@ -1,2 +1,0 @@
-fn(axum::extract::State<types::AppState>, Extension<std::string::String>, std::string::String) -> impl Future<Output = Result<bool, MyErr>> {handlers::is_friend_request_accepted}
-fn(axum::extract::State<types::AppState>, Extension<std::string::String>, std::string::String) -> impl Future<Output = Result<bool, MyErr>> {handlers::is_friend_request_accepted}: Handler<_, _>

@@ -1,1 +1,0 @@
-impl Future<Output = (StatusCode, axum::Json<IsFriendRequestAcceptedResponse>)>: Handler<_, _>

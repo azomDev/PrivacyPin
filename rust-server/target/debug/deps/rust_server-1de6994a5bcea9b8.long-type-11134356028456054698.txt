@@ -1,2 +1,0 @@
-fn(axum::extract::State<types::AppState>, Extension<std::string::String>, Json<types::SendPingsRequest>) -> impl Future<Output = Result<(), types::MyErr>> {handlers::send_pings}
-fn(axum::extract::State<types::AppState>, Extension<std::string::String>, Json<types::SendPingsRequest>) -> impl Future<Output = Result<(), types::MyErr>> {handlers::send_pings}: Handler<_, _>

@@ -1,2 +1,0 @@
-fn({type error}, {type error}) -> impl Future<Output = ({type error}, {type error})> {handlers::create_user}
-fn({type error}, {type error}) -> impl Future<Output = ({type error}, {type error})> {handlers::create_user}: Handler<_, _>

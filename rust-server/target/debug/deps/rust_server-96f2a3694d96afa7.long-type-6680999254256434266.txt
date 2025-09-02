@@ -1,1 +1,0 @@
-fn(Json<CreateUser>) -> impl Future<Output = (StatusCode, Json<User>)> {create_user}: Handler<_, _>

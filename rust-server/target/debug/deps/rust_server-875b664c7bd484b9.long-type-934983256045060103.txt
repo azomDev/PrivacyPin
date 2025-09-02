@@ -1,2 +1,0 @@
-fn(axum::extract::State<types::AppState>) -> impl Future<Output = Result<std::string::String, types::MyErr>> {handlers::generate_signup_key}
-fn(axum::extract::State<types::AppState>) -> impl Future<Output = Result<std::string::String, types::MyErr>> {handlers::generate_signup_key}: Handler<_, _>

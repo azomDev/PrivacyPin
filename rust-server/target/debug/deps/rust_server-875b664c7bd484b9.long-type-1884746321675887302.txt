@@ -1,1 +1,0 @@
-FromFnLayer<fn(axum::extract::State<types::AppState>, axum::http::Request<Body>, Next) -> impl Future<Output = impl IntoResponse> {auth_test}, types::AppState, _>

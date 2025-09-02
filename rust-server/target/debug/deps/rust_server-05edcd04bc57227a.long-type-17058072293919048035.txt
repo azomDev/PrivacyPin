@@ -1,2 +1,0 @@
-fn({type error}, Json<CreateAccount>) -> impl Future<Output = (StatusCode, Json<ResponseCreateAccount>)> {create_user}
-fn({type error}, Json<CreateAccount>) -> impl Future<Output = (StatusCode, Json<ResponseCreateAccount>)> {create_user}: Handler<_, _>

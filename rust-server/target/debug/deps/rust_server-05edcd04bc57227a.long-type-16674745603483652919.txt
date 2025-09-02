@@ -1,2 +1,0 @@
-fn(State<types::AppState>, Json<types::IsFriendRequestAcceptedRequest>) -> impl Future<Output = {type error}> {handlers::is_friend_request_accepted}
-fn(State<types::AppState>, Json<types::IsFriendRequestAcceptedRequest>) -> impl Future<Output = {type error}> {handlers::is_friend_request_accepted}: Handler<_, _>

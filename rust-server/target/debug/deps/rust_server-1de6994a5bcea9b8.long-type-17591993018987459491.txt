@@ -1,0 +1,2 @@
+fn(axum::extract::State<types::AppState>, {type error}, Json<types::GenerateSignupKeyRequest>) -> impl Future<Output = Result<Json<types::GenerateSignupKeyResponse>, MyErr>> {handlers::generate_signup_key}
+fn(axum::extract::State<types::AppState>, {type error}, Json<types::GenerateSignupKeyRequest>) -> impl Future<Output = Result<Json<types::GenerateSignupKeyResponse>, MyErr>> {handlers::generate_signup_key}: Handler<_, _>

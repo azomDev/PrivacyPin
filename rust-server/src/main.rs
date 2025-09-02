@@ -2,9 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use axum::{
 	Router,
-	body::Body,
 	extract::{Request, State},
-	handler::Handler,
 	middleware::Next,
 	response::IntoResponse,
 	routing::post,
@@ -38,7 +36,7 @@ async fn main() {
 
 	// build our application with a route
 	let app = Router::new()
-		.route("/", post(plain_text))
+		.route("/", post(|| async { "You just sent a POST to /" })) // for testing
 		.route("/create-account", post(create_user))
 		.route("/generate-signup-key", post(generate_signup_key))
 		.route("/create-friend-request", post(create_friend_request))
@@ -57,12 +55,11 @@ async fn main() {
 	axum::serve(listener, app).await.unwrap();
 }
 
-// temp to test
-async fn plain_text() -> &'static str {
-	"foo"
-}
-
-async fn auth_test(State(state): State<AppState>, req: Request, next: Next) -> impl IntoResponse {
+async fn auth_test(
+	State(state): State<AppState>,
+	mut req: Request,
+	next: Next,
+) -> impl IntoResponse {
 	let endpoint = req.uri().path();
 	if endpoint != "/create-account" {
 		let auth_header = match req.headers().get("x-auth").and_then(|v| v.to_str().ok()) {
@@ -77,9 +74,7 @@ async fn auth_test(State(state): State<AppState>, req: Request, next: Next) -> i
 
 		let users = state.users.lock().await;
 		let user_id = auth_data.user_id;
-		if !users.contains(&User {
-			user_id: user_id.clone(),
-		}) {
+		if !users.contains(&User(user_id.clone())) {
 			todo!("not allowed")
 		}
 		drop(users);
@@ -92,7 +87,7 @@ async fn auth_test(State(state): State<AppState>, req: Request, next: Next) -> i
 			}
 		}
 
-		// req.extensions_mut().insert(user_id); TODO: is this really needed now?
+		req.extensions_mut().insert(user_id);
 	}
 
 	next.run(req).await

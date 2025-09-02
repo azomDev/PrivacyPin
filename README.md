@@ -1,17 +1,19 @@
 # PrivacyPin
 
-PrivacyPin is (going to be) a secure, FOSS and self-hosted location sharing app designed to prioritize user privacy. It offers complete control over location sharing, allowing users to determine who can access their location and when. Additionally, it provides real-time notifications when someone accesses their position.
+PrivacyPin is (going to be) a secure self-hosted location sharing app designed to prioritize user privacy. It offers complete control over location sharing, allowing users to determine who can access their location and when. PrivacyPin is federated, so different servers can interoperate and users are not locked into a single provider. Additionally, it might provide real-time notifications when someone accesses their position (that will require self-hosted notifications, which I'm unsure how much of a pain that is).
+
 
 > [!IMPORTANT]
-> I’m in the process of rapidly iterating to establish a base on which testing can begin.
+> I’m in the process of rapidly iterating to establish a base on which testing can begin. The current tech stack is NOT the final one.
 >
 > If you’re interested in contributing to this exciting project, I’d love to hear from you! My primary challenge lies in native mobile development, but any assistance is greatly appreciated!
 
 ## Key Features
 
 -   **User-Controlled Location Sharing**: Users have full control over who can view their location and when it is visible.
--   **Real-Time Access Notifications**: Receive notifications whenever someone accesses your position.
+-   **Real-Time Access Notifications**: Receive notifications whenever someone accesses your position. (if I ever feel like adding that)
 -   **Self-Hostable Server**: The server is self-hostable, ensuring that users do not rely on big tech companies to access their location data.
+-   **Federated Architecture**: Servers can interoperate, allowing people on different servers to share locations with each other.
 -   **Robust Security**: Implements strong encryption and security measures to ensure data integrity and protection against potential threats, making security a core focus of the project.
 
 ## Usage
@@ -24,13 +26,14 @@ PrivacyPin is still in early development, and the usage instructions will be pro
 
 * Android mobile app.
 * Self-hostable backend server with basic API functionality.
-* Manual location sharing without precise control.
-* Basic user authentication system.
+* On/off control for location sharing.
 * Simple UI for sharing location.
-* Basic background location service for location sharing.
+* Basic in-app location sharing.
 
 ### **Phase 2 — Security & Usability Enhancements**
 
+* Basic user authentication system.
+* Basic background location service for location sharing
 * Improved and polished UI/UX for the mobile app.
 * Server-side data validation.
 * More robust API design and error handling on the client.
@@ -90,6 +93,6 @@ bun run app
 
 ## Contact
 
-Email : dev@azom.ca\
+Email : azomDev@pm.me\
 Signal : @azom.01\
 Discord : _azom

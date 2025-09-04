@@ -1,7 +1,8 @@
 <script lang="ts">
     import "../../nostalgic-ui.css";
     import { Settings, Plus, MapPin } from "lucide-svelte";
-    import { goto } from "$app/navigation";
+    import sadCat from "../../Cat.jpg";
+    //import { goto } from "$app/navigation";
 
     const last_ping_minute: number = 0;
     const last_ping_hour: number = 0;
@@ -21,13 +22,41 @@
         modal_button_function = onclick ? onclick : () => {};
     }
 
-    /*let text = ["text1", "tex2", "text3", "text4"];
-    for(let i = 0; i < text.length; i += 1) {
-        let div = document.createElement("div");
-        div.className = "finalBlock";
-        div.innerHTML = "";
-        document.body.appendChild(div);
-    }*/
+    //type for the friends list info. Thanks for the help azom ~kishka
+    type Friend = {
+        name: string;
+        uuid: string;
+    }
+
+    //hard coded for now until we get a proper system in ;3 ~ kishka
+    let friends: Friend[] = [
+        {
+            name: "Jane Doe",
+            uuid: "jane-uuid"
+        },
+        {
+            name: "John Doe",
+            uuid: "john-uuid"
+        },
+        {
+            name: "Kishka Cat",
+            uuid: "kishka-uuid"
+        },
+        {
+            name: "Azom Dev",
+            uuid: "azom-uuid"
+        },
+        {
+            name: "Jersey Doe",
+            uuid: "jersey-uuid"
+        },
+    ];
+    friends = null;
+
+    function sendPings() {
+        showModal("Beta Notification", "This would send pings")
+    }
+
 </script>
 
 <div class="inner-card" style="line-height: 0; height: 20px;">
@@ -36,7 +65,9 @@
             <a
                 class="dot"
                 style="background-color: #d298eb; height: 50px; width: 50px;"
-                href="/create-account" >
+                onclick={() => {
+                    sendPings();
+                }} >
 
                 <MapPin
                     color="#a538d1"
@@ -75,31 +106,38 @@
     <p style="font-style: bold; float: right; padding-top: 5px; padding-right: 0; padding-bottom: 5px;">{last_ping_time_ago} ago</p>
 </div>
 <div class="inner-card wrapper flex-row" style="padding-top: 5px; padding-bottom: 15px;">
-    <div id="friends">
-        <div id="TestCard" class="ui-style">
-            <card style="width: 100%;">
-                <div class="inner-card">
-                    <div class="split-lr" style="height: 20px;">
-                        <div style="display: flex"> <!-- left -->
-                            <h3>Jane Doe</h3>
-                        </div>
+    <div id="friendCardsList">
+        {#each friends as friend}
+            <div id="TestCard" class="ui-style"> <!-- Code for a single friend card -->
+                <card style="width: 100%;">
+                    <div class="inner-card">
+                        <div class="split-lr" style="height: 20px;">
+                            <div style="display: flex"> <!-- left -->
+                                <h3>{friend.name}</h3>
+                            </div>
 
-                        <div style="vertical-align: center"> <!-- right -->
-                            <button
-                                    class="button-secondary"
-                                    style="font-size: normal;"
-                                    onclick={() => {
-                            showModal("Beta Notification", "This would open a map with their location");
-                        }}>
+                            <div style="vertical-align: center"> <!-- right -->
+                                <button
+                                        class="button-secondary"
+                                        style="font-size: normal;"
+                                        onclick={() => {
+                                showModal("Beta Notification", "This would open a map with their location using token \"" + friend.uuid + "\"");
+                            }}>
 
-                                <MapPin size={10} /> View
+                                    <MapPin size={10} /> View
 
-                            </button>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </card>
+                </card>
+            </div>
+        {/each}
+        <div hidden={(friends == null) !== true}>
+            <p>You have no friends :(</p>
+            <img alt="a sad cat" height="100" src={sadCat} />
         </div>
+
     </div>
 </div>
 

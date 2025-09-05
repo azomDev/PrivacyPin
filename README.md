@@ -79,16 +79,20 @@ Open **3–4 terminals** and run the following in each:
 
 ```bash
 # Terminal 1
+cd app/
 bun run vite
 
 # Terminal 2
-bun run app
+cd app/
+bun run tauri dev
 
 # Terminal 3
-bun run server
+cd server/
+cargo run
 
 # (Optional) Terminal 4 — to run another app instance
-bun run app
+cd app/
+bun run tauri dev
 ```
 
 ## Contact

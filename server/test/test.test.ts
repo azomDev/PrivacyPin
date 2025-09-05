@@ -1,5 +1,4 @@
 import { SERVER_DIR, startOrRestartServer, stopServer } from "./srv.ts";
-import { rm } from "node:fs/promises";
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from "bun:test";
 import { generateUser, post, URL } from "./utils.ts";
 
@@ -47,9 +46,6 @@ describe("API tests", () => {
 
 		const res3 = await post("get-pings", user_id, admin_id);
 
-		expect(JSON.parse(res3)).toEqual([
-			"this is definitely encrypted trust #2",
-			"this is definitely encrypted trust #1",
-		]);
+		expect(JSON.parse(res3)).toEqual(["this is definitely encrypted trust #2", "this is definitely encrypted trust #1"]);
 	});
 });

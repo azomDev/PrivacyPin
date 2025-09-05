@@ -1,5 +1,5 @@
 import { Store } from "./store.ts";
-import { apiRequest } from "./api.ts";
+import { post } from "./api.ts";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Store as TauriStore } from "@tauri-apps/plugin-store";
 import { goto } from "$app/navigation";
@@ -9,14 +9,12 @@ import { goto } from "$app/navigation";
 export async function showLatestFriendPing(friend_id: string) {
 	const user_id = await Store.get("user_id");
 
-	const { pings } = await apiRequest("/get-pings", {
-		sender_id: friend_id,
-		receiver_id: user_id,
-	});
+	const res = await post("get-pings", friend_id);
+	const pings = JSON.parse(res);
 
 	const ping = JSON.parse(pings[0]) as { longitude: string; latitude: string; timestamp: string }; // temporary until actually encrypted
-	console.log(ping)
-	console.log(`geo:0,0?q=${ping.latitude},${ping.longitude}`)
+	console.log(ping);
+	console.log(`geo:0,0?q=${ping.latitude},${ping.longitude}`);
 
 	await openUrl(`geo:0,0?q=${ping.latitude},${ping.longitude}`);
 }
@@ -43,7 +41,7 @@ export async function sendPings() {
 			encrypted_ping: JSON.stringify({ latitude, longitude }),
 		});
 	}
-	apiRequest("/send-pings", { pings });
+	post("send-pings", pings);
 	console.log(`Sending pings to ${latitude}, ${longitude}`);
 }
 

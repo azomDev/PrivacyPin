@@ -1,3 +1,4 @@
+use std::env;
 use std::{collections::HashMap, sync::Arc};
 
 use axum::{
@@ -9,9 +10,6 @@ use axum::{
 };
 use nanoid::nanoid;
 use serde::Deserialize;
-use tokio::sync::Mutex;
-
-use std::collections::HashSet;
 
 mod handlers;
 mod types;
@@ -24,20 +22,14 @@ async fn main() {
 	// initialize tracing
 	// tracing_subscriber::fmt::init();
 
-	// TODO: should this be inside an Arc?
-	let state = AppState {
-		users: Arc::new(Mutex::new(Vec::new())),
-		signup_keys: Arc::new(Mutex::new(HashSet::new())),
-		friend_requests: Arc::new(Mutex::new(HashSet::new())),
-		links: Arc::new(Mutex::new(HashSet::new())),
-		positions: Arc::new(Mutex::new(HashMap::new())),
-		admin_id: Arc::new(Mutex::new(None)),
-		ring_buffer_cap: 5,
-	};
+	let state = AppState::new(5);
 
 	// Until we have disk saves, always generate a admin signup key since there will be no admin set at launch
-	let admin_signup_key = nanoid!(5);
-	println!("Admin signup key: {admin_signup_key}");
+	let admin_signup_key = match env::var("ADMIN_SIGNUP_KEY") {
+		Ok(_) => String::from("asdf"),
+		Err(_) => nanoid!(5),
+	};
+
 	state.signup_keys.lock().await.insert(admin_signup_key);
 
 	// build our application with a route
@@ -62,7 +54,7 @@ async fn main() {
 }
 
 async fn auth_test(
-	State(state): State<AppState>,
+	State(state): State<Arc<AppState>>,
 	mut req: Request,
 	next: Next,
 ) -> impl IntoResponse {

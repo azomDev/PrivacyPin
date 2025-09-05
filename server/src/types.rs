@@ -10,15 +10,28 @@ use std::{
 use tokio::sync::Mutex;
 
 // doing everything in memory for now
-#[derive(Clone)]
 pub struct AppState {
-	pub users: Arc<Mutex<Vec<User>>>,
-	pub signup_keys: Arc<Mutex<HashSet<String>>>,
-	pub friend_requests: Arc<Mutex<HashSet<Link>>>,
-	pub links: Arc<Mutex<HashSet<Link>>>,
-	pub positions: Arc<Mutex<HashMap<Link, RingBuffer>>>,
-	pub admin_id: Arc<Mutex<Option<String>>>, // TODO: Is Arc and Mutex needed? Anyways this data is going to file so no need to answer that lol
+	pub users: Mutex<Vec<User>>,
+	pub signup_keys: Mutex<HashSet<String>>,
+	pub friend_requests: Mutex<HashSet<Link>>,
+	pub links: Mutex<HashSet<Link>>,
+	pub positions: Mutex<HashMap<Link, RingBuffer>>,
+	pub admin_id: Mutex<Option<String>>,
 	pub ring_buffer_cap: usize,
+}
+
+impl AppState {
+	pub fn new(ring_buffer_cap: usize) -> Arc<Self> {
+		Arc::new(Self {
+			users: Mutex::new(Vec::new()),
+			signup_keys: Mutex::new(HashSet::new()),
+			friend_requests: Mutex::new(HashSet::new()),
+			links: Mutex::new(HashSet::new()),
+			positions: Mutex::new(HashMap::new()),
+			admin_id: Mutex::new(None),
+			ring_buffer_cap,
+		})
+	}
 }
 
 pub struct RingBuffer {
@@ -33,7 +46,7 @@ pub struct EncryptedPing(pub String);
 impl RingBuffer {
 	pub fn new(capacity: usize) -> Self {
 		return Self {
-			ring: vec![None; capacity].into_boxed_slice(),
+			ring: vec![None; capacity].into_boxed_slice(), // TODO: is there a better way to do this?
 			idx: 0,
 		};
 	}
@@ -105,7 +118,7 @@ pub struct EncryptedPingVec(pub Vec<EncryptedPing>);
 
 impl IntoResponse for EncryptedPingVec {
 	fn into_response(self) -> Response {
-		axum::Json(self.0).into_response() // TODO: check fi this is correct
+		axum::Json(self.0).into_response() // TODO: check if this is correct
 	}
 }
 

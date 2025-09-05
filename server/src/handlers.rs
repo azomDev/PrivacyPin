@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use axum::{Extension, Json, extract::State, response::Result};
 use nanoid::nanoid;
 
@@ -10,7 +12,7 @@ macro_rules! my_err {
 }
 
 pub async fn create_user(
-	State(state): State<AppState>,
+	State(state): State<Arc<AppState>>,
 	signup_key: String,
 ) -> Result<Json<CreateAccountResponse>, MyErr> {
 	let key_used = { state.signup_keys.lock().await.remove(&signup_key) };
@@ -28,12 +30,13 @@ pub async fn create_user(
 		admin_id_guard.replace(user_id.clone());
 	}
 
+	println!("{is_admin}");
 	users.push(User(user_id.clone()));
 
 	return Ok(Json(CreateAccountResponse { user_id, is_admin }));
 }
 
-pub async fn generate_signup_key(State(state): State<AppState>) -> Result<String, MyErr> {
+pub async fn generate_signup_key(State(state): State<Arc<AppState>>) -> Result<String, MyErr> {
 	let new_signup_key = nanoid!(5);
 	let mut signup_keys = state.signup_keys.lock().await;
 
@@ -44,7 +47,7 @@ pub async fn generate_signup_key(State(state): State<AppState>) -> Result<String
 }
 
 pub async fn create_friend_request(
-	State(state): State<AppState>,
+	State(state): State<Arc<AppState>>,
 	Extension(user_id): Extension<String>,
 	accepter_id: String,
 ) -> Result<(), MyErr> {
@@ -62,7 +65,7 @@ pub async fn create_friend_request(
 }
 
 pub async fn accept_friend_request(
-	State(state): State<AppState>,
+	State(state): State<Arc<AppState>>,
 	Extension(user_id): Extension<String>,
 	sender_id: String,
 ) -> Result<(), MyErr> {
@@ -85,7 +88,7 @@ pub async fn accept_friend_request(
 }
 
 pub async fn is_friend_request_accepted(
-	State(state): State<AppState>,
+	State(state): State<Arc<AppState>>,
 	Extension(user_id): Extension<String>,
 	friend_id: String,
 ) -> Result<PlainBool, MyErr> {
@@ -96,7 +99,7 @@ pub async fn is_friend_request_accepted(
 }
 
 pub async fn send_pings(
-	State(state): State<AppState>,
+	State(state): State<Arc<AppState>>,
 	Extension(user_id): Extension<String>,
 	Json(pings): Json<Vec<PingPayload>>,
 ) -> Result<(), MyErr> {
@@ -123,7 +126,7 @@ pub async fn send_pings(
 }
 
 pub async fn get_pings(
-	State(state): State<AppState>,
+	State(state): State<Arc<AppState>>,
 	Extension(user_id): Extension<String>,
 	sender_id: String,
 ) -> Result<EncryptedPingVec, MyErr> {
@@ -141,3 +144,4 @@ pub async fn get_pings(
 }
 
 // TODO: random idea, but use numbers instead of strings for user ids because no need to clone (but longer to read if needed)
+// ANSWER: use number, but when showing or intputing on frontend, use base64 with frontend translation

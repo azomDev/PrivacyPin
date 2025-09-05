@@ -11,9 +11,9 @@
 	async function createAccountAPI(event: SubmitEvent) {
 		event.preventDefault(); // is this needed?
 
-		const key_pair = await crypto.subtle.generateKey("Ed25519", true, ["sign", "verify"]);
-		const pub_sign_key = await crypto.subtle.exportKey("jwk", key_pair.publicKey);
-		const priv_sign_key = await crypto.subtle.exportKey("jwk", key_pair.privateKey);
+		// const key_pair = await crypto.subtle.generateKey("Ed25519", true, ["sign", "verify"]);
+		// const pub_sign_key = await crypto.subtle.exportKey("jwk", key_pair.publicKey);
+		// const priv_sign_key = await crypto.subtle.exportKey("jwk", key_pair.privateKey);
 
 		Store.set("server_url", server_url);
 
@@ -22,7 +22,7 @@
 		Store.set("user_id", res.user_id);
 		Store.set("is_admin", res.is_admin);
 		Store.set("friends", []);
-		Store.set("private_key", priv_sign_key);
+		// Store.set("private_key", priv_sign_key);
 
 		goto("/home");
 	}

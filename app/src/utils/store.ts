@@ -1,10 +1,10 @@
 import { Store as TauriStore } from "@tauri-apps/plugin-store";
-import type { ClientFriend } from "@privacypin/shared";
+import type { ClientFriend } from "./types";
 
 type Settings = {
 	server_url: string;
 	user_id: string;
-	private_key: JsonWebKey;
+	// private_key: JsonWebKey;
 	friends: ClientFriend[];
 	is_admin: boolean;
 };

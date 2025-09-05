@@ -7,6 +7,7 @@
 	import type { PageProps } from "./$types";
 	import { showLatestFriendPing, sendPings, appReset } from "../../utils/temp.ts";
 	import { acceptFriendRequest, sendFriendRequest } from "../../utils/friends-temp.ts";
+	import type { ClientFriend } from "../../utils/types.ts";
 
 	let friend_name = $state("");
 	let friend_id = $state("");
@@ -38,33 +39,27 @@
 		modal_button_function = onclick ? onclick : () => {};
 	}
 
-	//type for the friends list info. Thanks for the help azom ~kishka
-	type Friend = {
-		name: string;
-		uuid: string;
-	};
-
 	//hard coded for now until we get a proper system in ;3 ~ kishka
-	let friends: Friend[] = [
+	let friends: ClientFriend[] = [
 		{
 			name: "Jane Doe",
-			uuid: "jane-uuid",
+			id: "jane-uuid",
 		},
 		{
 			name: "John Doe",
-			uuid: "john-uuid",
+			id: "john-uuid",
 		},
 		{
 			name: "Kishka Cat",
-			uuid: "kishka-uuid",
+			id: "kishka-uuid",
 		},
 		{
 			name: "Azom Dev",
-			uuid: "azom-uuid",
+			id: "azom-uuid",
 		},
 		{
 			name: "Jersey Doe",
-			uuid: "jersey-uuid",
+			id: "jersey-uuid",
 		},
 	];
 	friends = [];
@@ -133,7 +128,7 @@
 										class="button-secondary"
 										style="font-size: normal;"
 										onclick={() => {
-											showModal("Beta Notification", 'This would open a map with their location using token "' + friend.uuid + '"');
+											showModal("Beta Notification", 'This would open a map with their location using id "' + friend.id + '"');
 										}}
 									>
 										<MapPin size={10} /> View

@@ -1,5 +1,5 @@
 use std::env;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use axum::{
 	Router,
@@ -8,6 +8,8 @@ use axum::{
 	response::IntoResponse,
 	routing::post,
 };
+use base64::{Engine, prelude::BASE64_STANDARD};
+use ed25519_dalek::{Signature, VerifyingKey};
 use nanoid::nanoid;
 use serde::Deserialize;
 
@@ -46,17 +48,18 @@ async fn main() {
 		.route("/send-pings", post(send_pings))
 		.route("/get-pings", post(get_pings))
 		.with_state(state.clone())
-		.layer(axum::middleware::from_fn_with_state(state, auth_test));
+		.layer(axum::middleware::from_fn_with_state(state, auth));
 
 	// run our app with hyper, listening globally on port 3000
 	let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 	axum::serve(listener, app).await.unwrap();
 }
 
-async fn auth_test(
+async fn auth(
 	State(state): State<Arc<AppState>>,
 	mut req: Request,
 	next: Next,
+	// TODO: return result
 ) -> impl IntoResponse {
 	let endpoint = req.uri().path();
 	if endpoint != "/create-account" {
@@ -65,14 +68,15 @@ async fn auth_test(
 			None => todo!("header issues"),
 		};
 
-		let auth_data: Auth = match serde_json::from_str(&auth_header) {
+		let auth_data: AuthData = match serde_json::from_str(&auth_header) {
 			Ok(v) => v,
 			Err(_) => todo!("parsing json issues"),
 		};
 
 		let users = state.users.lock().await;
 		let user_id = auth_data.user_id;
-		if !users.contains(&User(user_id.clone())) {
+
+		if !users.iter().any(|u| u.id == user_id) {
 			todo!("not allowed")
 		}
 		drop(users);
@@ -85,14 +89,40 @@ async fn auth_test(
 			}
 		}
 
+		// TODO: OOPS we need to use the pkey in the db to verify the incoming signature. Then we can store the new pkey in the db
+		let pkey_bytes = parse_base64::<32>(&auth_data.pkey).unwrap(); // TODO: don't use .unwrap
+		let pkey = VerifyingKey::from_bytes(&pkey_bytes).unwrap(); // TODO: don't use .unwrap
+
+		let signature_bytes = parse_base64::<64>(&auth_data.signature).unwrap(); // TODO: don't use .unwrap
+		let signature = Signature::from_bytes(&signature_bytes);
+
+		pkey.verify_strict(TODO, &signature);
+
+		// TODO: Save new public key
+
 		req.extensions_mut().insert(user_id);
 	}
 
 	next.run(req).await
 }
 
+// TODO: is this function correct?
+fn parse_base64<const N: usize>(data: &str) -> Result<[u8; N], String> {
+	let decoded = BASE64_STANDARD
+		.decode(data)
+		.map_err(|e| format!("base64 decode error: {e}"))?;
+
+	let len = decoded.len();
+
+	decoded
+		.try_into()
+		.map_err(|_| format!("expected {N} bytes, got {len}"))
+}
+
 // For now, only user_id for identification
 #[derive(Debug, Deserialize, Clone)]
-struct Auth {
+struct AuthData {
 	user_id: String,
+	pkey: String, // Base64
+	signature: String,
 }

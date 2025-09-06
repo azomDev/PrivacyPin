@@ -9,6 +9,13 @@ use std::{
 };
 use tokio::sync::Mutex;
 
+#[macro_export]
+macro_rules! my_err {
+	($msg:expr) => {
+		Err(MyErr($msg))
+	};
+}
+
 // doing everything in memory for now
 pub struct AppState {
 	pub users: Mutex<Vec<User>>,
@@ -82,7 +89,10 @@ impl RingBuffer {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct User(pub String);
+pub struct User {
+	pub id: String,
+	pub pkey: String,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Link(String, String);

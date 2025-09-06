@@ -3,13 +3,7 @@ use std::sync::Arc;
 use axum::{Extension, Json, extract::State, response::Result};
 use nanoid::nanoid;
 
-use crate::types::*;
-
-macro_rules! my_err {
-	($msg:expr) => {
-		Err(MyErr($msg))
-	};
-}
+use crate::{my_err, types::*};
 
 pub async fn create_user(
 	State(state): State<Arc<AppState>>,
@@ -30,8 +24,10 @@ pub async fn create_user(
 		admin_id_guard.replace(user_id.clone());
 	}
 
-	println!("{is_admin}");
-	users.push(User(user_id.clone()));
+	users.push(User {
+		id: user_id.clone(),
+		pkey: String::from("todo"), // TODO: put actual pkey
+	});
 
 	return Ok(Json(CreateAccountResponse { user_id, is_admin }));
 }

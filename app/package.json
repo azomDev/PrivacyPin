@@ -1,0 +1,24 @@
+{
+	"name": "privacypin",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"tauri": "WEBKIT_DISABLE_DMABUF_RENDERER=1 tauri"
+	},
+	"dependencies": {
+		"@tauri-apps/api": "^2",
+		"@tauri-apps/plugin-opener": "^2",
+		"@tauri-apps/plugin-store": "^2.4.1",
+		"alpinejs": "^3.15.1"
+	},
+	"devDependencies": {
+		"@tauri-apps/cli": "^2",
+		"@types/alpinejs": "^3.13.11",
+		"typescript": "~5.6.2",
+		"vite": "^6.0.3"
+	}
+}

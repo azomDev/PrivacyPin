@@ -55,8 +55,8 @@ async fn main() {
 		.route("/send-pings", post(send_pings))
 		.route("/get-pings", post(get_pings))
 		.with_state(state.clone())
-		.layer(CorsLayer::permissive())
-		.layer(axum::middleware::from_fn_with_state(state, auth_test));
+		.layer(axum::middleware::from_fn_with_state(state, auth_test))
+		.layer(CorsLayer::permissive());
 
 	let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 	axum::serve(listener, app).await.unwrap();

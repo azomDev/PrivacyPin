@@ -75,7 +75,7 @@
 			</div>
 
 			<!-- Admin -->
-			<template x-if="isAdmin()">
+			<div x-if="isAdmin()">
 				<div class="content" style="text-align: center">
 					<h4>Admin Controls:</h4>
 					<div style="display: flex; justify-content: center">
@@ -83,15 +83,14 @@
 							Generate signup key
 						</button>
 					</div>
-					<template
+					<div
 						style="display: flex; justify-content: center"
-						x-if="isAdmin()"
+						x-show="newSignupKey != ''"
 					>
-						<p>New signup key:</p>
-						<p x-text="newSignupKey"></p>
-					</template>
+						<p>New signup key: <a x-text="newSignupKey"></a></p>
+					</div>
 				</div>
-			</template>
+			</div>
 		</div>
 	</body>
 </html>

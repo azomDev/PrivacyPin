@@ -8,7 +8,7 @@ Alpine.data("homePageState", () => ({
 		{ id: "456", name: "Bob Smith" },
 		{ id: "789", name: "Carol Davis" },
 	],
-	newSignupKey: "AOEUI",
+	newSignupKey: "",
 
 	timeAgo() {
 		return "2m ago";

@@ -1,6 +1,6 @@
 import Alpine from "alpinejs";
-import { createAccount } from "@utils/api.ts";
-import { Store } from "@utils/store.ts";
+import { createAccount } from "../utils/api.ts";
+import { Store } from "../utils/store.ts";
 
 Alpine.data("signupPageState", () => ({
 	serverAddress: "",

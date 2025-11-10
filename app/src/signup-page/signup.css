@@ -91,6 +91,9 @@ button {
 	color: white;
 	border: none;
 }
+:disabled {
+	color: #aaa;
+}
 
 .btn-primary:hover {
 	background: #1d4ed8;
@@ -100,6 +103,10 @@ button {
 	background: white;
 	gap: 0.5rem;
 	border: 1px solid #d1d5db;
+}
+
+.btn-qr:disabled img {
+	filter: invert(0.7);
 }
 
 .btn-qr:hover {

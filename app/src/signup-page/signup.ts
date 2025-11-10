@@ -5,10 +5,14 @@ import { Store } from "../utils/store.ts";
 Alpine.data("signupPageState", () => ({
 	serverAddress: "",
 	signupKey: "",
-	isDoingStuff: false,
+	get isDoingStuff() {
+		return this.isConnecting || this.isScanning;
+	},
+	isScanning: false,
+	isConnecting: false,
 
 	async signup() {
-		this.isDoingStuff = true;
+		this.isConnecting = true;
 		await new Promise((resolve) => setTimeout(resolve, 2000)); // temp
 		try {
 			const res = await createAccount(this.serverAddress, this.signupKey);
@@ -16,16 +20,16 @@ Alpine.data("signupPageState", () => ({
 			Store.set("user_id", res.user_id);
 			window.location.href = "/src/home-page/home.html";
 		} catch (e) {
-			this.isDoingStuff = false;
+			this.isConnecting = false;
 		}
 	},
 
 	async scanQR() {
-		this.isDoingStuff = true;
+		this.isScanning = true;
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		this.serverAddress = "dummy server address";
 		this.signupKey = "dummy signup key";
-		this.isDoingStuff = false;
+		this.isScanning = false;
 	},
 }));
 

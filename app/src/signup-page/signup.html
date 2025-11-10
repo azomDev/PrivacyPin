@@ -21,21 +21,43 @@
 			<div class="actions" x-data="signupPageState">
 				<div>
 					<label for="server">Server Address</label>
-					<input id="server" type="url" placeholder="https://your-server.com" x-model="serverAddress" required />
+					<input
+						id="server"
+						type="url"
+						placeholder="https://your-server.com"
+						x-model="serverAddress"
+						required
+					/>
 				</div>
 
 				<div>
 					<label for="key">Signup Key</label>
-					<input id="key" type="password" placeholder="Enter your signup key" x-model="signupKey" required />
+					<input
+						id="key"
+						type="password"
+						placeholder="Enter your signup key"
+						x-model="signupKey"
+						required
+					/>
 				</div>
 
-				<p class="hint">Scan a QR code to automatically fill both server address and signup key</p>
-				<button type="button" x-bind:disabled="isDoingStuff" class="btn-qr" @click="await scanQR()">
+				<p class="hint">
+					Scan a QR code to automatically fill both server address and signup key
+				</p>
+				<button
+					type="button"
+					x-bind:disabled="isDoingStuff"
+					class="btn-qr"
+					@click="await scanQR()"
+				>
 					<img src="/src/assets/qr.svg" alt="QR Icon" />
 					Scan QR Code
 				</button>
 
-				<button class="btn-primary" x-bind:disabled="isDoingStuff" @click="await signup()"><span x-show="isDoingStuff">Connecting...</span> <span x-show="!isDoingStuff">Connect</span></button>
+				<button class="btn-primary" x-bind:disabled="isDoingStuff" @click="await signup()">
+					<span x-show="isConnecting">Connecting...</span>
+					<span x-show="!isConnecting">Connect</span>
+				</button>
 			</div>
 		</div>
 	</body>

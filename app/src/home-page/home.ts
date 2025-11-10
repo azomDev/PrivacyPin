@@ -1,4 +1,6 @@
 import Alpine from "alpinejs";
+import { Store } from "../utils/store.ts";
+import { post } from "../utils/api.ts";
 
 Alpine.data("homePageState", () => ({
 	friends: [
@@ -6,6 +8,7 @@ Alpine.data("homePageState", () => ({
 		{ id: "456", name: "Bob Smith" },
 		{ id: "789", name: "Carol Davis" },
 	],
+	newSignupKey: "AOEUI",
 
 	timeAgo() {
 		return "2m ago";
@@ -25,6 +28,16 @@ Alpine.data("homePageState", () => ({
 
 	openSettings() {
 		alert("Settings would open here");
+	},
+
+	async generateSignupKey() {
+		const res = await post("generate-signup-key", undefined);
+		this.newSignupKey = res;
+		console.log(res);
+	},
+
+	isAdmin() {
+		return Store.get("is_admin");
 	},
 }));
 

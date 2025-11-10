@@ -29,7 +29,9 @@
 			<div class="content">
 				<div class="friends-header">
 					<h2 style="font-size: 1rem; margin: 0">Friends</h2>
-					<span style="color: #6b7280; font-size: 0.9rem">(<span x-text="friends.length"></span>)</span>
+					<span style="color: #6b7280; font-size: 0.9rem"
+						>(<span x-text="friends.length"></span>)</span
+					>
 				</div>
 
 				<template x-if="friends.length > 0">
@@ -38,9 +40,24 @@
 							<div class="friend-card">
 								<strong x-text="friend.name"></strong>
 								<div class="friend-actions">
-									<button class="view-btn" @click="viewLocation(friend.id)"><img src="/src/assets/pin.svg" alt="Pin Icon" />View</button>
-									<span class="menu-icon" @click="friendOptions(friend.id)"></span>
-									<img class="menu-icon" src="/src/assets/three-dots.svg" alt="Pin Icon" />
+									<button
+										class="view-btn"
+										@click="viewLocation(friend.id)"
+									>
+										<img
+											src="/src/assets/pin.svg"
+											alt="Pin Icon"
+										/>View
+									</button>
+									<span
+										class="menu-icon"
+										@click="friendOptions(friend.id)"
+									></span>
+									<img
+										class="menu-icon"
+										src="/src/assets/three-dots.svg"
+										alt="Pin Icon"
+									/>
 								</div>
 							</div>
 						</template>
@@ -56,6 +73,25 @@
 					</div>
 				</template>
 			</div>
+
+			<!-- Admin -->
+			<template x-if="isAdmin()">
+				<div class="content" style="text-align: center">
+					<h4>Admin Controls:</h4>
+					<div style="display: flex; justify-content: center">
+						<button @click="generateSignupKey()">
+							Generate signup key
+						</button>
+					</div>
+					<template
+						style="display: flex; justify-content: center"
+						x-if="isAdmin()"
+					>
+						<p>New signup key:</p>
+						<p x-text="newSignupKey"></p>
+					</template>
+				</div>
+			</template>
 		</div>
 	</body>
 </html>

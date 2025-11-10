@@ -2,7 +2,7 @@
 	import { Store } from "/src/utils/store.ts";
 
 	// For testing (to easily go to home or signup page). You only need to uncomment the right line, run it once, and comment it out again right after
-	// await Store.reset();
+	await Store.reset();
 	// await Store.set("user_id", "adummyuserid");
 
 	if (await Store.isLoggedIn()) {

@@ -8,12 +8,21 @@ function strToBytes(str: string): Uint8Array {
 	return new TextEncoder().encode(str);
 }
 
-export async function createAccount(server_url: string, signup_key: string): Promise<{ user_id: string; is_admin: boolean }> {
+export async function createAccount(
+	server_url: string,
+	signup_key: string,
+): Promise<{ user_id: string; is_admin: boolean }> {
 	try {
 		await Store.set("server_url", server_url);
-		const keyPair = await crypto.subtle.generateKey("Ed25519", true, ["sign", "verify"]);
+		const keyPair = await crypto.subtle.generateKey("Ed25519", true, [
+			"sign",
+			"verify",
+		]);
 		const pubKeyRaw = await crypto.subtle.exportKey("raw", keyPair.publicKey);
-		const privKeyRaw = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+		const privKeyRaw = await crypto.subtle.exportKey(
+			"pkcs8",
+			keyPair.privateKey,
+		);
 		const pub_key_b64 = bufToBase64(pubKeyRaw);
 
 		const response = await fetch(server_url + "/create-account", {
@@ -35,7 +44,10 @@ export async function createAccount(server_url: string, signup_key: string): Pro
 	}
 }
 
-export async function post(endpoint: string, data: object | string | undefined): Promise<any> {
+export async function post(
+	endpoint: string,
+	data: object | string | undefined,
+): Promise<any> {
 	try {
 		const user_id = await Store.get("user_id");
 		const server_url = await Store.get("server_url");
@@ -51,9 +63,17 @@ export async function post(endpoint: string, data: object | string | undefined):
 		const bodyBytes = strToBytes(bodyStr);
 
 		// Import private key and sign
-		const privKeyBytes = Uint8Array.from(atob(privKey_b64), (c) => c.charCodeAt(0));
+		const privKeyBytes = Uint8Array.from(atob(privKey_b64), (c) =>
+			c.charCodeAt(0),
+		);
 
-		const privKey = await crypto.subtle.importKey("pkcs8", privKeyBytes.buffer, { name: "Ed25519" }, false, ["sign"]);
+		const privKey = await crypto.subtle.importKey(
+			"pkcs8",
+			privKeyBytes.buffer,
+			{ name: "Ed25519" },
+			false,
+			["sign"],
+		);
 
 		const signature = await crypto.subtle.sign("Ed25519", privKey, bodyBytes);
 		const signature_b64 = bufToBase64(signature);

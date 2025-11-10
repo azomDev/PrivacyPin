@@ -1,6 +1,6 @@
 import { expect } from "bun:test";
 
-export const URL = "http://localhost:3000";
+export const URL = "http://127.0.0.1:3000";
 
 // Generate an Ed25519 keypair and register it with the server.
 export async function generateUser(signup_key: string | undefined, should_be_admin: boolean = false): Promise<{ user_id: string; pubKey: Uint8Array; privKey: Uint8Array }> {

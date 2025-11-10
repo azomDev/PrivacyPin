@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<script type="module" src="/src/signup.ts"></script>
+		<link rel="stylesheet" href="/src/signup.css" />
+	</head>
+
+	<body>
+		<div class="card">
+			<div class="header">
+				<div class="icon-circle">
+					<img src="/src/assets/pin.svg" alt="Pin Icon" />
+				</div>
+				<h1>PrivacyPin</h1>
+				<p>Connect with a server to start sharing</p>
+			</div>
+
+			<!-- x-data connects this element to the signupPageState Alpine component, enabling its data (serverAddress and signupKey) and functions (signup and scanQR) to work within it :) -->
+			<!-- TODO: make this a form instead? -->
+			<div class="actions" x-data="signupPageState">
+				<div>
+					<label for="server">Server Address</label>
+					<input id="server" type="url" placeholder="https://your-server.com" x-model="serverAddress" required />
+				</div>
+
+				<div>
+					<label for="key">Signup Key</label>
+					<input id="key" type="password" placeholder="Enter your signup key" x-model="signupKey" required />
+				</div>
+
+				<p class="hint">Scan a QR code to automatically fill both server address and signup key</p>
+				<button type="button" x-bind:disabled="isDoingStuff" class="btn-qr" @click="await scanQR()">
+					<img src="/src/assets/qr.svg" alt="QR Icon" />
+					Scan QR Code
+				</button>
+
+				<button class="btn-primary" x-bind:disabled="isDoingStuff" @click="await signup()"><span x-show="isDoingStuff">Connecting...</span> <span x-show="!isDoingStuff">Connect</span></button>
+			</div>
+		</div>
+	</body>
+</html>

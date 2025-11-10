@@ -1,0 +1,128 @@
+body {
+	font-family: sans-serif;
+	background: #f9fafb;
+	margin: 0;
+	display: flex;
+	justify-content: center;
+}
+
+.app {
+	width: 100%;
+	background: #f9fafb;
+}
+
+header {
+	background: #fff;
+	border-bottom: 1px solid #e5e7eb;
+	padding: 0.75rem 1rem;
+	display: flex;
+	justify-content: space-between;
+}
+
+header h1 {
+	font-size: 1rem;
+	margin: 0;
+	display: flex;
+	align-items: center;
+}
+
+header .icon-btn {
+	border: none;
+	background: none;
+	cursor: pointer;
+	padding: 0.4rem;
+}
+
+.status {
+	background: #fff;
+	border-bottom: 1px solid #f3f4f6;
+	padding: 0.75rem 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 0.9rem;
+}
+
+.content {
+	flex: 1;
+	overflow-y: auto;
+	padding: 1rem;
+}
+
+.friends-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.friend-card {
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	padding: 1rem;
+	margin-bottom: 0.75rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.friend-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.1rem;
+}
+
+.friend-actions .view-btn {
+	cursor: pointer;
+	border-radius: 6px;
+	border: 1px solid #d1d5db;
+	background: #fff;
+	padding: 0.3rem 0.5rem;
+	font-size: 0.8rem;
+}
+
+.friend-actions .view-btn:hover {
+	background: #f3f4f6;
+}
+
+.menu-icon {
+	width: 16px;
+	height: 16px;
+	margin: 0;
+}
+
+.friend-actions {
+	cursor: pointer;
+	font-size: 1.2rem;
+	color: #6b7280;
+	padding: 0 0.3rem;
+	user-select: none;
+}
+
+.friend-actions {
+	color: #111827;
+}
+
+.empty-state {
+	text-align: center;
+	padding: 3rem 1rem;
+	color: #6b7280;
+}
+
+.empty-state button {
+	margin-top: 0.75rem;
+	padding: 0.5rem 1rem;
+	border: none;
+	border-radius: 6px;
+	background: #3b82f6;
+	color: white;
+	cursor: pointer;
+}
+
+.friend-actions button img {
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+	margin-right: 4px;
+}

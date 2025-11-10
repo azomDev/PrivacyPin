@@ -12,9 +12,9 @@ use base64::{Engine, prelude::BASE64_STANDARD};
 use ed25519_dalek::Signature;
 use nanoid::nanoid;
 use serde::Deserialize;
-use tokio::sync::Mutex;
-
 use std::collections::HashSet;
+use tokio::sync::Mutex;
+use tower_http::cors::{Any, CorsLayer};
 
 mod handlers;
 mod types;
@@ -24,9 +24,6 @@ use types::*;
 
 #[tokio::main]
 async fn main() {
-	// initialize tracing
-	// tracing_subscriber::fmt::init();
-
 	// TODO: should this be inside an Arc?
 	let state = AppState {
 		users: Arc::new(Mutex::new(Vec::new())),
@@ -41,6 +38,7 @@ async fn main() {
 	// Until we have disk saves, always generate a admin signup key since there will be no admin set at launch
 	let admin_signup_key = nanoid!(5);
 	println!("Admin signup key: {admin_signup_key}");
+	println!("http://127.0.0.1:3000");
 	state.signup_keys.lock().await.insert(admin_signup_key);
 
 	// build our application with a route
@@ -57,9 +55,9 @@ async fn main() {
 		.route("/send-pings", post(send_pings))
 		.route("/get-pings", post(get_pings))
 		.with_state(state.clone())
+		.layer(CorsLayer::permissive())
 		.layer(axum::middleware::from_fn_with_state(state, auth_test));
 
-	// run our app with hyper, listening globally on port 3000
 	let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 	axum::serve(listener, app).await.unwrap();
 }
@@ -74,16 +72,6 @@ async fn auth_test(State(state): State<AppState>, req: Request, next: Next) -> i
 		let mut req = Request::from_parts(parts, new_body);
 		// CURSED STUFF END
 
-		// let auth_header = match req.headers().get("x-auth").and_then(|v| v.to_str().ok()) {
-		// Some(h) => h,
-		// None => todo!("header issues"),
-		// };
-		// println!("Headers before from_str: {auth_header}");
-
-		// let auth_data: Auth = match serde_json::from_str(&auth_header) {
-		// Ok(v) => v,
-		// Err(_) => todo!("parsing json issues"),
-		// };
 		let auth_header = req
 			.headers()
 			.get("x-auth")
@@ -120,7 +108,6 @@ async fn auth_test(State(state): State<AppState>, req: Request, next: Next) -> i
 		if let Err(err) = verifying_key.verify_strict(&body_bytes, &signature) {
 			panic!("Signature verification failed: {err}");
 		}
-		// println!("Signature verified!");
 
 		////////////////////////////////////
 		////////////////////////////////////
@@ -142,9 +129,8 @@ async fn auth_test(State(state): State<AppState>, req: Request, next: Next) -> i
 	return next.run(req).await;
 }
 
-// For now, only user_id for identification
 #[derive(Debug, Deserialize, Clone)]
 struct Auth {
 	user_id: String,
-	signature: String, // base 64
+	signature: String,
 }

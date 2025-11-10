@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<script type="module" src="./home.ts"></script>
+		<link rel="stylesheet" href="./home.css" />
+	</head>
+
+	<body>
+		<div class="app" x-data="homePageState">
+			<!-- Header -->
+			<header>
+				<h1>PrivacyPin</h1>
+				<div>
+					<!-- somehow the "+" emoji does not display in the code for me, but it's temporary anyways -->
+					<button class="icon-btn" @click="addFriend()">➕</button>
+					<button class="icon-btn" @click="openSettings()">⚙️</button>
+				</div>
+			</header>
+
+			<!-- Status -->
+			<div class="status">
+				<span>Last ping sent:</span>
+				<!-- later, figure out how to update this cleanly when we will have the actual data -->
+				<span x-text="timeAgo()"></span>
+			</div>
+
+			<!-- Friends -->
+			<div class="content">
+				<div class="friends-header">
+					<h2 style="font-size: 1rem; margin: 0">Friends</h2>
+					<span style="color: #6b7280; font-size: 0.9rem">(<span x-text="friends.length"></span>)</span>
+				</div>
+
+				<template x-if="friends.length > 0">
+					<div>
+						<template x-for="friend in friends" :key="friend.id">
+							<div class="friend-card">
+								<strong x-text="friend.name"></strong>
+								<div class="friend-actions">
+									<button class="view-btn" @click="viewLocation(friend.id)"><img src="/src/assets/pin.svg" alt="Pin Icon" />View</button>
+									<span class="menu-icon" @click="friendOptions(friend.id)"></span>
+									<img class="menu-icon" src="/src/assets/three-dots.svg" alt="Pin Icon" />
+								</div>
+							</div>
+						</template>
+					</div>
+				</template>
+
+				<template x-if="friends.length === 0">
+					<div class="empty-state">
+						<div style="font-size: 2rem">👥</div>
+						<h3>No friends yet</h3>
+						<p>Add friends to start sharing locations</p>
+						<button @click="addFriend()">Add Friend</button>
+					</div>
+				</template>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,11 +1,8 @@
 import { expect } from "bun:test";
 
-export const URL = "http://localhost:3000";
+export const URL = "http://127.0.0.1:3000";
 
-export async function generateUser(
-	signup_key: string | undefined,
-	should_be_admin: boolean = false,
-): Promise<string> {
+export async function generateUser(signup_key: string | undefined, should_be_admin: boolean = false): Promise<string> {
 	if (signup_key === undefined) {
 		throw new Error("signup_key was not provided or captured from server output");
 	}
@@ -24,11 +21,7 @@ export async function generateUser(
 	return json.user_id;
 }
 
-export async function post(
-	endpoint: string,
-	user_id: string,
-	data: Object | string | undefined,
-): Promise<any> {
+export async function post(endpoint: string, user_id: string, data: Object | string | undefined): Promise<any> {
 	const headers: Record<string, string> = {
 		"x-auth": JSON.stringify({ user_id }),
 	};

@@ -9,12 +9,10 @@ body {
 }
 
 .card {
-	width: 100%;
-	max-width: 360px;
+	max-width: 90%;
 	background: white;
 	border: 1px solid #d1d5db;
 	border-radius: 8px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 	padding: 1.5rem;
 	box-sizing: border-box;
 }
@@ -42,8 +40,6 @@ body {
 
 h1 {
 	font-size: 1.5rem;
-	margin: 0;
-	font-weight: 700;
 }
 
 p {
@@ -76,7 +72,6 @@ input {
 input:focus {
 	outline: none;
 	border-color: #2563eb;
-	box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 button {
@@ -85,11 +80,10 @@ button {
 	font-size: 0.95rem;
 	border-radius: 4px;
 	cursor: pointer;
-	transition: background 0.2s ease;
+	/*transition: background 0.2s ease;*/
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 0.5rem;
 }
 
 .btn-primary {
@@ -104,8 +98,8 @@ button {
 
 .btn-qr {
 	background: white;
+	gap: 0.5rem;
 	border: 1px solid #d1d5db;
-	color: #374151;
 }
 
 .btn-qr:hover {
@@ -119,6 +113,4 @@ button {
 
 .hint {
 	font-size: 0.75rem;
-	color: #6b7280;
-	margin-top: 0.25rem;
 }
